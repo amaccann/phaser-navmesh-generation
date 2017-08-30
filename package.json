@@ -1,0 +1,23 @@
+{
+  "name": "phaser-navmesh-generation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:amaccann/phaser-navmesh-generation.git",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "expose-loader": "^0.7.3",
+    "webpack": "^3.5.5",
+    "webpack-dev-server": "^2.7.1"
+  },
+  "dependencies": {
+    "phaser-ce": "^2.8.4"
+  }
+}
