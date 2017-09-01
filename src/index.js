@@ -23,11 +23,10 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() {
-  this.game.load.image('study', 'assets/img/study.png');
+  game.load.image('study', 'assets/img/study.png');
 }
 
 function create() {
-  const { game } = this;
   const { centerX, centerY } = game.world;
   const objects = [
     game.add.text(centerX, centerY * 0.8, `Welcome to Phaser ${version}`, style),

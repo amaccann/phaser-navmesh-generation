@@ -1,3 +1,5 @@
 dist/
+public/*.bundle.js
+public/*.map
 .idea/
 node_modules/*

@@ -2,13 +2,14 @@ const webpack = require('webpack');
 const path = require('path');
 
 const APP_DIR = path.resolve(__dirname, 'src');
-const BUILD_DIR = path.resolve(__dirname, 'dist');
+const BUILD_DIR = path.resolve(__dirname, 'public');
 const PHASER_DIR = path.join(__dirname, '/node_modules/phaser-ce');
 const NODE_ENV = process.env.NODE_ENV;
 
 module.exports = {
   entry: {
-    app: `${APP_DIR}/index.js`
+    app: `${APP_DIR}/index.js`,
+    demo: `${APP_DIR}/demo/index.js`
   },
   output: {
     filename: '[name].bundle.js',
