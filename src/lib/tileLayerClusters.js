@@ -1,22 +1,10 @@
-import { Color, Line, Point, Polygon } from 'phaser-ce';
+import { Point } from 'phaser-ce';
 import MarchingSquares from './marchingSquares';
 import Cluster from './cluster';
+import Debug from './debug';
 
 const timerName = 'Finding clusters with Marching Squares:';
 let graphics;
-
-/**
- * @function checkIfCollinear
- * @description Are the 2 lines collinear? lineDeltaY / lineDeltaX = segmentDeltaY / segmentDeltaX
- * @param {Line} line1
- * @param {Line} line2
- */
-function checkIfCollinear(line1, line2) {
-  const delta1 = Point.subtract(line1.end, line1.start);
-  const delta2 = Point.subtract(line2.end, line2.start);
-
-  return (delta1.x * delta2.y) - (delta1.y * delta2.x) === 0;
-}
 
 export default class TileLayerClusters extends MarchingSquares {
   constructor(game, tileLayer, options = {}) {
@@ -24,7 +12,6 @@ export default class TileLayerClusters extends MarchingSquares {
     super(data, options.collisionIndices);
 
     this.game = game;
-    this.debug = options.debug;
     this.tileLayer = tileLayer;
 
     this.generate();
@@ -43,7 +30,7 @@ export default class TileLayerClusters extends MarchingSquares {
     });
 
     console.warn('Clusters generated', this.clusters);
-    if (this.debug.marchingSquares) {
+    if (Debug.settings.marchingSquares) {
       this.renderDebug();
     }
     console.timeEnd(timerName);

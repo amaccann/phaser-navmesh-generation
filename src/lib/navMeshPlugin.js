@@ -1,13 +1,7 @@
-import { Plugin } from 'phaser-ce';
+import { Plugin, Tilemap, TilemapLayer } from 'phaser-ce';
 import NavMesh from './navMesh';
 
 const defaultOptions = {
-  debug: {
-    marchingSquares: true,
-    navMesh: true,
-    navMeshNodes: false,
-    aStar: true
-  },
   collisionIndices: []
 };
 
@@ -16,7 +10,20 @@ export default class NavMeshPlugin extends Plugin {
     super(game, manager);
   }
 
+  /**
+   * @method buildFromTileLayer
+   * @param {Tilemap} tileMap
+   * @param {TilemapLayer} tileLayer
+   * @param {Object} options
+   */
   buildFromTileLayer(tileMap, tileLayer, options = {}) {
-    return new NavMesh(this.game, tileMap, tileLayer, Object.assign({}, defaultOptions, options));
+    const opts = Object.assign({}, defaultOptions, options);
+    if (this.navMesh) {
+      this.navMesh.generate(opts);
+    } else {
+      this.navMesh = new NavMesh(this.game, tileMap, tileLayer, opts);
+    }
+
+    return this.navMesh;
   }
 }

@@ -10,12 +10,19 @@ import MarchingSquares from './marchingSquares';
 */
 
 import { Point, Polygon } from 'phaser-ce';
+import Delaunator from 'delaunator';
 
+import AStar from './aStar';
+import Debug from './debug';
 import TileLayerClusters from './tileLayerClusters';
+import NavMeshPolygon from './navMeshPolygon';
+import { areLinesEqual, offsetFunnelPath, sortLine } from './utils';
 
 const SUB_DIVISION_DEFAULT = 4;
 const diameter = 10;
 const font = 'carrier_command';
+let MESH_GRAPHICS;
+let NODES_GRAPHICS;
 let PATH_GRAPHICS;
 
 /**
@@ -32,31 +39,23 @@ export default class NavMesh {
 
     this.points = [];
     this.polygons = [];
-    this.debug = options.debug;
-    this.subDivisions = options.subDivisions || SUB_DIVISION_DEFAULT;
-    this.collisionIndices = options.collisionIndices || [];
 
-    const tileLayerClusters = new TileLayerClusters(game, tileLayer, {
-      debug: this.debug,
-      collisionIndices: this.collisionIndices
-    });
+    this.generate(options);
+  }
 
-/*
-    this.extractAllPointsFromHulls();
-    this.generateDelaunayTriangulation();
-    this.generatePolygonEdges();
-*/
+  /**
+   * @method addToPoints
+   * @param {Phaser.Point} point
+   */
+  addToPoints(point) {
+    const { points, tileMap } = this;
+    const { tileWidth, tileHeight } = tileMap;
+    const { x, y } = point;
 
-    /*
-        if (debug.navMesh.navMesh) {
-          this.renderHulls();
-          this.renderMesh();
-        }
-
-        if (debug.navMesh.navMeshNodes) {
-          this.renderNodes();
-        }
-    */
+    const exists = points.find(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
+    if (!exists) {
+      points.push([ x * tileWidth, y * tileHeight ]);
+    }
   }
 
   /**
@@ -65,6 +64,30 @@ export default class NavMesh {
   destroy() {
     // @TODO - Destroy when unloading states etc.
     //this.polygons.forEach((polygon: NavMeshPolygon) => polygon.destroy());
+    // MESH_GRAPHICS.destroy();
+  }
+
+  /**
+   * @method generate
+   * @param {Object} options
+   */
+  generate(options) {
+    this.setOptions(options);
+
+    const { collisionIndices, game, tileLayer } = this;
+    this.tileLayerClusters = new TileLayerClusters(game, tileLayer, { collisionIndices });
+
+    this.extractAllPointsFromClusters();
+    this.generateDelaunayTriangulation();
+    this.generatePolygonEdges();
+
+    if (Debug.settings.navMesh) {
+      this.renderMesh();
+    }
+
+    // if (debug.navMeshNodes) {
+    //   this.renderNodes();
+    // }
   }
 
   /**
@@ -76,9 +99,9 @@ export default class NavMesh {
     const path = aStarPath.path;
     const offsetPath = offsetFunnelPath(path, offset);
 
-// if (debug.navMesh.aStar) {
-//   this.renderFinalOffsetPath(offsetPath);
-// }
+    if (Debug.settings.aStar) {
+      this.renderFinalOffsetPath(offsetPath);
+    }
 
     return offsetPath;
   }
@@ -94,8 +117,11 @@ export default class NavMesh {
    * @method extractAllPointsFromHulls
    * @TODO - Update this to use Marching Squares instead of 3rd party plugin
    */
-  extractAllPointsFromHulls() {
-    const { points, subDivisions, tileLayer } = this;
+  extractAllPointsFromClusters() {
+    console.group('extractAllPointsFromClusters');
+    const { subDivisions, tileMap, tileLayerClusters } = this;
+    const { tileWidth, tileHeight } = tileMap;
+    const { clusters } = tileLayerClusters;
     const { widthInPixels, heightInPixels } = this.tileMap;
     const subWidth = Math.floor(widthInPixels / subDivisions);
     const subHeight = Math.floor(heightInPixels / subDivisions);
@@ -103,35 +129,39 @@ export default class NavMesh {
     let width;
     let height;
 
-    points.push([0, 0]);
-    points.push([widthInPixels, 0]);
-    points.push([0, heightInPixels]);
-    points.push([widthInPixels, heightInPixels]);
+    this.points = [];
+    this.points.push([0, 0]);
+    this.points.push([widthInPixels, 0]);
+    this.points.push([0, heightInPixels]);
+    this.points.push([widthInPixels, heightInPixels]);
 
     for (x; x < subDivisions; x++) {
       width = subWidth * x;
       height = subHeight * x;
 
-      points.push([ width, 0 ]);
-      points.push([ width, heightInPixels ]);
-      points.push([ 0, height ]);
-      points.push([ widthInPixels, height ]);
+      this.points.push([ width, 0 ]);
+      this.points.push([ width, heightInPixels ]);
+      this.points.push([ 0, height ]);
+      this.points.push([ widthInPixels, height ]);
     }
 
-    this.hulls = phaserTiledHull(tileLayer, { tileIndices: collisionIndices });
-    this.hulls.forEach((hullShape) => {
-      hullShape.forEach((lineData) => {
-        const { line } = lineData;
-        this.points.push([ line.start.x, line.start.y ]);
-        this.points.push([ line.end.x, line.end.y ]);
+    clusters.forEach(cluster => {
+      cluster.edges.forEach(line => {
+        this.addToPoints(line.start);
+        this.addToPoints(line.end);
+        // this.points.push([ line.start.x * tileWidth, line.start.y * tileHeight ]);
+        // this.points.push([ line.end.x * tileWidth, line.end.y * tileHeight ]);
       }, this);
     }, this);
+    console.log('points', this.points);
+    console.groupEnd();
   }
 
   /**
    * @method generateDelaunayTriangulation
    */
   generateDelaunayTriangulation() {
+    console.group('generateDelaunayTriangulation');
     const { game, points } = this;
     const delaunator = new Delaunator(points);
     const { triangles } = delaunator;
@@ -139,6 +169,8 @@ export default class NavMesh {
     const result = [];
     let i = 0;
     let polygon;
+
+    this.polygons = [];
 
     // @TODO - Check if any of these triangles overlap an existing tile
     for (i; i < length; i += 3) {
@@ -154,6 +186,9 @@ export default class NavMesh {
         this.polygons.push(polygon);
       }
     }
+    console.log('delaunay', delaunator);
+    console.log('polygons', polygon);
+    console.groupEnd();
   }
 
   /**
@@ -204,7 +239,7 @@ export default class NavMesh {
    * @method isCentroidOverValidTile
    */
   isCentroidOverValidTile(centroid) {
-    const { tileMap, tileLayer } = this;
+    const { collisionIndices, tileMap, tileLayer } = this;
     const { tileWidth, tileHeight } = tileMap;
 
     const tileX = ~~(centroid.x / tileWidth);
@@ -216,45 +251,22 @@ export default class NavMesh {
   }
 
   /**
-   * @method drawHulls
-   */
-  renderHulls() {
-    const { hulls, game } = this;
-    const overlay = game.add.graphics(0, 0);
-
-    for (const poly of hulls) {
-      const polyColor = Color.HSLtoRGB(Math.random(), 1, 0.5).color;
-
-      for (const edge of poly) {
-        // Draw the edge
-        overlay.lineStyle(5, polyColor, 1);
-        overlay.moveTo(edge.line.start.x, edge.line.start.y);
-        overlay.lineTo(edge.line.end.x, edge.line.end.y);
-
-        // Draw the normal at the midpoint of the edge
-        const normalStart = edge.midpoint;
-        const normalEnd = Point.add(normalStart, edge.normal.setMagnitude(20));
-
-        overlay.lineStyle(1, polyColor, 1);
-        overlay.moveTo(normalStart.x, normalStart.y);
-        overlay.lineTo(normalEnd.x, normalEnd.y);
-      }
-    }
-  }
-
-  /**
    * @method renderMesh
+   * @description Debug render the Delaunay generated Triangles
    */
   renderMesh() {
     const { game, polygons } = this;
-    const graphics = game.add.graphics(0, 0);
+    if (MESH_GRAPHICS) {
+      MESH_GRAPHICS.clear();
+    } else {
+      MESH_GRAPHICS = game.add.graphics(0, 0);
+    }
 
-    // @TEMP render, to review the generated triangles
-    graphics.alpha = 0.3;
-    graphics.beginFill(0xff33ff);
-    graphics.lineStyle(1, 0xffd900, 1);
-    polygons.forEach((poly) => graphics.drawPolygon(poly.points));
-    graphics.endFill();
+    MESH_GRAPHICS.alpha = 0.3;
+    MESH_GRAPHICS.beginFill(0xff33ff);
+    MESH_GRAPHICS.lineStyle(1, 0xffd900, 1);
+    polygons.forEach(poly => MESH_GRAPHICS.drawPolygon(poly.points));
+    MESH_GRAPHICS.endFill();
   }
 
   /**
@@ -262,18 +274,22 @@ export default class NavMesh {
    */
   renderNodes() {
     const { game, polygons } = this;
-    const graphics = game.add.graphics(0, 0);
+    if (!MESH_GRAPHICS) {
+      NODES_GRAPHICS = game.add.graphics(0, 0);
+    } else {
+      NODES_GRAPHICS.clear();
+    }
 
-    graphics.lineStyle(5, 0x0000ff, 0.5);
+    NODES_GRAPHICS.lineStyle(5, 0x0000ff, 0.5);
     polygons.forEach((poly) => {
       poly.neighbors.forEach((neighbour) => {
-        graphics.moveTo(poly.centroid.x, poly.centroid.y);
-        graphics.lineTo(neighbour.centroid.x, neighbour.centroid.y);
+        NODES_GRAPHICS.moveTo(poly.centroid.x, poly.centroid.y);
+        NODES_GRAPHICS.lineTo(neighbour.centroid.x, neighbour.centroid.y);
       });
 
-      graphics.beginFill(0xffffff);
-      graphics.drawCircle(poly.centroid.x, poly.centroid.y, diameter);
-      graphics.endFill();
+      NODES_GRAPHICS.beginFill(0xffffff);
+      NODES_GRAPHICS.drawCircle(poly.centroid.x, poly.centroid.y, diameter);
+      NODES_GRAPHICS.endFill();
     });
   }
 
@@ -295,5 +311,15 @@ export default class NavMesh {
     PATH_GRAPHICS.lineStyle(4, 0x0000ff, 1);
     otherPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
     PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
+  }
+
+  /**
+   * @method setOptions
+   * @param {Object} options
+   */
+  setOptions(options) {
+    Debug.set(options.debug);
+    this.subDivisions = options.subDivisions || SUB_DIVISION_DEFAULT;
+    this.collisionIndices = options.collisionIndices || [];
   }
 }
