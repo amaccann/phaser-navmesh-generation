@@ -11,6 +11,7 @@ import MarchingSquares from './marchingSquares';
 
 import { Point, Polygon } from 'phaser-ce';
 import Delaunator from 'delaunator';
+import Delaunay from 'faster-delaunay';
 
 import AStar from './aStar';
 import Debug from './debug';
@@ -23,7 +24,6 @@ const diameter = 10;
 const font = 'carrier_command';
 let MESH_GRAPHICS;
 let NODES_GRAPHICS;
-let PATH_GRAPHICS;
 
 /**
  * @class NavMesh
@@ -44,10 +44,10 @@ export default class NavMesh {
   }
 
   /**
-   * @method addToPoints
+   * @method addToDelaunayPoints
    * @param {Phaser.Point} point
    */
-  addToPoints(point) {
+  addToDelaunayPoints(point) {
     const { points, tileMap } = this;
     const { tileWidth, tileHeight } = tileMap;
     const { x, y } = point;
@@ -85,9 +85,9 @@ export default class NavMesh {
       this.renderMesh();
     }
 
-    // if (debug.navMeshNodes) {
-    //   this.renderNodes();
-    // }
+    if (Debug.settings.navMeshNodes) {
+      this.renderNodes();
+    }
   }
 
   /**
@@ -99,11 +99,7 @@ export default class NavMesh {
     const path = aStarPath.path;
     const offsetPath = offsetFunnelPath(path, offset);
 
-    if (Debug.settings.aStar) {
-      this.renderFinalOffsetPath(offsetPath);
-    }
-
-    return offsetPath;
+    return { path, offsetPath };
   }
 
   /**
@@ -119,8 +115,7 @@ export default class NavMesh {
    */
   extractAllPointsFromClusters() {
     console.group('extractAllPointsFromClusters');
-    const { subDivisions, tileMap, tileLayerClusters } = this;
-    const { tileWidth, tileHeight } = tileMap;
+    const { subDivisions, tileLayerClusters } = this;
     const { clusters } = tileLayerClusters;
     const { widthInPixels, heightInPixels } = this.tileMap;
     const subWidth = Math.floor(widthInPixels / subDivisions);
@@ -147,10 +142,8 @@ export default class NavMesh {
 
     clusters.forEach(cluster => {
       cluster.edges.forEach(line => {
-        this.addToPoints(line.start);
-        this.addToPoints(line.end);
-        // this.points.push([ line.start.x * tileWidth, line.start.y * tileHeight ]);
-        // this.points.push([ line.end.x * tileWidth, line.end.y * tileHeight ]);
+        this.addToDelaunayPoints(line.start);
+        this.addToDelaunayPoints(line.end);
       }, this);
     }, this);
     console.log('points', this.points);
@@ -163,8 +156,10 @@ export default class NavMesh {
   generateDelaunayTriangulation() {
     console.group('generateDelaunayTriangulation');
     const { game, points } = this;
+    const delaunay = new Delaunay(points);
     const delaunator = new Delaunator(points);
     const { triangles } = delaunator;
+
     const length = delaunator.triangles.length;
     const result = [];
     let i = 0;
@@ -187,7 +182,7 @@ export default class NavMesh {
       }
     }
     console.log('delaunay', delaunator);
-    console.log('polygons', polygon);
+    console.log('polygons', this.polygons);
     console.groupEnd();
   }
 
@@ -274,7 +269,7 @@ export default class NavMesh {
    */
   renderNodes() {
     const { game, polygons } = this;
-    if (!MESH_GRAPHICS) {
+    if (!NODES_GRAPHICS) {
       NODES_GRAPHICS = game.add.graphics(0, 0);
     } else {
       NODES_GRAPHICS.clear();
@@ -291,26 +286,6 @@ export default class NavMesh {
       NODES_GRAPHICS.drawCircle(poly.centroid.x, poly.centroid.y, diameter);
       NODES_GRAPHICS.endFill();
     });
-  }
-
-  /**
-   * @method renderFinalOffsetPath
-   */
-  renderFinalOffsetPath(path = []) {
-    if (!path.length) {
-      return;
-    }
-
-    if (!PATH_GRAPHICS) {
-      PATH_GRAPHICS = this.game.add.graphics(0, 0);
-    } else {
-      PATH_GRAPHICS.clear();
-    }
-    const [start, ...otherPoints] = path;
-    PATH_GRAPHICS.moveTo(start.x, start.y);
-    PATH_GRAPHICS.lineStyle(4, 0x0000ff, 1);
-    otherPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
-    PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
   }
 
   /**

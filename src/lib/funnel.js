@@ -1,9 +1,5 @@
 import Portal from './portal';
-import Debug from './debug';
 import { triarea2 } from './utils';
-
-let DEBUG_GRAPHICS;
-const DEBUG_COLOUR_GREEN = 0x33ff33;
 
 export default class Funnel {
 
@@ -15,10 +11,6 @@ export default class Funnel {
     this.game = game;
     this.path = [];
     this.portals = [];
-    console.log('Debug', Debug);
-    if (Debug.settings.aStar && !DEBUG_GRAPHICS) {
-      DEBUG_GRAPHICS = game.add.graphics(0, 0);
-    }
   }
 
   /**
@@ -101,24 +93,5 @@ export default class Funnel {
     if (!path.length || (!path[path.length - 1].equals(portals[portalsLength - 1].left))) {
       path.push(portals[portals.length - 1].left);
     }
-
-    if (Debug.settings.aStar) {
-      this.renderDebug();
-    }
-  }
-
-  /**
-   * @method renderDebug
-   */
-  renderDebug() {
-    const { path } = this;
-    const start = path[0];
-    const otherPoints = path.slice(1);
-
-    DEBUG_GRAPHICS.clear();
-    DEBUG_GRAPHICS.moveTo(start.x, start.y);
-    DEBUG_GRAPHICS.lineStyle(4, DEBUG_COLOUR_GREEN, 1);
-    otherPoints.forEach(point => DEBUG_GRAPHICS.lineTo(point.x, point.y));
-    DEBUG_GRAPHICS.lineStyle(0, 0xffffff, 1);
   }
 }

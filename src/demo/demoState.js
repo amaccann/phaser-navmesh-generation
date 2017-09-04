@@ -2,10 +2,12 @@ import { Math as PhaserMath, Point, State } from 'phaser-ce';
 import NavMeshPlugin from '../lib/navMeshPlugin';
 import AdvancedTiming from 'phaser-plugin-advanced-timing';
 
+const SCROLL_CAMERA_BY = 10;
 const COLLISION_INDICES = [0, 1, 2];
 const WIDTH_TILES = 40;
 const HEIGHT_TILES = 30;
 const TILE_SIZE = 32;
+let PATH_GRAPHICS;
 let timeout;
 
 export default class DemoState extends State {
@@ -31,12 +33,15 @@ export default class DemoState extends State {
    */
   create() {
     const { game } = this;
+    let sprite;
 
     game.stage.backgroundColor = '#2d2d2d';
 
     this.sprites = [];
     for (const i of [1, 2, 3]) {
-      this.sprites.push(game.add.sprite(game.world.randomX, game.world.randomY, 'agent'));
+      sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'agent');
+      sprite.anchor.setTo(0.5, 0.5);
+      this.sprites.push(sprite);
     }
 
     // Create blank tilemap
@@ -51,7 +56,6 @@ export default class DemoState extends State {
     game.canvas.oncontextmenu = this.onRightClick;
 
     this.cursors = game.input.keyboard.createCursorKeys();
-
   }
 
   /**
@@ -69,6 +73,7 @@ export default class DemoState extends State {
     const { navMesh, sprites } = this;
     const isRightButton = pointer.rightButton.isDown;
     const { withinGame, worldX, worldY } = pointer;
+    const paths = [];
 
     if (!withinGame || !isRightButton || !navMesh) {
       return;
@@ -80,18 +85,10 @@ export default class DemoState extends State {
       const size = Math.max(width, height);
       const path = navMesh.getPath(position, destination, size);
       console.log('path', path);
+      paths.push(path);
     });
-  }
 
-  /**
-   * @method pickTile
-   * @param {Phaser.Sprite} sprite
-   * @param {Phaser.Pointer} pointer
-   */
-  pickTile(sprite, pointer) {
-    const { game } = this;
-    this.currentTile = game.math.snapToFloor(pointer.x, 32) / 32;
-    console.warn('new tile index', this.currentTile);
+    this.renderPaths(paths);
   }
 
   /**
@@ -108,23 +105,52 @@ export default class DemoState extends State {
   }
 
   /**
+   * @method renderPaths
+   */
+  renderPaths(paths = []) {
+    const DEBUG_COLOUR_ORANGE = 0xffa500;
+    const { game } = this;
+    if (!PATH_GRAPHICS) {
+      PATH_GRAPHICS = game.add.graphics(0, 0);
+    } else {
+      PATH_GRAPHICS.clear();
+    }
+
+    paths.forEach(p => {
+      const { path, offsetPath } = p;
+      const [pathStart, ...otherPathPoints] = path;
+      const [offsetStart, ...otherOffsetPoints] = offsetPath;
+
+      // PATH_GRAPHICS.moveTo(pathStart.x, pathStart.y);
+      // PATH_GRAPHICS.lineStyle(4, 0x00ff00, 1);
+      // otherPathPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
+      // PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
+
+      PATH_GRAPHICS.moveTo(offsetStart.x, offsetStart.y);
+      PATH_GRAPHICS.lineStyle(4, 0x33ff33, 1);
+      otherOffsetPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
+      PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
+    });
+  }
+
+  /**
    * @method update
    */
   update() {
     const { cursors, game } = this;
+    const camera = game.camera;
 
     if (cursors.left.isDown) {
-      game.camera.x -= 4;
+      camera.x -= SCROLL_CAMERA_BY;
     } else if (cursors.right.isDown) {
-      game.camera.x += 4;
+      camera.x += SCROLL_CAMERA_BY;
     }
 
     if (cursors.up.isDown) {
-      game.camera.y -= 4;
+      camera.y -= SCROLL_CAMERA_BY;
     } else if (cursors.down.isDown) {
-      game.camera.y += 4;
+      camera.y += SCROLL_CAMERA_BY;
     }
-
   }
 
   /**

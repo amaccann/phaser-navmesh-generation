@@ -1,7 +1,7 @@
 const defaultOptions = {
   marchingSquares: false,
   navMesh: true,
-  navMeshNodes: false,
+  navMeshNodes: true,
   aStar: true
 };
 
