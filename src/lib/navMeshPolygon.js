@@ -87,13 +87,4 @@ export default class NavMeshPolygon extends Polygon {
     }
     this.boundsRadius = d;
   }
-
-  /**
-   * @method isOtherPolygonInRadius
-   * @param {NavMeshPolygon} polygon
-   */
-  isOtherPolygonInRadius(polygon) {
-    const distance = this.centroid.distance(polygon.centroid);
-    return distance <= this.boundsRadius + polygon.boundsRadius;
-  }
 }

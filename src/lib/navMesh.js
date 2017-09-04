@@ -17,13 +17,14 @@ import AStar from './aStar';
 import Debug from './debug';
 import TileLayerClusters from './tileLayerClusters';
 import NavMeshPolygon from './navMeshPolygon';
-import { areLinesEqual, offsetFunnelPath, sortLine } from './utils';
+import { areLinesEqual, getRandomColour, offsetFunnelPath, sortLine } from './utils';
 
 const SUB_DIVISION_DEFAULT = 4;
 const diameter = 10;
 const font = 'carrier_command';
 let MESH_GRAPHICS;
 let NODES_GRAPHICS;
+let BOUNDS_GRAPHICS;
 
 /**
  * @class NavMesh
@@ -88,6 +89,10 @@ export default class NavMesh {
     if (Debug.settings.navMeshNodes) {
       this.renderNodes();
     }
+
+    if (Debug.settings.renderBoundingRadii) {
+      this.renderBoundingRadii();
+    }
   }
 
   /**
@@ -114,7 +119,6 @@ export default class NavMesh {
    * @TODO - Update this to use Marching Squares instead of 3rd party plugin
    */
   extractAllPointsFromClusters() {
-    console.group('extractAllPointsFromClusters');
     const { subDivisions, tileLayerClusters } = this;
     const { clusters } = tileLayerClusters;
     const { widthInPixels, heightInPixels } = this.tileMap;
@@ -146,15 +150,12 @@ export default class NavMesh {
         this.addToDelaunayPoints(line.end);
       }, this);
     }, this);
-    console.log('points', this.points);
-    console.groupEnd();
   }
 
   /**
    * @method generateDelaunayTriangulation
    */
   generateDelaunayTriangulation() {
-    console.group('generateDelaunayTriangulation');
     const { game, points } = this;
     const delaunay = new Delaunay(points);
     const delaunator = new Delaunator(points);
@@ -181,9 +182,6 @@ export default class NavMesh {
         this.polygons.push(polygon);
       }
     }
-    console.log('delaunay', delaunator);
-    console.log('polygons', this.polygons);
-    console.groupEnd();
   }
 
   /**
@@ -204,9 +202,6 @@ export default class NavMesh {
 
       for (let j = i + 1; j < polyLength; j++) {
         otherPolygon = polygons[j];
-        if (!polygon.isOtherPolygonInRadius(otherPolygon)) {
-          continue;
-        }
 
         for (const edge of polygon.edges) {
           for (const otherEdge of otherPolygon.edges) {
@@ -259,7 +254,7 @@ export default class NavMesh {
 
     MESH_GRAPHICS.alpha = 0.3;
     MESH_GRAPHICS.beginFill(0xff33ff);
-    MESH_GRAPHICS.lineStyle(1, 0xffd900, 1);
+    MESH_GRAPHICS.lineStyle(1, 0xffffff, 1);
     polygons.forEach(poly => MESH_GRAPHICS.drawPolygon(poly.points));
     MESH_GRAPHICS.endFill();
   }
@@ -275,7 +270,7 @@ export default class NavMesh {
       NODES_GRAPHICS.clear();
     }
 
-    NODES_GRAPHICS.lineStyle(5, 0x0000ff, 0.5);
+    NODES_GRAPHICS.lineStyle(5, 0x00b2ff, 0.5);
     polygons.forEach((poly) => {
       poly.neighbors.forEach((neighbour) => {
         NODES_GRAPHICS.moveTo(poly.centroid.x, poly.centroid.y);
@@ -286,6 +281,25 @@ export default class NavMesh {
       NODES_GRAPHICS.drawCircle(poly.centroid.x, poly.centroid.y, diameter);
       NODES_GRAPHICS.endFill();
     });
+  }
+
+  /**
+   * @method renderBoundingRadii
+   */
+  renderBoundingRadii() {
+    const { centroid, game } = this;
+    if (BOUNDS_GRAPHICS) {
+      BOUNDS_GRAPHICS.clear();
+    } else {
+      BOUNDS_GRAPHICS = game.add.graphics(0, 0);
+    }
+
+
+    this.polygons.forEach(polygon => {
+      BOUNDS_GRAPHICS.lineStyle(2, getRandomColour(), 1);
+      BOUNDS_GRAPHICS.drawCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
+    });
+    BOUNDS_GRAPHICS.lineStyle(0, 0xffffff);
   }
 
   /**

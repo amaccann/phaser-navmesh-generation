@@ -22,11 +22,6 @@ export default class AStar {
   constructor(game, navMesh) {
     this.game = game;
     this.navMesh = navMesh;
-
-    if (Debug.settings.aStar) {
-      DEBUG_GRAPHICS = game.add.graphics(0, 0);
-      game.world.bringToTop(DEBUG_GRAPHICS);
-    }
   }
 
   /**
@@ -126,7 +121,14 @@ export default class AStar {
    * @param {AStarPath} aStarPath
    */
   debugAStar(aStarPath) {
+    const { game } = this;
     const { startPoint, endPoint } = aStarPath;
+    if (DEBUG_GRAPHICS) {
+      DEBUG_GRAPHICS.clear();
+    } else {
+      DEBUG_GRAPHICS = game.add.graphics(0, 0);
+      game.world.bringToTop(DEBUG_GRAPHICS);
+    }
 
     DEBUG_GRAPHICS.clear();
     DEBUG_GRAPHICS.beginFill(DEBUG_COLOUR_ORANGE, 1);

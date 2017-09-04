@@ -1,8 +1,9 @@
 const defaultOptions = {
   marchingSquares: false,
-  navMesh: true,
-  navMeshNodes: true,
-  aStar: true
+  navMesh: false,
+  navMeshNodes: false,
+  polygonBounds: false,
+  aStar: false
 };
 
 class Debug {
@@ -11,7 +12,7 @@ class Debug {
   }
 
   set(options = {}) {
-    this.settings = Object.assign({}, defaultOptions, {});
+    this.settings = Object.assign({}, defaultOptions, options);
     return this.settings;
   }
 }

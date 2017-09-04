@@ -21,7 +21,7 @@ export default class DemoState extends State {
   preload() {
     const { game } = this;
     this.plugin = game.plugins.add(NavMeshPlugin);
-    this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
+    // this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
 
     // Load the demo assets
     game.load.image('ground_1x1', 'assets/tilemaps/tiles/ground_1x1.png');
@@ -98,7 +98,14 @@ export default class DemoState extends State {
     const { tileMap, tileLayer } = this;
 
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
-      collisionIndices: COLLISION_INDICES
+      collisionIndices: COLLISION_INDICES,
+      debug: {
+        marchingSquares: false,
+        navMesh: true,
+        navMeshNodes: true,
+        renderBoundingRadii: false,
+        aStar: true
+      }
     });
 
     timeout = undefined;

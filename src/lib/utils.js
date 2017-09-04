@@ -1,4 +1,4 @@
-import { Line, Point } from 'phaser-ce';
+import { Color, Line, Point } from 'phaser-ce';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
 
@@ -19,6 +19,10 @@ export function getHeuristicCost(poly1, poly2) {
   const d2 = Math.abs(poly2.centroid.y - poly1.centroid.y);
 
   return d1 + d2;
+}
+
+export function getRandomColour() {
+  return Color.HSLtoRGB(Math.random(), 1, 0.5).color;
 }
 
 /**
