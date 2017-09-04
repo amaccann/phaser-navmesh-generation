@@ -8,7 +8,7 @@ const NODE_ENV = process.env.NODE_ENV;
 
 module.exports = {
   entry: {
-    app: `${APP_DIR}/index.js`,
+    plugin: `${APP_DIR}/lib/navMeshPlugin.js`,
     demo: `${APP_DIR}/demo/index.js`
   },
   output: {
