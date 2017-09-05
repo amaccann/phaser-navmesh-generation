@@ -120,13 +120,6 @@ export default class TileLayerClusters extends MarchingSquares {
    */
   renderDebug() {
     const { clusters, game } = this;
-    const { width, height } = this.tileDimensions;
-
-    function drawClusterEdge(edge) {
-      graphics.lineStyle(3, 0x0000ff, 1);
-      graphics.moveTo(edge.start.x * width, edge.start.y * height);
-      graphics.lineTo(edge.end.x * width, edge.end.y * height);
-    }
 
     if (!graphics) {
       graphics = game.add.graphics(0, 0);
@@ -139,7 +132,6 @@ export default class TileLayerClusters extends MarchingSquares {
     function drawCluster(cluster) {
       graphics.beginFill(0xff0000, 0.5);
       graphics.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
-      cluster.edges.forEach(drawClusterEdge);
       graphics.endFill();
 
       if (cluster.clusters.length) {

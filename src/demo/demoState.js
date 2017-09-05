@@ -1,6 +1,7 @@
-import { Math as PhaserMath, Point, State } from 'phaser-ce';
+import { Keyboard, Math as PhaserMath, Point, State } from 'phaser-ce';
 import NavMeshPlugin from '../lib/navMeshPlugin';
 import AdvancedTiming from 'phaser-plugin-advanced-timing';
+import DemoSprite from './demoSprite';
 
 const SCROLL_CAMERA_BY = 10;
 const COLLISION_INDICES = [0, 1, 2];
@@ -33,16 +34,16 @@ export default class DemoState extends State {
    */
   create() {
     const { game } = this;
-    let sprite;
+    const { world } = game;
+    console.log('world', world);
+
+    this.spriteGroup = new Phaser.Group(game);
 
     game.stage.backgroundColor = '#2d2d2d';
 
-    this.sprites = [];
-    for (const i of [1, 2, 3]) {
-      sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'agent');
-      sprite.anchor.setTo(0.5, 0.5);
-      this.sprites.push(sprite);
-    }
+    new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
 
     // Create blank tilemap
     this.tileMap = game.add.tilemap();
@@ -56,6 +57,7 @@ export default class DemoState extends State {
     game.canvas.oncontextmenu = this.onRightClick;
 
     this.cursors = game.input.keyboard.createCursorKeys();
+    game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
   }
 
   /**
@@ -70,7 +72,7 @@ export default class DemoState extends State {
    * @param {Phaser.Pointer} pointer
    */
   onUp(pointer) {
-    const { navMesh, sprites } = this;
+    const { navMesh, spriteGroup } = this;
     const isRightButton = pointer.rightButton.isDown;
     const { withinGame, worldX, worldY } = pointer;
     const paths = [];
@@ -80,13 +82,14 @@ export default class DemoState extends State {
     }
 
     const destination = new Point(worldX, worldY);
-    sprites.forEach(sprite => {
+    spriteGroup.forEachAlive(sprite => {
       const { position, width, height } = sprite;
       const size = Math.max(width, height);
       const path = navMesh.getPath(position, destination, size);
-      console.log('path', path);
+
       paths.push(path);
-    });
+      sprite.addPath(path);
+    }, this);
 
     this.renderPaths(paths);
   }
@@ -128,13 +131,13 @@ export default class DemoState extends State {
       const [pathStart, ...otherPathPoints] = path;
       const [offsetStart, ...otherOffsetPoints] = offsetPath;
 
-      // PATH_GRAPHICS.moveTo(pathStart.x, pathStart.y);
-      // PATH_GRAPHICS.lineStyle(4, 0x00ff00, 1);
-      // otherPathPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
-      // PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
+      PATH_GRAPHICS.moveTo(pathStart.x, pathStart.y);
+      PATH_GRAPHICS.lineStyle(4, 0x6666ff, 1);
+      otherPathPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
+      PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
 
       PATH_GRAPHICS.moveTo(offsetStart.x, offsetStart.y);
-      PATH_GRAPHICS.lineStyle(4, 0x33ff33, 1);
+      PATH_GRAPHICS.lineStyle(2, 0x33ff33, 1);
       otherOffsetPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
       PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
     });
@@ -158,6 +161,8 @@ export default class DemoState extends State {
     } else if (cursors.down.isDown) {
       camera.y += SCROLL_CAMERA_BY;
     }
+
+    this.spriteGroup.update();
   }
 
   /**

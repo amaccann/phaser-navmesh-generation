@@ -55,9 +55,9 @@ export default class NavMesh {
    * @method destroy
    */
   destroy() {
-    // @TODO - Destroy when unloading states etc.
-    //this.polygons.forEach((polygon: NavMeshPolygon) => polygon.destroy());
-    // MESH_GRAPHICS.destroy();
+    MESH_GRAPHICS && MESH_GRAPHICS.destroy();
+    BOUNDS_GRAPHICS && BOUNDS_GRAPHICS.destroy();
+    NODES_GRAPHICS && NODES_GRAPHICS.destroy();
   }
 
   /**
@@ -107,16 +107,18 @@ export default class NavMesh {
   generateDelaunayTriangulation() {
     const edges = this.initPointsForDelaunayTriangulation();
     const { game, points } = this;
-    const delaunay = cdt2d(points, edges, { interior: false });
+    const delaunay = cdt2d(points, edges, { interior: false }) ||  [];
+    const length = delaunay.length;
+    let i = 0;
     let polygon;
+    let triangle;
 
     this.polygons = [];
-    delaunay.forEach(triangle => {
+    for (i; i < length; i++) {
+      triangle = delaunay[i];
       polygon = new NavMeshPolygon(game, ([]).concat(points[triangle[0]], points[triangle[1]], points[triangle[2]]));
-      // if (this.isCentroidOverValidTile(polygon.centroid)) {
-      // }
       this.polygons.push(polygon);
-    });
+    }
   }
 
   /**

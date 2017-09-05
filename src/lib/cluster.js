@@ -54,7 +54,6 @@ export default class Cluster extends MarchingSquares {
         offsetPoint.x = xx;
         offsetPoint.y = yy;
         if (this.isValidTile(xx, yy)) {
-          console.log('startingPoint', offsetPoint);
           return offsetPoint;
         }
       }
