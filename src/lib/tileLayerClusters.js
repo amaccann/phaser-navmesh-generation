@@ -19,6 +19,8 @@ export default class TileLayerClusters extends MarchingSquares {
 
   /**
    * @method generate
+   * @description Recursively search for outline clusters across the grid; if a cluster is found then
+   *              the interior of that Cluster is checked for any 'reverse'
    */
   generate() {
     console.time(timerName);
@@ -26,10 +28,9 @@ export default class TileLayerClusters extends MarchingSquares {
 
     this.clusters = [];
     super.generate((contours, edges) => {
-      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices));
+      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices, true));
     });
 
-    console.warn('Clusters generated', this.clusters);
     if (Debug.settings.marchingSquares) {
       this.renderDebug();
     }
@@ -71,6 +72,18 @@ export default class TileLayerClusters extends MarchingSquares {
   }
 
   /**
+   * @method getWorldXY
+   * @param {Phaser.Point|Object} point
+   */
+  getWorldXY(point) {
+    const { width, height } = this.tileDimensions;
+    return {
+      x: point.x * width,
+      y: point.y * height
+    };
+  }
+
+  /**
    * @method isValidTile
    * @description If the x|y coordinate is already within a cluster polygon, therefore it's already
    *              part of a discovered outline of a chunk, so it's safe to ignore
@@ -109,15 +122,7 @@ export default class TileLayerClusters extends MarchingSquares {
     const { clusters, game } = this;
     const { width, height } = this.tileDimensions;
 
-    function mapPolygonToWorld(point) {
-      return {
-        x: point.x * width,
-        y: point.y * height
-      };
-    }
-
     function drawClusterEdge(edge) {
-      //const lineColour = Color.HSLtoRGB(Math.random(), 1, 0.5).color;
       graphics.lineStyle(3, 0x0000ff, 1);
       graphics.moveTo(edge.start.x * width, edge.start.y * height);
       graphics.lineTo(edge.end.x * width, edge.end.y * height);
@@ -130,20 +135,18 @@ export default class TileLayerClusters extends MarchingSquares {
     }
 
     graphics.lineStyle(0, 0xffffff, 1);
-    clusters.forEach(cluster => {
+
+    function drawCluster(cluster) {
       graphics.beginFill(0xff0000, 0.5);
-      graphics.drawPolygon(cluster.polygon.points.map(mapPolygonToWorld));
+      graphics.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
+      cluster.edges.forEach(drawClusterEdge);
       graphics.endFill();
 
-      cluster.clusters.forEach(c => {
-        graphics.beginFill(0xff00ff, 0.5);
-        graphics.drawPolygon(c.points.map(mapPolygonToWorld));
-        graphics.endFill();
+      if (cluster.clusters.length) {
+        cluster.clusters.forEach(drawCluster, this);
+      }
+    }
 
-        c.edges.forEach(drawClusterEdge)
-      });
-
-      cluster.edges.forEach(drawClusterEdge);
-    });
+    clusters.forEach(drawCluster, this);
   }
 }

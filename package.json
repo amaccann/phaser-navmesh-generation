@@ -19,7 +19,7 @@
     "webpack-dev-server": "^2.7.1"
   },
   "dependencies": {
-    "delaunator": "^1.0.4",
+    "cdt2d": "^1.0.0",
     "phaser-ce": "^2.8.4"
   }
 }

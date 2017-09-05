@@ -100,11 +100,11 @@ export default class DemoState extends State {
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
       debug: {
-        marchingSquares: false,
+        marchingSquares: true,
         navMesh: true,
-        navMeshNodes: true,
+        navMeshNodes: false,
         renderBoundingRadii: false,
-        aStar: true
+        aStar: false
       }
     });
 

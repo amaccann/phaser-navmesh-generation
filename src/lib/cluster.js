@@ -2,19 +2,18 @@ import { Line, Point, Polygon } from 'phaser-ce';
 import { optimiseEdges, triarea2 } from './utils';
 import MarchingSquares from './marchingSquares';
 
-const timerName = 'Find Cluster Holes';
-
 /**
  * @class Cluster
  * @TODO - Maybe look into making this recursive itself; iteratively checking internally for
  *         either 'holes' or 'blobs', depending on what was last checked at invoking level
  */
 export default class Cluster extends MarchingSquares {
-  constructor(contours, edges, grid, collisionIndices) {
+  constructor(contours, edges, grid, collisionIndices, checkCollision) {
     super(grid, collisionIndices);
 
     this.polygon = new Polygon(contours);
     this.edges = edges;
+    this.checkCollision = checkCollision;
 
     optimiseEdges(this.edges);
 
@@ -27,17 +26,12 @@ export default class Cluster extends MarchingSquares {
    * @description
    */
   generate() {
-    console.time(timerName);
+    const { collisionIndices, grid, checkCollision } = this;
 
     this.clusters = [];
     super.generate((contours, edges) => {
-      const polygon = new Polygon(contours);
-      polygon.edges = optimiseEdges(edges);
-      console.log('edges', edges);
-      this.clusters.push(polygon);
+      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices, !checkCollision));
     });
-
-    console.timeEnd(timerName);
   }
 
   /**
@@ -94,14 +88,18 @@ export default class Cluster extends MarchingSquares {
    * @param {Number} y
    */
   isValidTile(x, y) {
-    const { collisionIndices, polygon } = this;
+    const { collisionIndices, checkCollision, polygon } = this;
+    const tile = this.get(x, y);
 
-    if (!polygon.contains(x, y) || this.isPartOfCluster(x, y)) {
+    if (!polygon.contains(x, y) || this.isPartOfCluster(x, y) || !tile) {
       return false;
     }
 
-    const tile = this.get(x, y);
-    return tile && collisionIndices.indexOf(tile.index) === -1;
+    if (checkCollision) {
+      return collisionIndices.indexOf(tile.index) === -1;
+    } else {
+      return collisionIndices.indexOf(tile.index) > -1;
+    }
   }
 
   /**
@@ -113,7 +111,7 @@ export default class Cluster extends MarchingSquares {
     let i = 0;
 
     for (i; i < length; i++) {
-      if (clusters[i].contains(x, y)) {
+      if (clusters[i].polygon.contains(x, y)) {
         return true;
       }
     }

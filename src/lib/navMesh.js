@@ -1,17 +1,5 @@
-/*
-import { debug } from '../../config/debug';
-import { Game } from '../../../Game';
-import NavMeshPolygon from './navMeshPolygon';
-import { collisionIndices } from '../MapsManager';
-import AStar from './aStar';
-import AStarPath from './aStarPath';
-import {areLinesEqual, offsetFunnelPath, sortLine} from './navMeshUtils';
-import MarchingSquares from './marchingSquares';
-*/
-
 import { Point, Polygon } from 'phaser-ce';
-import Delaunator from 'delaunator';
-import Delaunay from 'faster-delaunay';
+import cdt2d from 'cdt2d';
 
 import AStar from './aStar';
 import Debug from './debug';
@@ -19,7 +7,6 @@ import TileLayerClusters from './tileLayerClusters';
 import NavMeshPolygon from './navMeshPolygon';
 import { areLinesEqual, getRandomColour, offsetFunnelPath, sortLine } from './utils';
 
-const SUB_DIVISION_DEFAULT = 4;
 const diameter = 10;
 const font = 'carrier_command';
 let MESH_GRAPHICS;
@@ -46,17 +33,22 @@ export default class NavMesh {
 
   /**
    * @method addToDelaunayPoints
-   * @param {Phaser.Point} point
+   * @description Adds new vertex point to Array. Returns index of newly pushed point, or existin
+   * @param {Number} x
+   * @param {Number} y
+   * @return {Number}
    */
-  addToDelaunayPoints(point) {
+  addToDelaunayPoints(x, y) {
     const { points, tileMap } = this;
     const { tileWidth, tileHeight } = tileMap;
-    const { x, y } = point;
 
-    const exists = points.find(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
-    if (!exists) {
-      points.push([ x * tileWidth, y * tileHeight ]);
+    const index = points.findIndex(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
+    if (index !== -1) {
+      return index;
     }
+
+    points.push([ x * tileWidth, y * tileHeight ]);
+    return points.length - 1;
   }
 
   /**
@@ -74,11 +66,6 @@ export default class NavMesh {
    */
   generate(options) {
     this.setOptions(options);
-
-    const { collisionIndices, game, tileLayer } = this;
-    this.tileLayerClusters = new TileLayerClusters(game, tileLayer, { collisionIndices });
-
-    this.extractAllPointsFromClusters();
     this.generateDelaunayTriangulation();
     this.generatePolygonEdges();
 
@@ -115,73 +102,21 @@ export default class NavMesh {
   }
 
   /**
-   * @method extractAllPointsFromHulls
-   * @TODO - Update this to use Marching Squares instead of 3rd party plugin
-   */
-  extractAllPointsFromClusters() {
-    const { subDivisions, tileLayerClusters } = this;
-    const { clusters } = tileLayerClusters;
-    const { widthInPixels, heightInPixels } = this.tileMap;
-    const subWidth = Math.floor(widthInPixels / subDivisions);
-    const subHeight = Math.floor(heightInPixels / subDivisions);
-    let x = 0;
-    let width;
-    let height;
-
-    this.points = [];
-    this.points.push([0, 0]);
-    this.points.push([widthInPixels, 0]);
-    this.points.push([0, heightInPixels]);
-    this.points.push([widthInPixels, heightInPixels]);
-
-    for (x; x < subDivisions; x++) {
-      width = subWidth * x;
-      height = subHeight * x;
-
-      this.points.push([ width, 0 ]);
-      this.points.push([ width, heightInPixels ]);
-      this.points.push([ 0, height ]);
-      this.points.push([ widthInPixels, height ]);
-    }
-
-    clusters.forEach(cluster => {
-      cluster.edges.forEach(line => {
-        this.addToDelaunayPoints(line.start);
-        this.addToDelaunayPoints(line.end);
-      }, this);
-    }, this);
-  }
-
-  /**
    * @method generateDelaunayTriangulation
    */
   generateDelaunayTriangulation() {
+    const edges = this.initPointsForDelaunayTriangulation();
     const { game, points } = this;
-    const delaunay = new Delaunay(points);
-    const delaunator = new Delaunator(points);
-    const { triangles } = delaunator;
-
-    const length = delaunator.triangles.length;
-    const result = [];
-    let i = 0;
+    const delaunay = cdt2d(points, edges, { interior: false });
     let polygon;
 
     this.polygons = [];
-
-    // @TODO - Check if any of these triangles overlap an existing tile
-    for (i; i < length; i += 3) {
-      result.push([
-        points[triangles[i]],
-        points[triangles[i + 1]],
-        points[triangles[i + 2]]
-      ]);
-
-      polygon = new NavMeshPolygon(game, ([]).concat(points[triangles[i]], points[triangles[i + 1]], points[triangles[i + 2]]));
-
-      if (this.isCentroidOverValidTile(polygon.centroid)) {
-        this.polygons.push(polygon);
-      }
-    }
+    delaunay.forEach(triangle => {
+      polygon = new NavMeshPolygon(game, ([]).concat(points[triangle[0]], points[triangle[1]], points[triangle[2]]));
+      // if (this.isCentroidOverValidTile(polygon.centroid)) {
+      // }
+      this.polygons.push(polygon);
+    });
   }
 
   /**
@@ -226,18 +161,34 @@ export default class NavMesh {
   }
 
   /**
-   * @method isCentroidOverValidTile
+   * @method initPointsForDelaunayTriangulation
+   * @description Pass all found points into list, calculating the internal edges
+   * @return {Array} edges
    */
-  isCentroidOverValidTile(centroid) {
-    const { collisionIndices, tileMap, tileLayer } = this;
-    const { tileWidth, tileHeight } = tileMap;
+  initPointsForDelaunayTriangulation() {
+    const { collisionIndices, game, tileLayer, tileMap } = this;
+    const { width, height } = tileMap;
+    const tileLayerClusters = new TileLayerClusters(game, tileLayer, { collisionIndices });
+    const edges = [];
+    let startIndex;
+    let endIndex;
 
-    const tileX = ~~(centroid.x / tileWidth);
-    const tileY = ~~(centroid.y / tileHeight);
+    this.points = [];
 
-    const tile = tileLayer.layer.data[tileY][tileX];
+    this.addToDelaunayPoints(0, 0);
+    this.addToDelaunayPoints(width, 0);
+    this.addToDelaunayPoints(0, height);
+    this.addToDelaunayPoints(width, height);
 
-    return !tile || collisionIndices.indexOf(tile.index) === -1;
+    tileLayerClusters.clusters.forEach(cluster => {
+      cluster.edges.forEach(edge => {
+        startIndex = this.addToDelaunayPoints(edge.start.x, edge.start.y);
+        endIndex = this.addToDelaunayPoints(edge.end.x, edge.end.y);
+        edges.push([ startIndex, endIndex ]);
+      });
+    });
+
+    return edges;
   }
 
   /**
@@ -252,8 +203,7 @@ export default class NavMesh {
       MESH_GRAPHICS = game.add.graphics(0, 0);
     }
 
-    MESH_GRAPHICS.alpha = 0.3;
-    MESH_GRAPHICS.beginFill(0xff33ff);
+    MESH_GRAPHICS.beginFill(0xff33ff, 0.25);
     MESH_GRAPHICS.lineStyle(1, 0xffffff, 1);
     polygons.forEach(poly => MESH_GRAPHICS.drawPolygon(poly.points));
     MESH_GRAPHICS.endFill();
@@ -287,13 +237,12 @@ export default class NavMesh {
    * @method renderBoundingRadii
    */
   renderBoundingRadii() {
-    const { centroid, game } = this;
+    const { game } = this;
     if (BOUNDS_GRAPHICS) {
       BOUNDS_GRAPHICS.clear();
     } else {
       BOUNDS_GRAPHICS = game.add.graphics(0, 0);
     }
-
 
     this.polygons.forEach(polygon => {
       BOUNDS_GRAPHICS.lineStyle(2, getRandomColour(), 1);
@@ -308,7 +257,6 @@ export default class NavMesh {
    */
   setOptions(options) {
     Debug.set(options.debug);
-    this.subDivisions = options.subDivisions || SUB_DIVISION_DEFAULT;
     this.collisionIndices = options.collisionIndices || [];
   }
 }
