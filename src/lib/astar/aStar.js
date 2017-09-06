@@ -1,9 +1,9 @@
 import AStarPath from './aStarPath';
-import Debug from './debug';
-import NavMeshPolygon from './navMeshPolygon';
+import Debug from '../debug';
+import NavMeshPolygon from '../navMeshPolygon';
 import PriorityQueue from './priorityQueue';
-import { getHeuristicCost } from './utils';
-import NavMesh from './navMesh';
+import { getHeuristicCost } from '../utils';
+import NavMesh from '../navMesh';
 
 let DEBUG_GRAPHICS;
 const DEBUG_CENTROID_DIAMETER = 10;

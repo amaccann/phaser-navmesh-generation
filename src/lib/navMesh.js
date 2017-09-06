@@ -1,11 +1,9 @@
-import { Point, Polygon } from 'phaser-ce';
 import cdt2d from 'cdt2d';
 
-import AStar from './aStar';
+import AStar from './astar/aStar';
 import Debug from './debug';
-import TileLayerClusters from './tileLayerClusters';
-import NavMeshPolygon from './navMeshPolygon';
 import { areLinesEqual, getRandomColour, offsetFunnelPath, sortLine } from './utils';
+import DelaunayGenerator from './delaunay/delaunayGenerator';
 
 const diameter = 10;
 const font = 'carrier_command';
@@ -25,30 +23,9 @@ export default class NavMesh {
     this.tileMap = tileMap;
     this.tileLayer = tileLayer;
 
-    this.points = [];
-    this.polygons = [];
+    this.delaunay = new DelaunayGenerator(game, tileMap);
 
     this.generate(options);
-  }
-
-  /**
-   * @method addToDelaunayPoints
-   * @description Adds new vertex point to Array. Returns index of newly pushed point, or existin
-   * @param {Number} x
-   * @param {Number} y
-   * @return {Number}
-   */
-  addToDelaunayPoints(x, y) {
-    const { points, tileMap } = this;
-    const { tileWidth, tileHeight } = tileMap;
-
-    const index = points.findIndex(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
-    if (index !== -1) {
-      return index;
-    }
-
-    points.push([ x * tileWidth, y * tileHeight ]);
-    return points.length - 1;
   }
 
   /**
@@ -65,9 +42,15 @@ export default class NavMesh {
    * @param {Object} options
    */
   generate(options) {
+    const { game, tileLayer, tileMap } = this;
+    const timerName = 'NavMesh built in';
+
+    console.warn('🛠 Building NavMesh. Beep Boop Boop 🤖');
+    console.time(timerName);
     this.setOptions(options);
-    this.generateDelaunayTriangulation();
-    this.generatePolygonEdges();
+    this.delaunay.generate(this.collisionIndices, tileLayer, tileMap);
+    this.aStar = new AStar(game, this); // Calculate the a-star grid for the polygons.
+    console.timeEnd(timerName);
 
     if (Debug.settings.navMesh) {
       this.renderMesh();
@@ -98,99 +81,7 @@ export default class NavMesh {
    * @method getPolygonByXY
    */
   getPolygonByXY(x, y) {
-    return this.polygons.find(polygon => polygon.contains(x, y));
-  }
-
-  /**
-   * @method generateDelaunayTriangulation
-   */
-  generateDelaunayTriangulation() {
-    const edges = this.initPointsForDelaunayTriangulation();
-    const { game, points } = this;
-    const delaunay = cdt2d(points, edges, { interior: false }) ||  [];
-    const length = delaunay.length;
-    let i = 0;
-    let polygon;
-    let triangle;
-
-    this.polygons = [];
-    for (i; i < length; i++) {
-      triangle = delaunay[i];
-      polygon = new NavMeshPolygon(game, ([]).concat(points[triangle[0]], points[triangle[1]], points[triangle[2]]));
-      this.polygons.push(polygon);
-    }
-  }
-
-  /**
-   * @method generatePolygonEdges
-   * @description Find all the other polys each one connects to.
-   * @TODO Mine makes a few assumptions that the generated polygons are already connected in some way, given
-   * it was generation by the Delaunay algorithm.
-   */
-  generatePolygonEdges() {
-    const { game, polygons } = this;
-    const polyLength = polygons.length;
-    let i = 0;
-    let polygon;
-    let otherPolygon;
-
-    for (i; i < polyLength; i++) {
-      polygon = polygons[i];
-
-      for (let j = i + 1; j < polyLength; j++) {
-        otherPolygon = polygons[j];
-
-        for (const edge of polygon.edges) {
-          for (const otherEdge of otherPolygon.edges) {
-
-            if (!areLinesEqual(edge, otherEdge)) {
-              continue;
-            }
-
-            const { start, end } = sortLine(edge);
-
-            polygon.addNeighbor(otherPolygon);
-            otherPolygon.addNeighbor(polygon);
-
-            polygon.addPortalFromEdge(edge, start, end);
-            otherPolygon.addPortalFromEdge(otherEdge, start, end);
-          }
-        }
-      }
-    }
-
-    this.aStar = new AStar(game, this); // Calculate the a-star grid for the polygons.
-  }
-
-  /**
-   * @method initPointsForDelaunayTriangulation
-   * @description Pass all found points into list, calculating the internal edges
-   * @return {Array} edges
-   */
-  initPointsForDelaunayTriangulation() {
-    const { collisionIndices, game, tileLayer, tileMap } = this;
-    const { width, height } = tileMap;
-    const tileLayerClusters = new TileLayerClusters(game, tileLayer, { collisionIndices });
-    const edges = [];
-    let startIndex;
-    let endIndex;
-
-    this.points = [];
-
-    this.addToDelaunayPoints(0, 0);
-    this.addToDelaunayPoints(width, 0);
-    this.addToDelaunayPoints(0, height);
-    this.addToDelaunayPoints(width, height);
-
-    tileLayerClusters.clusters.forEach(cluster => {
-      cluster.edges.forEach(edge => {
-        startIndex = this.addToDelaunayPoints(edge.start.x, edge.start.y);
-        endIndex = this.addToDelaunayPoints(edge.end.x, edge.end.y);
-        edges.push([ startIndex, endIndex ]);
-      });
-    });
-
-    return edges;
+    return this.delaunay.polygons.find(polygon => polygon.contains(x, y));
   }
 
   /**
@@ -198,7 +89,8 @@ export default class NavMesh {
    * @description Debug render the Delaunay generated Triangles
    */
   renderMesh() {
-    const { game, polygons } = this;
+    const { game, delaunay } = this;
+    const { polygons } = delaunay;
     if (MESH_GRAPHICS) {
       MESH_GRAPHICS.clear();
     } else {
@@ -215,7 +107,8 @@ export default class NavMesh {
    * @method renderNodes
    */
   renderNodes() {
-    const { game, polygons } = this;
+    const { game, delaunay } = this;
+    const { polygons } = delaunay;
     if (!NODES_GRAPHICS) {
       NODES_GRAPHICS = game.add.graphics(0, 0);
     } else {
@@ -246,7 +139,7 @@ export default class NavMesh {
       BOUNDS_GRAPHICS = game.add.graphics(0, 0);
     }
 
-    this.polygons.forEach(polygon => {
+    this.delaunay.polygons.forEach(polygon => {
       BOUNDS_GRAPHICS.lineStyle(2, getRandomColour(), 1);
       BOUNDS_GRAPHICS.drawCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
     });

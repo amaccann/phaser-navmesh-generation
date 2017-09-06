@@ -1,5 +1,5 @@
 import Portal from './portal';
-import { triarea2 } from './utils';
+import { triarea2 } from '../utils';
 
 export default class Funnel {
 

@@ -1,5 +1,5 @@
 import { Line, Point, Polygon } from 'phaser-ce';
-import { optimiseEdges, triarea2 } from './utils';
+import { optimiseEdges, triarea2 } from '../utils';
 import MarchingSquares from './marchingSquares';
 
 /**

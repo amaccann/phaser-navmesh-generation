@@ -1,12 +1,11 @@
 import { Point } from 'phaser-ce';
 import MarchingSquares from './marchingSquares';
 import Cluster from './cluster';
-import Debug from './debug';
+import Debug from '../debug';
 
-const timerName = 'Finding clusters with Marching Squares:';
 let graphics;
 
-export default class TileLayerClusters extends MarchingSquares {
+export default class Hulls extends MarchingSquares {
   constructor(game, tileLayer, options = {}) {
     const { data } = tileLayer.layer;
     super(data, options.collisionIndices);
@@ -23,7 +22,6 @@ export default class TileLayerClusters extends MarchingSquares {
    *              the interior of that Cluster is checked for any 'reverse'
    */
   generate() {
-    console.time(timerName);
     const { grid, collisionIndices } = this;
 
     this.clusters = [];
@@ -34,7 +32,6 @@ export default class TileLayerClusters extends MarchingSquares {
     if (Debug.settings.marchingSquares) {
       this.renderDebug();
     }
-    console.timeEnd(timerName);
   }
 
   /**

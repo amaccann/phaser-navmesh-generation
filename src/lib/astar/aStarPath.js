@@ -1,5 +1,5 @@
-import NavMeshPolygon from './navMeshPolygon';
-import { areLinesEqual } from './utils';
+import NavMeshPolygon from '../navMeshPolygon';
+import { areLinesEqual } from '../utils';
 import Funnel from './funnel';
 
 export default class AStarPath {
