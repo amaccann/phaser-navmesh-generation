@@ -25,6 +25,18 @@ export default class Funnel {
   }
 
   /**
+   * @method addPointToPath
+   * @param {Phaser.Point} portal
+   */
+  addPointToPath(portal) {
+    const { path } = this;
+    const exists = path.find(p => p.equals(portal));
+    if (!exists) {
+      path.push(portal);
+    }
+  }
+
+  /**
    * @method update
    * @description JS variant of http://digestingduck.blogspot.com/2010/03/simple-stupid-funnel-algorithm.html
    * @TODO Should check if there are any gaps, edges missing points, maybe we could fill with mid-point fallbacks...
@@ -44,7 +56,7 @@ export default class Funnel {
     let left;
     let right;
 
-    path.push(apex);
+    this.addPointToPath(apex);
 
     // Reset values and make current apex as ${portal}
     /**
@@ -52,8 +64,8 @@ export default class Funnel {
      * @param {Phaser.Point} portal
      * @param {Number} index
      */
-    function setApexAndReset(portal, index) {
-      path.push(portal);
+    const setApexAndReset = (portal, index) => {
+      this.addPointToPath(portal);
       apex = portal;
       apexIndex = index;
 
@@ -62,7 +74,7 @@ export default class Funnel {
       leftIndex = apexIndex;
       rightIndex = apexIndex;
       i = apexIndex;
-    }
+    };
 
     for (i; i < portalsLength; i++) {
       left = portals[i].left;
@@ -91,7 +103,7 @@ export default class Funnel {
     }
 
     if (!path.length || (!path[path.length - 1].equals(portals[portalsLength - 1].left))) {
-      path.push(portals[portals.length - 1].left);
+      this.addPointToPath(portals[portals.length - 1].left);
     }
   }
 }
