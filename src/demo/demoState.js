@@ -41,9 +41,12 @@ export default class DemoState extends State {
 
     game.stage.backgroundColor = '#2d2d2d';
 
-    new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
-    new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
-    new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    new DemoSprite(game, 100, 50, this.spriteGroup);
+    new DemoSprite(game, 600, 60, this.spriteGroup);
+    new DemoSprite(game, 200, 400, this.spriteGroup);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
 
     // Create blank tilemap
     this.tileMap = game.add.tilemap();
