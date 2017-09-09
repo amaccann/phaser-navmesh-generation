@@ -43,7 +43,7 @@ export default class DemoState extends State {
 
     new DemoSprite(game, 100, 50, this.spriteGroup);
     new DemoSprite(game, 600, 60, this.spriteGroup);
-    new DemoSprite(game, 200, 400, this.spriteGroup);
+    new DemoSprite(game, 200, 500, this.spriteGroup);
     // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
     // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
     // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
@@ -55,12 +55,43 @@ export default class DemoState extends State {
     this.tileLayer = this.tileMap.create('demoLayer', WIDTH_TILES, HEIGHT_TILES, TILE_SIZE, TILE_SIZE);
     this.tileLayer.resizeWorld();
 
+    this.drawInitGrid();
+    this.updateNavMesh();
+
     game.input.addMoveCallback(this.updateMarker, this);
     game.input.onUp.add(this.onUp, this);
     game.canvas.oncontextmenu = this.onRightClick;
 
     this.cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
+  }
+
+  /**
+   * @method drawInitGrid
+   * @description Draw a quick, 'enclosed' area
+   */
+  drawInitGrid() {
+    const { tileLayer, tileMap } = this;
+    const startAtX = 3;
+    const startAtY = 3;
+    const yLength = startAtY + 10;
+    let y = startAtY;
+    let xLength;
+    let x;
+    let tileIndex;
+
+    for (y; y < yLength; y++) {
+      x = startAtX;
+      xLength = startAtX + 15;
+      for (x; x < xLength; x++) {
+        if (x !== startAtX && y !== startAtY && x !== xLength - 1 && y !== yLength - 1) {
+          continue;
+        }
+
+        tileIndex = Math.floor(PhaserMath.random(0, COLLISION_INDICES.length));
+        tileMap.putTile(tileIndex, x, y, tileLayer);
+      }
+    }
   }
 
   /**
@@ -106,12 +137,12 @@ export default class DemoState extends State {
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
       debug: {
-        hulls: true,
-        hullBounds: true,
+        hulls: false,
+        hullBounds: false,
         navMesh: true,
-        navMeshNodes: true,
+        navMeshNodes: false,
         polygonBounds: false,
-        aStarPath: true
+        aStarPath: false
       }
     });
 
@@ -181,10 +212,18 @@ export default class DemoState extends State {
 
     if (mousePointer.leftButton.isDown) {
       tileMap.putTile(tile, tileLayer.getTileX(x), tileLayer.getTileY(y), tileLayer);
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(() => this.buildNavMesh(), 1000);
+      this.updateNavMesh(1000);
     }
+  }
+
+  /**
+   * @method updateNavMesh
+   * @description Update / rebuild the NavMesh
+   */
+  updateNavMesh(delay = 0) {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => this.buildNavMesh(), delay);
   }
 }

@@ -101,7 +101,7 @@ class Debug {
     gfx.clear();
 
     function drawCluster(cluster) {
-      gfx.beginFill(DEBUG_COLOUR_RED, 1);
+      gfx.beginFill(DEBUG_COLOUR_RED, 0.6);
       gfx.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
       gfx.endFill();
       const [startEdge, ...otherEdges] = cluster.edges;
