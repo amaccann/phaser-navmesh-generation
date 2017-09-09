@@ -103,11 +103,11 @@ export default class DelaunayGenerator {
   initPoints(collisionIndices, tileLayer, tileMap) {
     const { game } = this;
     const { width, height } = tileMap;
-    const tileLayerClusters = new Hulls(game, tileLayer, { collisionIndices });
     const edges = [];
     let startIndex;
     let endIndex;
 
+    this.hulls = new Hulls(game, tileLayer, { collisionIndices });
     this.points = [];
 
     this.addPoint(0, 0);
@@ -115,7 +115,7 @@ export default class DelaunayGenerator {
     this.addPoint(0, height);
     this.addPoint(width, height);
 
-    tileLayerClusters.clusters.forEach(cluster => {
+    this.hulls.clusters.forEach(cluster => {
       cluster.edges.forEach(edge => {
         startIndex = this.addPoint(edge.start.x, edge.start.y);
         endIndex = this.addPoint(edge.end.x, edge.end.y);

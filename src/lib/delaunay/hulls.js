@@ -1,9 +1,6 @@
 import { Point } from 'phaser-ce';
 import MarchingSquares from './marchingSquares';
 import Cluster from './cluster';
-import Debug from '../debug';
-
-let graphics;
 
 export default class Hulls extends MarchingSquares {
   constructor(game, tileLayer, options = {}) {
@@ -28,20 +25,6 @@ export default class Hulls extends MarchingSquares {
     super.generate((contours, edges) => {
       this.clusters.push(new Cluster(contours, edges, grid, collisionIndices, true));
     });
-
-    if (Debug.settings.marchingSquares) {
-      this.renderDebug();
-    }
-  }
-
-  /**
-   * @method tileDimensions
-   */
-  get tileDimensions() {
-    const tile = this.get(0, 0);
-    const { width, height } = tile;
-
-    return { width, height };
   }
 
   /**
@@ -66,18 +49,6 @@ export default class Hulls extends MarchingSquares {
       }
     }
     return null;
-  }
-
-  /**
-   * @method getWorldXY
-   * @param {Phaser.Point|Object} point
-   */
-  getWorldXY(point) {
-    const { width, height } = this.tileDimensions;
-    return {
-      x: point.x * width,
-      y: point.y * height
-    };
   }
 
   /**
@@ -109,33 +80,5 @@ export default class Hulls extends MarchingSquares {
       }
     }
     return false;
-  }
-
-  /**
-   * @method renderDebug
-   * @description Render all discovered (recursive) clusters & their edges as geometry
-   */
-  renderDebug() {
-    const { clusters, game } = this;
-
-    if (!graphics) {
-      graphics = game.add.graphics(0, 0);
-    } else {
-      graphics.clear();
-    }
-
-    graphics.lineStyle(0, 0xffffff, 1);
-
-    function drawCluster(cluster) {
-      graphics.beginFill(0xff0000, 0.5);
-      graphics.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
-      graphics.endFill();
-
-      if (cluster.children.length) {
-        cluster.children.forEach(drawCluster, this);
-      }
-    }
-
-    clusters.forEach(drawCluster, this);
   }
 }

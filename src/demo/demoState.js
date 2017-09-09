@@ -103,11 +103,11 @@ export default class DemoState extends State {
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
       debug: {
-        marchingSquares: true,
+        hulls: true,
         navMesh: true,
-        navMeshNodes: false,
-        renderBoundingRadii: false,
-        aStar: false
+        navMeshNodes: true,
+        polygonBounds: false,
+        aStarPath: true
       }
     });
 
@@ -118,7 +118,6 @@ export default class DemoState extends State {
    * @method renderPaths
    */
   renderPaths(paths = []) {
-    const DEBUG_COLOUR_ORANGE = 0xffa500;
     const { game } = this;
     if (!PATH_GRAPHICS) {
       PATH_GRAPHICS = game.add.graphics(0, 0);

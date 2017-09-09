@@ -1,12 +1,8 @@
-import cdt2d from 'cdt2d';
-
 import AStar from './astar/aStar';
 import Debug from './debug';
-import { areLinesEqual, getRandomColour, offsetFunnelPath, sortLine } from './utils';
+import { offsetFunnelPath } from './utils';
 import DelaunayGenerator from './delaunay/delaunayGenerator';
 
-const diameter = 10;
-const font = 'carrier_command';
 let MESH_GRAPHICS;
 let NODES_GRAPHICS;
 let BOUNDS_GRAPHICS;
@@ -52,17 +48,7 @@ export default class NavMesh {
     this.aStar = new AStar(game, this); // Calculate the a-star grid for the polygons.
     console.timeEnd(timerName);
 
-    if (Debug.settings.navMesh) {
-      this.renderMesh();
-    }
-
-    if (Debug.settings.navMeshNodes) {
-      this.renderNodes();
-    }
-
-    if (Debug.settings.renderBoundingRadii) {
-      this.renderBoundingRadii();
-    }
+    Debug.draw({ delaunay: this.delaunay });
   }
 
   /**
@@ -74,6 +60,7 @@ export default class NavMesh {
     const path = aStarPath.path;
     const offsetPath = offsetFunnelPath(path, offset);
 
+    Debug.draw({ aStarPath });
     return { path, offsetPath };
   }
 
@@ -85,73 +72,12 @@ export default class NavMesh {
   }
 
   /**
-   * @method renderMesh
-   * @description Debug render the Delaunay generated Triangles
-   */
-  renderMesh() {
-    const { game, delaunay } = this;
-    const { polygons } = delaunay;
-    if (MESH_GRAPHICS) {
-      MESH_GRAPHICS.clear();
-    } else {
-      MESH_GRAPHICS = game.add.graphics(0, 0);
-    }
-
-    MESH_GRAPHICS.beginFill(0xff33ff, 0.25);
-    MESH_GRAPHICS.lineStyle(1, 0xffffff, 1);
-    polygons.forEach(poly => MESH_GRAPHICS.drawPolygon(poly.points));
-    MESH_GRAPHICS.endFill();
-  }
-
-  /**
-   * @method renderNodes
-   */
-  renderNodes() {
-    const { game, delaunay } = this;
-    const { polygons } = delaunay;
-    if (!NODES_GRAPHICS) {
-      NODES_GRAPHICS = game.add.graphics(0, 0);
-    } else {
-      NODES_GRAPHICS.clear();
-    }
-
-    NODES_GRAPHICS.lineStyle(5, 0x00b2ff, 0.5);
-    polygons.forEach((poly) => {
-      poly.neighbors.forEach((neighbour) => {
-        NODES_GRAPHICS.moveTo(poly.centroid.x, poly.centroid.y);
-        NODES_GRAPHICS.lineTo(neighbour.centroid.x, neighbour.centroid.y);
-      });
-
-      NODES_GRAPHICS.beginFill(0xffffff);
-      NODES_GRAPHICS.drawCircle(poly.centroid.x, poly.centroid.y, diameter);
-      NODES_GRAPHICS.endFill();
-    });
-  }
-
-  /**
-   * @method renderBoundingRadii
-   */
-  renderBoundingRadii() {
-    const { game } = this;
-    if (BOUNDS_GRAPHICS) {
-      BOUNDS_GRAPHICS.clear();
-    } else {
-      BOUNDS_GRAPHICS = game.add.graphics(0, 0);
-    }
-
-    this.delaunay.polygons.forEach(polygon => {
-      BOUNDS_GRAPHICS.lineStyle(2, getRandomColour(), 1);
-      BOUNDS_GRAPHICS.drawCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
-    });
-    BOUNDS_GRAPHICS.lineStyle(0, 0xffffff);
-  }
-
-  /**
    * @method setOptions
    * @param {Object} options
    */
   setOptions(options) {
-    Debug.set(options.debug);
+    const { game, tileLayer } = this;
+    Debug.set(game, tileLayer, options.debug);
     this.collisionIndices = options.collisionIndices || [];
   }
 }

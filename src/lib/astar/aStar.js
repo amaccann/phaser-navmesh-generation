@@ -1,16 +1,9 @@
 import AStarPath from './aStarPath';
-import Debug from '../debug';
 import NavMeshPolygon from '../navMeshPolygon';
 import PriorityQueue from './priorityQueue';
 import { getHeuristicCost } from '../utils';
 import NavMesh from '../navMesh';
 
-let DEBUG_GRAPHICS;
-const DEBUG_CENTROID_DIAMETER = 10;
-const DEBUG_COLOUR_ORANGE = 0xffa500;
-const DEBUG_COLOUR_GREEN = 0x33ff33;
-const DEBUG_COLOUR_RED = 0xff3333;
-const DEBUG_PORTAL_WIDTH = 2;
 const SEARCH_CEILING = 1000;
 
 export default class AStar {
@@ -107,48 +100,6 @@ export default class AStar {
    */
   buildPath(pathNodes = [], startPoint, endPoint, startPolygon, endPolygon, isConnected) {
     const { game } = this;
-    const aStarPath = new AStarPath(game, pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected });
-
-    if (Debug.settings.aStar) {
-      this.debugAStar(aStarPath);
-    }
-
-    return aStarPath;
-  }
-
-  /**
-   * @method debugAStar
-   * @param {AStarPath} aStarPath
-   */
-  debugAStar(aStarPath) {
-    const { game } = this;
-    const { startPoint, endPoint } = aStarPath;
-    if (DEBUG_GRAPHICS) {
-      DEBUG_GRAPHICS.clear();
-    } else {
-      DEBUG_GRAPHICS = game.add.graphics(0, 0);
-      game.world.bringToTop(DEBUG_GRAPHICS);
-    }
-
-    DEBUG_GRAPHICS.clear();
-    DEBUG_GRAPHICS.beginFill(DEBUG_COLOUR_ORANGE, 1);
-    DEBUG_GRAPHICS.lineStyle(DEBUG_PORTAL_WIDTH, DEBUG_COLOUR_ORANGE, 1);
-    aStarPath.polygons.forEach(poly =>
-      DEBUG_GRAPHICS.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_CENTROID_DIAMETER));
-    aStarPath.portals.forEach(portal => {
-      DEBUG_GRAPHICS.moveTo(portal.start.x, portal.start.y);
-      DEBUG_GRAPHICS.lineTo(portal.end.x, portal.end.y);
-    });
-    DEBUG_GRAPHICS.endFill();
-
-    DEBUG_GRAPHICS.lineStyle(0, 0xffffff, 1);
-    DEBUG_GRAPHICS.beginFill(DEBUG_COLOUR_RED, 1);
-    DEBUG_GRAPHICS.drawCircle(startPoint.x, startPoint.y, DEBUG_CENTROID_DIAMETER);
-    DEBUG_GRAPHICS.endFill();
-
-    DEBUG_GRAPHICS.lineStyle(0, 0xffffff, 1);
-    DEBUG_GRAPHICS.beginFill(DEBUG_COLOUR_GREEN, 1);
-    DEBUG_GRAPHICS.drawCircle(endPoint.x, endPoint.y, DEBUG_CENTROID_DIAMETER);
-    DEBUG_GRAPHICS.endFill();
+    return new AStarPath(game, pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected });
   }
 }
