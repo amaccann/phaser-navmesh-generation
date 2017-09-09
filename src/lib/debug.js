@@ -1,5 +1,6 @@
 const types = [
   'hulls',
+  'hullBounds',
   'navMesh',
   'navMeshNodes',
   'polygonBounds',
@@ -10,7 +11,7 @@ const DEBUG_DIAMETER = 10;
 const DEBUG_COLOUR_YELLOW = 0xffff00;
 const DEBUG_COLOUR_ORANGE = 0xffa500;
 const DEBUG_COLOUR_GREEN = 0x33ff33;
-const DEBUG_COLOUR_RED = 0xff3333;
+const DEBUG_COLOUR_RED = 0xC83E30;
 const DEBUG_PORTAL_WIDTH = 2;
 
 const defaultOptions = {};
@@ -18,7 +19,6 @@ types.forEach(type => defaultOptions[type] = false);
 
 class Debug {
   constructor(options = {}) {
-    this.gfx = {};
     this.set(null, null, options);
   }
 
@@ -27,10 +27,10 @@ class Debug {
    */
   draw({ delaunay, aStarPath }) {
     const { settings } = this;
-    const { hulls, navMesh, navMeshNodes, polygonBounds } = settings;
+    const { hulls, hullBounds, navMesh, navMeshNodes, polygonBounds } = settings;
     this.initGraphics();
 
-    if ((hulls || navMesh || navMeshNodes || polygonBounds) && delaunay) {
+    if ((hulls || hullBounds || navMesh || navMeshNodes || polygonBounds) && delaunay) {
       this.drawDelaunay(delaunay);
     }
 
@@ -66,84 +66,101 @@ class Debug {
    * @method drawAStarPath
    */
   drawAStarPath(aStarPath) {
-    const { gfx } = this;
-    const aStarGraphics = gfx.aStarPath;
+    const gfx = this.gfx;
     const { startPoint, endPoint } = aStarPath;
 
-    aStarGraphics.clear();
-    aStarGraphics.beginFill(DEBUG_COLOUR_ORANGE, 1);
-    aStarGraphics.lineStyle(DEBUG_PORTAL_WIDTH, DEBUG_COLOUR_ORANGE, 1);
+    gfx.clear();
+    gfx.beginFill(DEBUG_COLOUR_ORANGE, 1);
+    gfx.lineStyle(DEBUG_PORTAL_WIDTH, DEBUG_COLOUR_ORANGE, 1);
     aStarPath.polygons.forEach(poly =>
-      aStarGraphics.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER));
+      gfx.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER));
     aStarPath.portals.forEach(portal => {
-      aStarGraphics.moveTo(portal.start.x, portal.start.y);
-      aStarGraphics.lineTo(portal.end.x, portal.end.y);
+      gfx.moveTo(portal.start.x, portal.start.y);
+      gfx.lineTo(portal.end.x, portal.end.y);
     });
-    aStarGraphics.endFill();
+    gfx.endFill();
 
-    aStarGraphics.lineStyle(0, 0xffffff, 1);
-    aStarGraphics.beginFill(DEBUG_COLOUR_RED, 1);
-    aStarGraphics.drawCircle(startPoint.x, startPoint.y, DEBUG_DIAMETER);
-    aStarGraphics.endFill();
+    gfx.lineStyle(0, 0xffffff, 1);
+    gfx.beginFill(DEBUG_COLOUR_RED, 1);
+    gfx.drawCircle(startPoint.x, startPoint.y, DEBUG_DIAMETER);
+    gfx.endFill();
 
-    aStarGraphics.lineStyle(0, 0xffffff, 1);
-    aStarGraphics.beginFill(DEBUG_COLOUR_GREEN, 1);
-    aStarGraphics.drawCircle(endPoint.x, endPoint.y, DEBUG_DIAMETER);
-    aStarGraphics.endFill();
+    gfx.lineStyle(0, 0xffffff, 1);
+    gfx.beginFill(DEBUG_COLOUR_GREEN, 1);
+    gfx.drawCircle(endPoint.x, endPoint.y, DEBUG_DIAMETER);
+    gfx.endFill();
   }
 
   /**
    * @method drawDelaunay
    */
   drawDelaunay(delaunay) {
-    const { settings } = this;
-    const { hulls, navMesh, navMeshNodes, polygonBounds } = this.gfx;
+    const { gfx, settings } = this;
     const { polygons } = delaunay;
     const { clusters } = delaunay.hulls;
-
-    /**
-     * @method Render the Delaunay triangles generated...
-     */
-    if (settings.navMesh) {
-      navMesh.clear();
-      navMesh.beginFill(0xff33ff, 0.25);
-      navMesh.lineStyle(1, 0xffffff, 1);
-      polygons.forEach(poly => navMesh.drawPolygon(poly.points));
-      navMesh.endFill();
-    }
+    gfx.clear();
 
     function drawCluster(cluster) {
-      hulls.beginFill(0xff0000, 0.5);
-      hulls.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
-      hulls.endFill();
+      gfx.beginFill(DEBUG_COLOUR_RED, 1);
+      gfx.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
+      gfx.endFill();
       const [startEdge, ...otherEdges] = cluster.edges;
       const startEdgeStart = this.getWorldXY(startEdge.start);
       const startEdgeEnd = this.getWorldXY(startEdge.end);
 
-      hulls.lineStyle(2, DEBUG_COLOUR_YELLOW);
-      hulls.moveTo(startEdgeStart.x, startEdgeStart.y);
-      hulls.lineTo(startEdgeEnd.x, startEdgeEnd.y);
+      gfx.lineStyle(2, DEBUG_COLOUR_YELLOW);
+      gfx.moveTo(startEdgeStart.x, startEdgeStart.y);
+      gfx.lineTo(startEdgeEnd.x, startEdgeEnd.y);
 
       otherEdges.forEach(edge => {
         const start = this.getWorldXY(edge.start);
         const end = this.getWorldXY(edge.end);
 
-        hulls.moveTo(start.x, start.y);
-        hulls.lineTo(end.x, end.y);
+        gfx.moveTo(start.x, start.y);
+        gfx.lineTo(end.x, end.y);
       });
-      hulls.lineStyle(0);
+      gfx.lineStyle(0);
 
       if (cluster.children.length) {
         cluster.children.forEach(drawCluster, this);
       }
     }
 
+    function drawClusterBounds(cluster) {
+      const { bounds } = cluster;
+      const coordinates = this.getWorldXY(bounds);
+      const { width, height } = this.tileDimensions;
+      const boundsWidth = bounds.width * width;
+      const boundsHeight = bounds.height * height;
+
+      gfx.beginFill(DEBUG_COLOUR_GREEN, 0.6);
+      gfx.drawRect(coordinates.x, coordinates.y, boundsWidth, boundsHeight);
+      gfx.endFill();
+
+      if (cluster.children.length) {
+        cluster.children.forEach(drawClusterBounds, this);
+      }
+    }
+
+    if (settings.hullBounds) {
+      clusters.forEach(drawClusterBounds, this);
+    }
+
     /**
      * @description Render the hulls found using the Marching Squares algorithm
      */
     if (settings.hulls) {
-      hulls.clear();
       clusters.forEach(drawCluster, this);
+    }
+
+    /**
+     * @method Render the Delaunay triangles generated...
+     */
+    if (settings.navMesh) {
+      gfx.beginFill(0xff33ff, 0.25);
+      gfx.lineStyle(1, 0xffffff, 1);
+      polygons.forEach(poly => gfx.drawPolygon(poly.points));
+      gfx.endFill();
     }
 
     /**
@@ -152,17 +169,16 @@ class Debug {
     if (settings.navMeshNodes) {
       const lineWidth = 3;
 
-      navMeshNodes.clear();
-      navMeshNodes.lineStyle(lineWidth, 0x00b2ff, 0.5);
+      gfx.lineStyle(lineWidth, 0x00b2ff, 0.5);
       polygons.forEach((poly) => {
         poly.neighbors.forEach((neighbour) => {
-          navMeshNodes.moveTo(poly.centroid.x, poly.centroid.y);
-          navMeshNodes.lineTo(neighbour.centroid.x, neighbour.centroid.y);
+          gfx.moveTo(poly.centroid.x, poly.centroid.y);
+          gfx.lineTo(neighbour.centroid.x, neighbour.centroid.y);
         });
 
-        navMeshNodes.beginFill(0xffffff);
-        navMeshNodes.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER);
-        navMeshNodes.endFill();
+        gfx.beginFill(0xffffff);
+        gfx.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER);
+        gfx.endFill();
       });
     }
 
@@ -170,12 +186,11 @@ class Debug {
      * @description Render the bounding circles of each NavMesh triangle
      */
     if (settings.polygonBounds) {
-      polygonBounds.clear();
       polygons.forEach(polygon => {
-        polygonBounds.lineStyle(2, DEBUG_COLOUR_YELLOW, 1);
-        polygonBounds.drawCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
+        gfx.lineStyle(2, DEBUG_COLOUR_YELLOW, 1);
+        gfx.drawCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
       });
-      polygonBounds.lineStyle(0, 0xffffff);
+      gfx.lineStyle(0, 0xffffff);
     }
   }
 
@@ -183,12 +198,10 @@ class Debug {
    * @method initGraphics
    */
   initGraphics() {
-    const { game, gfx } = this;
-    types.forEach(type => {
-      if (!gfx[type]) {
-        gfx[type] = game.add.graphics(0, 0);
-      }
-    });
+    const { game } = this;
+    if (!this.gfx) {
+      this.gfx = game.add.graphics(0, 0);
+    }
   }
 
   /**

@@ -107,6 +107,7 @@ export default class DemoState extends State {
       collisionIndices: COLLISION_INDICES,
       debug: {
         hulls: true,
+        hullBounds: true,
         navMesh: true,
         navMeshNodes: true,
         polygonBounds: false,
