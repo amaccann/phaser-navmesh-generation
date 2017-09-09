@@ -28,10 +28,31 @@ export default class Cluster extends MarchingSquares {
   generate() {
     const { collisionIndices, grid, checkCollision } = this;
 
-    this.clusters = [];
+    this.children = [];
     super.generate((contours, edges) => {
-      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices, !checkCollision));
+      this.children.push(new Cluster(contours, edges, grid, collisionIndices, !checkCollision));
     });
+  }
+
+  get boundsCoordinates() {
+    const { x, y, width, height } = this.bounds;
+    return [
+      new Point(x, y),
+      new Point(x + width, y),
+      new Point(x, y + height),
+      new Point(x + width, y + height)
+    ];
+  }
+
+  get boundsEdges() {
+    const { x, y, width, height } = this.bounds;
+
+    return [
+      new Line(x, y, x + width, y),
+      new Line(x + width, y, x + width, y + height),
+      new Line(x + width, y + height, x, y + height),
+      new Line(x, y + height, x, y)
+    ];
   }
 
   /**
@@ -90,7 +111,7 @@ export default class Cluster extends MarchingSquares {
     const { collisionIndices, checkCollision, polygon } = this;
     const tile = this.get(x, y);
 
-    if (!polygon.contains(x, y) || this.isPartOfCluster(x, y) || !tile) {
+    if (!polygon.contains(x, y) || this.isChild(x, y) || !tile) {
       return false;
     }
 
@@ -102,15 +123,15 @@ export default class Cluster extends MarchingSquares {
   }
 
   /**
-   * @method isPartOfCluster
+   * @method isChild
    */
-  isPartOfCluster(x, y) {
-    const { clusters } = this;
-    const length = clusters.length;
+  isChild(x, y) {
+    const { children } = this;
+    const length = children.length;
     let i = 0;
 
     for (i; i < length; i++) {
-      if (clusters[i].polygon.contains(x, y)) {
+      if (children[i].polygon.contains(x, y)) {
         return true;
       }
     }

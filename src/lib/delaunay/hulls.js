@@ -131,8 +131,8 @@ export default class Hulls extends MarchingSquares {
       graphics.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
       graphics.endFill();
 
-      if (cluster.clusters.length) {
-        cluster.clusters.forEach(drawCluster, this);
+      if (cluster.children.length) {
+        cluster.children.forEach(drawCluster, this);
       }
     }
 
