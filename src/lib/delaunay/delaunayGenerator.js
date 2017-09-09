@@ -3,6 +3,7 @@ import cdt2d from 'cdt2d';
 import Hulls from './hulls';
 import NavMeshPolygon from '../navMeshPolygon';
 import { areLinesEqual, sortLine } from '../utils';
+import DelaunayCluster from './delaunayCluster';
 
 /**
  * @class DelaunayGenerator
@@ -42,6 +43,7 @@ export default class DelaunayGenerator {
   generate(collisionIndices, tileLayer, tileMap) {
     const edges = this.initPoints(collisionIndices, tileLayer, tileMap);
     const { game, points } = this;
+    const { tileWidth, tileHeight } = tileMap;
     const delaunay = cdt2d(points, edges, { interior: false }) ||  [];
     const length = delaunay.length;
     let i = 0;
@@ -54,6 +56,23 @@ export default class DelaunayGenerator {
       polygon = new NavMeshPolygon(game, ([]).concat(points[triangle[0]], points[triangle[1]], points[triangle[2]]));
       this.polygons.push(polygon);
     }
+
+    /**
+     * @description Find any child clusters, and figure out the delauany for these
+     * @TODO - Make this neater perhaps than this method currently is!
+     */
+    this.hulls.clusters.forEach(cluster => {
+      cluster.children.forEach(childCluster => {
+        const parentEdges = cluster.edges;
+        const childEdges = childCluster.allChildEdges;
+        const { edges } = childCluster;
+        const { polygons } = new DelaunayCluster(edges, parentEdges, childEdges, tileWidth, tileHeight, { exterior: false });
+
+        polygons.forEach(poly => {
+          this.polygons.push(new NavMeshPolygon(game, poly));
+        });
+      });
+    });
 
     this.calculateNeighbours();
   }
@@ -98,6 +117,9 @@ export default class DelaunayGenerator {
   /**
    * @method initPoints
    * @description Pass all found points into list, calculating the internal edges
+   * @param {Number[]} collisionIndices
+   * @param {Phaser.TilemapLayer} tileLayer
+   * @param {Phaser.Tilemap} tileMap
    * @return {Array} edges
    */
   initPoints(collisionIndices, tileLayer, tileMap) {

@@ -1,5 +1,5 @@
-import { Line, Point, Polygon } from 'phaser-ce';
-import { optimiseEdges, triarea2 } from '../utils';
+import { Point, Polygon } from 'phaser-ce';
+import { optimiseEdges } from '../utils';
 import MarchingSquares from './marchingSquares';
 
 /**
@@ -34,25 +34,16 @@ export default class Cluster extends MarchingSquares {
     });
   }
 
-  get boundsCoordinates() {
-    const { x, y, width, height } = this.bounds;
-    return [
-      new Point(x, y),
-      new Point(x + width, y),
-      new Point(x, y + height),
-      new Point(x + width, y + height)
-    ];
-  }
+  /**
+   * @method allChildEdges
+   * @description Extract all edges from child Clusters
+   */
+  get allChildEdges() {
+    const { children } = this;
+    let edges = [];
 
-  get boundsEdges() {
-    const { x, y, width, height } = this.bounds;
-
-    return [
-      new Line(x, y, x + width, y),
-      new Line(x + width, y, x + width, y + height),
-      new Line(x + width, y + height, x, y + height),
-      new Line(x, y + height, x, y)
-    ];
+    children.forEach(child => edges = edges.concat(child.edges || []));
+    return edges;
   }
 
   /**
