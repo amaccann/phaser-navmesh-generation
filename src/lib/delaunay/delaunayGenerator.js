@@ -1,4 +1,4 @@
-import cdt2d from 'cdt2d';
+import { Line } from 'phaser-ce';
 
 import Hulls from './hulls';
 import NavMeshPolygon from '../navMeshPolygon';
@@ -15,66 +15,6 @@ export default class DelaunayGenerator {
     this.points = [];
     this.polygons = [];
     this.tileMap = tileMap;
-  }
-
-  /**
-   * @method addPoint
-   * @description Adds new vertex point to Array. Returns index of newly pushed point, or existin
-   * @param {Number} x
-   * @param {Number} y
-   * @return {Number}
-   */
-  addPoint(x, y) {
-    const { points, tileMap } = this;
-    const { tileWidth, tileHeight } = tileMap;
-
-    const index = points.findIndex(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
-    if (index !== -1) {
-      return index;
-    }
-
-    points.push([ x * tileWidth, y * tileHeight ]);
-    return points.length - 1;
-  }
-
-  /**
-   * @method generate
-   */
-  generate(collisionIndices, tileLayer, tileMap) {
-    const edges = this.initPoints(collisionIndices, tileLayer, tileMap);
-    const { game, points } = this;
-    const { tileWidth, tileHeight } = tileMap;
-    const delaunay = cdt2d(points, edges, { interior: false }) ||  [];
-    const length = delaunay.length;
-    let i = 0;
-    let polygon;
-    let triangle;
-
-    this.polygons = [];
-    for (i; i < length; i++) {
-      triangle = delaunay[i];
-      polygon = new NavMeshPolygon(game, ([]).concat(points[triangle[0]], points[triangle[1]], points[triangle[2]]));
-      this.polygons.push(polygon);
-    }
-
-    /**
-     * @description Find any child clusters, and figure out the delauany for these
-     * @TODO - Make this neater perhaps than this method currently is!
-     */
-    this.hulls.clusters.forEach(cluster => {
-      cluster.children.forEach(childCluster => {
-        const parentEdges = cluster.edges;
-        const childEdges = childCluster.allChildEdges;
-        const { edges } = childCluster;
-        const { polygons } = new DelaunayCluster(edges, parentEdges, childEdges, tileWidth, tileHeight, { exterior: false });
-
-        polygons.forEach(poly => {
-          this.polygons.push(new NavMeshPolygon(game, poly));
-        });
-      });
-    });
-
-    this.calculateNeighbours();
   }
 
   /**
@@ -115,36 +55,58 @@ export default class DelaunayGenerator {
   }
 
   /**
-   * @method initPoints
-   * @description Pass all found points into list, calculating the internal edges
-   * @param {Number[]} collisionIndices
-   * @param {Phaser.TilemapLayer} tileLayer
-   * @param {Phaser.Tilemap} tileMap
-   * @return {Array} edges
+   * @method generate
+   * @description Find (recursively) all outlines of Hulls in the map, and generate Delaunay triangulation from them
    */
-  initPoints(collisionIndices, tileLayer, tileMap) {
+  generate(collisionIndices, tileLayer, tileMap) {
     const { game } = this;
-    const { width, height } = tileMap;
-    const edges = [];
-    let startIndex;
-    let endIndex;
+    const { tileWidth, tileHeight } = tileMap;
 
-    this.hulls = new Hulls(game, tileLayer, { collisionIndices });
-    this.points = [];
+    this.generateHulls(collisionIndices, tileLayer, tileMap);
 
-    this.addPoint(0, 0);
-    this.addPoint(width, 0);
-    this.addPoint(0, height);
-    this.addPoint(width, height);
-
+    /**
+     * @description Find any child clusters, and figure out the delauany for these
+     * @TODO - Make this neater perhaps than this method currently is!
+     */
     this.hulls.clusters.forEach(cluster => {
-      cluster.edges.forEach(edge => {
-        startIndex = this.addPoint(edge.start.x, edge.start.y);
-        endIndex = this.addPoint(edge.end.x, edge.end.y);
-        edges.push([ startIndex, endIndex ]);
+      cluster.children.forEach(childCluster => {
+        const parentEdges = cluster.edges;
+        const childEdges = childCluster.allChildEdges;
+        const { edges } = childCluster;
+        const { polygons } = new DelaunayCluster(edges, parentEdges, childEdges, tileWidth, tileHeight, { exterior: false });
+
+        polygons.forEach(poly => {
+          this.polygons.push(new NavMeshPolygon(game, poly));
+        });
       });
     });
 
-    return edges;
+    this.calculateNeighbours();
+  }
+
+  /**
+   * @method generateHulls
+   * @description Create initial triangulation of "root" clusters of hulls
+   * @param {Number[]} collisionIndices
+   * @param {Phaser.TilemapLayer} tileLayer
+   * @param {Phaser.Tilemap} tileMap
+   */
+  generateHulls(collisionIndices, tileLayer, tileMap) {
+    const { game } = this;
+    const { width, height, tileWidth, tileHeight } = tileMap;
+    const parentEdges = [
+      new Line(),
+      new Line(width, 0),
+      new Line(0, height),
+      new Line(width, height)
+    ];
+    let edges = [];
+
+    this.polygons = [];
+    this.hulls = new Hulls(game, tileLayer, { collisionIndices });
+    this.hulls.clusters.forEach(cluster => edges = edges.concat(cluster.edges));
+
+    const { polygons } = new DelaunayCluster(edges, parentEdges, [], tileWidth, tileHeight, { interior: false });
+    polygons.forEach(p => this.polygons.push(new NavMeshPolygon(game, p)));
   }
 }
