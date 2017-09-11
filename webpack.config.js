@@ -15,6 +15,7 @@ module.exports = {
     filename: '[name].bundle.js',
     path: BUILD_DIR
   },
+  externals: ['phaser-ce'],
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
