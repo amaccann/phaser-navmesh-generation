@@ -1,9 +1,7 @@
-import { Point } from 'phaser-ce';
+/* globals Phaser */
 
 import AStarPath from './aStarPath';
-import NavMeshPolygon from '../navMeshPolygon';
 import PriorityQueue from './priorityQueue';
-import NavMesh from '../navMesh';
 
 const SEARCH_CEILING = 1000;
 
@@ -16,10 +14,6 @@ export default class AStar {
   constructor(game, navMesh) {
     this.game = game;
     this.navMesh = navMesh;
-  }
-
-  distance(poly1, poly2) {
-    return Point.distance(poly2.centroid, poly1.centroid);
   }
 
   /**
@@ -54,7 +48,7 @@ export default class AStar {
     pathTo[startPolygon.uuid] = null;
     gCost[startPolygon.uuid] = 0.0;
 
-    frontier.push(startPolygon, this.distance(startPolygon, endPolygon));
+    frontier.push(startPolygon, startPolygon.distanceTo(endPolygon));
 
     while (!frontier.empty()) {
       if (MAIN_LOOP >= SEARCH_CEILING) {
@@ -86,9 +80,9 @@ export default class AStar {
         const isExplored = explored.find(node => node === connectedNode);
 
         if (!isExplored && !frontier.includes(connectedNode)) {
-          gCost[connectedNode.uuid] = gCost[leafNode.uuid] + this.distance(leafNode, connectedNode);
+          gCost[connectedNode.uuid] = gCost[leafNode.uuid] + leafNode.distanceTo(connectedNode);
           pathTo[connectedNode.uuid] = leafNode;
-          frontier.push(connectedNode, gCost[connectedNode.uuid] + this.distance(connectedNode, endPolygon));
+          frontier.push(connectedNode, gCost[connectedNode.uuid] + connectedNode.distanceTo(endPolygon));
         }
       }
 

@@ -47,6 +47,15 @@ export default class NavMeshPolygon extends Polygon {
   }
 
   /**
+   * @method distanceTo
+   * @param {NavMeshPolygon} polygon
+   * @return {Number}
+   */
+  distanceTo(polygon) {
+    return this.centroid.distance(polygon.centroid);
+  }
+
+  /**
    * @method initialiseEdges
    * @description Loop through Polygon points and calculate 'edges' (ie, Lines connecting each vertex)
    */
