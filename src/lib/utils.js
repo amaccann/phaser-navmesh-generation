@@ -67,9 +67,34 @@ export function sortLine(line) {
 }
 
 /**
+ * @function getCrossProduct
+ * @description Calculate the cross-product between a corner (3 points)
+ * @param {Phaser.Point} point
+ * @param {Phaser.Point} previous
+ * @param {Phaser.Point} next
+ */
+function getCrossProduct(point, previous, next) {
+  const vector1 = Point.subtract(point, previous);
+  const vector2 = Point.subtract(point, next);
+  return vector1.cross(vector2);
+}
+
+/**
+ * @method getDotProduct
+ * @description Calculate the dot-product between a corner
+ * @param {Phaser.Point} point
+ * @param {Phaser.Point} previous
+ * @param {Phaser.Point} next
+ */
+function getDotProduct(point, previous, next) {
+  const normal1 = Point.subtract(previous, point).normalize();
+  const normal2 = Point.subtract(next, point).normalize();
+  return normal1.dot(normal2);
+}
+
+/**
  * @method offsetFunnelPath
  * @description Offset the funnel path by ${inflateBy} so steering doesn't get too close to the corners
- * @description Concept taken from http://ahamnett.blogspot.ie/2012/10/funnel-algorithm.html
  * @param {Phaser.Point[]} paths
  * @param {number} inflateBy
  */
@@ -80,15 +105,16 @@ export function offsetFunnelPath(paths = [], inflateBy = 32) {
   }
 
   const inflated = [ paths[0].clone() ];
+  const offsetPoint = new Point();
   let i = 0;
-  let previousCurrent;
   let nextCurrent;
-  let clockwise;
-  let distance;
   let previous;
   let current;
+  let cross;
+  let dot;
+  let isAntiClockwise;
+  let angle;
   let next;
-  let area;
 
   for (i; i < length; i++) {
     current = paths[i];
@@ -100,28 +126,23 @@ export function offsetFunnelPath(paths = [], inflateBy = 32) {
       continue;
     }
 
-    previousCurrent = new Line(previous.x, previous.y, current.x, current.y);
     nextCurrent = new Line(current.x, current.y, next.x, next.y);
 
-    // Get the area of the poly formed by the 3 points; if it's negative the path bends clockwise
-    area = triarea2(previous, current, next);
-    clockwise = area <= 0;
-    distance = nextCurrent.angle - previousCurrent.angle;
+    cross = getCrossProduct(current, previous, next);
+    dot = getDotProduct(current, previous, next);
+    isAntiClockwise = cross >= 0;
+    angle = Math.acos(dot) * (isAntiClockwise ? -1 : 1);
 
-    if (Math.abs(distance) > Math.PI) {
-      distance -= distance > 0 ? Math.PI * 2 : -Math.PI;
-    }
+    // Rotate the line segment between current & next points by half the vertex angle; then extend this segment
+    // See: https://stackoverflow.com/questions/8292508/algorithm-for-extending-a-line-segment
+    const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
+    offsetPoint.x = start.x + (start.x - end.x) / length * inflateBy;
+    offsetPoint.y = start.y + (start.y - end.y) / length * inflateBy;
 
-    // Calculate the perpendicular to average angle.
-    const angle = previousCurrent.angle + (distance / 2) + (Math.PI / 2);
-    const normal = new Point(Math.cos(angle) * inflateBy, Math.sin(angle) * inflateBy);
-
-    if (clockwise) {
-      inflated.push(Point.subtract(paths[i], normal));
-    } else {
-      inflated.push(Point.add(paths[i], normal));
-    }
+    inflated.push(offsetPoint.clone());
   }
+
+  // Add the last point, without inflating it
   inflated.push(paths[length - 1].clone());
 
   return inflated;
