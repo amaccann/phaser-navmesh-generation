@@ -19,10 +19,11 @@ export default class DelaunayGenerator {
 
   /**
    * @method generatePolygonEdges
-   * @description Find all neighbours for each Polygon generated; we assume all are potentially connected given Delaunay.
+   * @description Find all neighbours for each Polygon generated; we assume all are potentially connected given Delaunay
+   * @param {NavMeshPolygon[]} polygons
+   *
    */
-  calculateNeighbours() {
-    const { polygons } = this;
+  calculateClusterNeighbours(polygons = []) {
     const polyLength = polygons.length;
     let i = 0;
     let polygon;
@@ -61,29 +62,34 @@ export default class DelaunayGenerator {
   generate(collisionIndices, tileLayer, tileMap) {
     const { game } = this;
     const { tileWidth, tileHeight } = tileMap;
+    const options = { exterior: false };
 
     this.generateHulls(collisionIndices, tileLayer, tileMap);
 
+    /**
+     * @function parseCluster
+     * @param {Cluster} cluster
+     */
     const parseCluster = cluster => {
-      cluster.children.forEach(childCluster => {
+      const clusterPolygons = [];
+
+      cluster.children.forEach(child => {
         const parentEdges = cluster.edges;
-        const childEdges = childCluster.allChildEdges;
-        const { edges } = childCluster;
-        const { polygons } = new DelaunayCluster(edges, parentEdges, childEdges, tileWidth, tileHeight, { exterior: false });
+        const { edges } = child;
+        const { polygons } = new DelaunayCluster(edges, parentEdges, child.allChildEdges, tileWidth, tileHeight, options);
 
-        polygons.forEach(poly => {
-          this.polygons.push(new NavMeshPolygon(game, poly));
-        });
+        polygons.forEach(poly => clusterPolygons.push(new NavMeshPolygon(game, poly)));
 
-        if (childCluster.children.length) {
-          childCluster.children.forEach(parseCluster);
+        if (child.children.length) {
+          child.children.forEach(parseCluster);
         }
       });
+
+      this.polygons = this.polygons.concat(clusterPolygons);
+      this.calculateClusterNeighbours(clusterPolygons);
     };
 
     this.hulls.clusters.forEach(parseCluster);
-
-    this.calculateNeighbours();
   }
 
   /**
@@ -110,5 +116,6 @@ export default class DelaunayGenerator {
 
     const { polygons } = new DelaunayCluster(edges, parentEdges, [], tileWidth, tileHeight, { interior: false });
     polygons.forEach(p => this.polygons.push(new NavMeshPolygon(game, p)));
+    this.calculateClusterNeighbours(this.polygons);
   }
 }

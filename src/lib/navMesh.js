@@ -25,21 +25,12 @@ export default class NavMesh {
   }
 
   /**
-   * @method destroy
-   */
-  destroy() {
-    MESH_GRAPHICS && MESH_GRAPHICS.destroy();
-    BOUNDS_GRAPHICS && BOUNDS_GRAPHICS.destroy();
-    NODES_GRAPHICS && NODES_GRAPHICS.destroy();
-  }
-
-  /**
    * @method generate
    * @param {Object} options
    */
   generate(options) {
     const { game, tileLayer, tileMap } = this;
-    const timerName = 'NavMesh built in';
+    const timerName = 'NavMesh generated in';
 
     console.warn('🛠 Building NavMesh. Beep Boop Boop 🤖');
     console.time(timerName);
