@@ -1,0 +1,24 @@
+{
+  "env": {
+    "browser": true,
+    "jasmine": true,
+    "es6": true
+  },
+  "extends": "eslint:recommended",
+  "globals": {
+    "Phaser": true,
+    "p2": true,
+    "module": false
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "ecmaFeatures": {
+      "impliedStrict": true,
+      "jsx": true,
+      "experimentalObjectRestSpread": true
+    },
+    "sourceType": "module"
+  },
+  "plugins": [],
+  "settings": {}
+}
