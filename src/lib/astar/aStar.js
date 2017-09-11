@@ -1,7 +1,8 @@
+import { Point } from 'phaser-ce';
+
 import AStarPath from './aStarPath';
 import NavMeshPolygon from '../navMeshPolygon';
 import PriorityQueue from './priorityQueue';
-import { getHeuristicCost } from '../utils';
 import NavMesh from '../navMesh';
 
 const SEARCH_CEILING = 1000;
@@ -17,6 +18,10 @@ export default class AStar {
     this.navMesh = navMesh;
   }
 
+  distance(poly1, poly2) {
+    return Point.distance(poly2.centroid, poly1.centroid);
+  }
+
   /**
    * @method search
    * @description Taken from http://jceipek.com/Olin-Coding-Tutorials/pathing.html
@@ -25,8 +30,9 @@ export default class AStar {
    * @returns {NavMeshPolygon[]|Boolean}
    */
   search(start, end) {
-    const startPolygon = this.navMesh.getPolygonByXY(start.x, start.y);
-    const endPolygon = this.navMesh.getPolygonByXY(end.x, end.y);
+    const { navMesh } = this;
+    const startPolygon = navMesh.getPolygonByXY(start.x, start.y);
+    const endPolygon = navMesh.getPolygonByXY(end.x, end.y);
     const pathNodes = [];
 
     if (!startPolygon || !endPolygon) {
@@ -48,7 +54,7 @@ export default class AStar {
     pathTo[startPolygon.uuid] = null;
     gCost[startPolygon.uuid] = 0.0;
 
-    frontier.push(startPolygon, getHeuristicCost(startPolygon, endPolygon));
+    frontier.push(startPolygon, this.distance(startPolygon, endPolygon));
 
     while (!frontier.empty()) {
       if (MAIN_LOOP >= SEARCH_CEILING) {
@@ -80,10 +86,9 @@ export default class AStar {
         const isExplored = explored.find(node => node === connectedNode);
 
         if (!isExplored && !frontier.includes(connectedNode)) {
-          // gCost[connectedNode.uuid] = gCost[leafNode.uuid] + CostBetween(leafNode, connectedNode);
-          gCost[connectedNode.uuid] = gCost[leafNode.uuid] + getHeuristicCost(leafNode, connectedNode);
+          gCost[connectedNode.uuid] = gCost[leafNode.uuid] + this.distance(leafNode, connectedNode);
           pathTo[connectedNode.uuid] = leafNode;
-          frontier.push(connectedNode, gCost[connectedNode.uuid] + getHeuristicCost(connectedNode, endPolygon));
+          frontier.push(connectedNode, gCost[connectedNode.uuid] + this.distance(connectedNode, endPolygon));
         }
       }
 

@@ -14,13 +14,6 @@ export function areLinesEqual(line1, line2) {
   return startEqual && endEqual;
 }
 
-export function getHeuristicCost(poly1, poly2) {
-  const d1 = Math.abs(poly2.centroid.x - poly1.centroid.x);
-  const d2 = Math.abs(poly2.centroid.y - poly1.centroid.y);
-
-  return d1 + d2;
-}
-
 export function getRandomColour() {
   return Color.HSLtoRGB(Math.random(), 1, 0.5).color;
 }

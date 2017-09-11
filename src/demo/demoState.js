@@ -64,6 +64,7 @@ export default class DemoState extends State {
 
     this.cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
+    game.input.keyboard.addKey(Keyboard.SPACEBAR).onDown.add(() => game.paused = !game.paused, this);
   }
 
   /**
