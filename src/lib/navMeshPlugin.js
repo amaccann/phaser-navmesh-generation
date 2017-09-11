@@ -1,11 +1,10 @@
-import { Plugin, Tilemap, TilemapLayer } from 'phaser-ce';
 import NavMesh from './navMesh';
 
 const defaultOptions = {
   collisionIndices: []
 };
 
-export default class NavMeshPlugin extends Plugin {
+export default class NavMeshPlugin extends Phaser.Plugin {
   constructor(game, manager) {
     super(game, manager);
   }

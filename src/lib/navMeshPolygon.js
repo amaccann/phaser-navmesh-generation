@@ -1,12 +1,10 @@
-import { Line, Point, Polygon } from 'phaser-ce';
-
 import { angleDifference } from './utils';
 
-export default class NavMeshPolygon extends Polygon {
+export default class NavMeshPolygon extends Phaser.Polygon {
   constructor(game, points = []) {
     super(points);
 
-    this.centroid = Point.centroid(this.points);
+    this.centroid = Phaser.Point.centroid(this.points);
     this.edges = [];
     this.neighbors = [];
     this.portals = [];
@@ -40,9 +38,9 @@ export default class NavMeshPolygon extends Polygon {
     const d2 = angleDifference(edgeStartAngle, angleToEnd);
 
     if (d1 > d2) {
-      portals.push(new Line(point1.x, point1.y, point2.x, point2.y));
+      portals.push(new Phaser.Line(point1.x, point1.y, point2.x, point2.y));
     } else {
-      portals.push(new Line(point2.x, point2.y, point1.x, point1.y));
+      portals.push(new Phaser.Line(point2.x, point2.y, point1.x, point1.y));
     }
   }
 
@@ -70,7 +68,7 @@ export default class NavMeshPolygon extends Polygon {
 
       for (j; j < length; j++) {
         if (i !== j) {
-          this.edges.push(new Line(points[i].x, points[i].y, points[j].x, points[j].y));
+          this.edges.push(new Phaser.Line(points[i].x, points[i].y, points[j].x, points[j].y));
         }
       }
     }

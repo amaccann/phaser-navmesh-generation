@@ -1,4 +1,3 @@
-import NavMeshPolygon from '../navMeshPolygon';
 import { areLinesEqual } from '../utils';
 import Funnel from './funnel';
 

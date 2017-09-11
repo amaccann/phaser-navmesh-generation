@@ -1,5 +1,3 @@
-import { Line } from 'phaser-ce';
-
 import Hulls from './hulls';
 import NavMeshPolygon from '../navMeshPolygon';
 import { areLinesEqual, sortLine } from '../utils';
@@ -103,10 +101,10 @@ export default class DelaunayGenerator {
     const { game } = this;
     const { width, height, tileWidth, tileHeight } = tileMap;
     const parentEdges = [
-      new Line(),
-      new Line(width, 0),
-      new Line(0, height),
-      new Line(width, height)
+      new Phaser.Line(),
+      new Phaser.Line(width, 0),
+      new Phaser.Line(0, height),
+      new Phaser.Line(width, height)
     ];
     let edges = [];
 

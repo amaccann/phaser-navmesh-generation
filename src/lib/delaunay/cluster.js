@@ -1,4 +1,3 @@
-import { Point, Polygon } from 'phaser-ce';
 import { optimiseEdges } from '../utils';
 import MarchingSquares from './marchingSquares';
 
@@ -11,7 +10,7 @@ export default class Cluster extends MarchingSquares {
   constructor(contours, edges, grid, collisionIndices, checkCollision) {
     super(grid, collisionIndices);
 
-    this.polygon = new Polygon(contours);
+    this.polygon = new Phaser.Polygon(contours);
     this.edges = edges;
     this.checkCollision = checkCollision;
 
@@ -50,7 +49,7 @@ export default class Cluster extends MarchingSquares {
    * @method getStartingPoint
    */
   getStartingPoint() {
-    const offsetPoint = new Point();
+    const offsetPoint = new Phaser.Point();
     const { bounds } = this;
     const { x, y, width, height } = bounds;
 

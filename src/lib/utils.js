@@ -1,5 +1,3 @@
-import { Color, Line, Point } from 'phaser-ce';
-
 const THREE_SIXTY_DEGREES = Math.PI * 2;
 
 export function areLinesEqual(line1, line2) {
@@ -15,7 +13,7 @@ export function areLinesEqual(line1, line2) {
 }
 
 export function getRandomColour() {
-  return Color.HSLtoRGB(Math.random(), 1, 0.5).color;
+  return Phaser.Color.HSLtoRGB(Math.random(), 1, 0.5).color;
 }
 
 /**
@@ -50,11 +48,11 @@ export function angleDifference(x, y) {
 export function sortLine(line) {
   const { start, end } = line;
   if (end.x < start.x) {
-    return new Line(end.x, end.y, start.x, start.y);
+    return new Phaser.Line(end.x, end.y, start.x, start.y);
   } else if (end.x > start.x) {
     return line;
   } else if (end.y < start.y) {
-    return new Line(end.x, end.y, start.x, start.y);
+    return new Phaser.Line(end.x, end.y, start.x, start.y);
   }
   return line;
 }
@@ -67,8 +65,8 @@ export function sortLine(line) {
  * @param {Phaser.Point} next
  */
 function getCrossProduct(point, previous, next) {
-  const vector1 = Point.subtract(point, previous);
-  const vector2 = Point.subtract(point, next);
+  const vector1 = Phaser.Point.subtract(point, previous);
+  const vector2 = Phaser.Point.subtract(point, next);
   return vector1.cross(vector2);
 }
 
@@ -80,8 +78,8 @@ function getCrossProduct(point, previous, next) {
  * @param {Phaser.Point} next
  */
 function getDotProduct(point, previous, next) {
-  const normal1 = Point.subtract(previous, point).normalize();
-  const normal2 = Point.subtract(next, point).normalize();
+  const normal1 = Phaser.Point.subtract(previous, point).normalize();
+  const normal2 = Phaser.Point.subtract(next, point).normalize();
   return normal1.dot(normal2);
 }
 
@@ -98,7 +96,7 @@ export function offsetFunnelPath(paths = [], inflateBy = 32) {
   }
 
   const inflated = [ paths[0].clone() ];
-  const offsetPoint = new Point();
+  const offsetPoint = new Phaser.Point();
   let i = 0;
   let nextCurrent;
   let previous;
@@ -119,7 +117,7 @@ export function offsetFunnelPath(paths = [], inflateBy = 32) {
       continue;
     }
 
-    nextCurrent = new Line(current.x, current.y, next.x, next.y);
+    nextCurrent = new Phaser.Line(current.x, current.y, next.x, next.y);
 
     cross = getCrossProduct(current, previous, next);
     dot = getDotProduct(current, previous, next);
@@ -161,7 +159,7 @@ export function optimiseEdges(edges) {
     }
 
     const area = triarea2(line1.start, line1.end, line2.end);
-    line = new Line(line1.start.x, line1.start.y, line2.end.x, line2.end.y);
+    line = new Phaser.Line(line1.start.x, line1.start.y, line2.end.x, line2.end.y);
     if (!area) {
       edges.splice(i, 2, line);
       i--; // start again

@@ -1,5 +1,3 @@
-import { Line, Point } from 'phaser-ce';
-
 const WHILE_CEILING = 500;
 const DIRECTIONS = {
   NONE: 0,
@@ -35,7 +33,6 @@ export default class MarchingSquares {
 
       CEILING_LOOP++;
       if (CEILING_LOOP >= WHILE_CEILING) {
-        console.error('PROBLEMS CALCULATING, EXITING');
         break;
       }
     } while (contours.length);
@@ -94,7 +91,7 @@ export default class MarchingSquares {
    */
   walkPerimeter() {
     const startPoint = this.getStartingPoint();
-    const currentPoint = new Point();
+    const currentPoint = new Phaser.Point();
     const contours = [];
     const lines = [];
     let clone;
@@ -105,8 +102,8 @@ export default class MarchingSquares {
     }
 
     currentPoint.copyFrom(startPoint);
-    const step = new Point();
-    const previous = new Point(); // Save the previous step...
+    const step = new Phaser.Point();
+    const previous = new Phaser.Point(); // Save the previous step...
 
     let closed = false;
     while (!closed) {
@@ -213,7 +210,7 @@ export default class MarchingSquares {
       currentPoint.add(step.x, step.y);
 
       // Create a line from the current point & next one along...
-      lines.push(new Line(clone.x, clone.y, currentPoint.x, currentPoint.y));
+      lines.push(new Phaser.Line(clone.x, clone.y, currentPoint.x, currentPoint.y));
 
       previous.copyFrom(step);
 
@@ -225,7 +222,6 @@ export default class MarchingSquares {
 
       LOOP_CEILING++;
       if (LOOP_CEILING >= WHILE_CEILING) {
-        console.error('BOMBING OUT OF THE WALKING');
         closed = true;
       }
     }
@@ -233,4 +229,4 @@ export default class MarchingSquares {
     // If no contour points found, then there were no passing clusters found
     return { contours, lines };
   }
-};
+}

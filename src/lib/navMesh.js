@@ -1,11 +1,9 @@
+/* eslint-disable no-console */
+
 import AStar from './astar/aStar';
 import Debug from './debug';
 import { offsetFunnelPath } from './utils';
 import DelaunayGenerator from './delaunay/delaunayGenerator';
-
-let MESH_GRAPHICS;
-let NODES_GRAPHICS;
-let BOUNDS_GRAPHICS;
 
 /**
  * @class NavMesh

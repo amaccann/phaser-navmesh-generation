@@ -1,4 +1,3 @@
-import { Point } from 'phaser-ce';
 import MarchingSquares from './marchingSquares';
 import Cluster from './cluster';
 
@@ -36,7 +35,7 @@ export default class Hulls extends MarchingSquares {
     const width = grid[0].length;
     let y = 0;
     let x;
-    const offsetPoint = new Point();
+    const offsetPoint = new Phaser.Point();
 
     for (y; y < height; y++) {
       x = 0;
