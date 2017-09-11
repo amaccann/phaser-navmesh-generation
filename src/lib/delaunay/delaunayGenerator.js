@@ -64,11 +64,7 @@ export default class DelaunayGenerator {
 
     this.generateHulls(collisionIndices, tileLayer, tileMap);
 
-    /**
-     * @description Find any child clusters, and figure out the delauany for these
-     * @TODO - Make this neater perhaps than this method currently is!
-     */
-    this.hulls.clusters.forEach(cluster => {
+    const parseCluster = cluster => {
       cluster.children.forEach(childCluster => {
         const parentEdges = cluster.edges;
         const childEdges = childCluster.allChildEdges;
@@ -78,8 +74,14 @@ export default class DelaunayGenerator {
         polygons.forEach(poly => {
           this.polygons.push(new NavMeshPolygon(game, poly));
         });
+
+        if (childCluster.children.length) {
+          childCluster.children.forEach(parseCluster);
+        }
       });
-    });
+    };
+
+    this.hulls.clusters.forEach(parseCluster);
 
     this.calculateNeighbours();
   }
