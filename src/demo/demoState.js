@@ -121,6 +121,11 @@ export default class DemoState extends State {
       const size = Math.max(width, height);
       const path = navMesh.getPath(position, destination, size);
 
+      // If no path found, do nothing with the sprite
+      if (!path) {
+        return sprite.addPath([]);
+      }
+
       paths.push(path);
       sprite.addPath(path);
     }, this);

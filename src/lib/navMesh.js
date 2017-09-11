@@ -48,9 +48,12 @@ export default class NavMesh {
   getPath(startPosition, endPosition, offset) {
     const { aStar } = this;
     const aStarPath = aStar.search(startPosition, endPosition);
+    if (!aStarPath) {
+      return false;
+    }
+
     const path = aStarPath.path;
     const offsetPath = offsetFunnelPath(path, offset);
-
     Debug.draw({ aStarPath });
     return { path, offsetPath };
   }

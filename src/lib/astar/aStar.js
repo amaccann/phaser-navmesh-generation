@@ -22,12 +22,16 @@ export default class AStar {
    * @description Taken from http://jceipek.com/Olin-Coding-Tutorials/pathing.html
    * @param {Phaser.Point} start
    * @param {Phaser.Point} end
-   * @returns NavMeshPolygon[]
+   * @returns {NavMeshPolygon[]|Boolean}
    */
   search(start, end) {
     const startPolygon = this.navMesh.getPolygonByXY(start.x, start.y);
     const endPolygon = this.navMesh.getPolygonByXY(end.x, end.y);
     const pathNodes = [];
+
+    if (!startPolygon || !endPolygon) {
+      return false;
+    }
 
     const frontier = new PriorityQueue({ low: true }); // Still to explore
     const explored = [];
