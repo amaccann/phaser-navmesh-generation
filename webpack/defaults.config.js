@@ -1,16 +1,7 @@
-const webpack = require('webpack');
 const path = require('path');
-
-const APP_DIR = path.resolve(__dirname, 'src');
-const BUILD_DIR = path.resolve(__dirname, 'public');
-const PHASER_DIR = path.join(__dirname, '/node_modules/phaser-ce');
-const NODE_ENV = process.env.NODE_ENV;
+const { APP_DIR, PHASER_DIR, BUILD_DIR } = require('./conf');
 
 module.exports = {
-  entry: {
-    plugin: `${APP_DIR}/lib/navMeshPlugin.js`,
-    demo: `${APP_DIR}/demo/index.js`
-  },
   output: {
     filename: '[name].bundle.js',
     path: BUILD_DIR
@@ -61,17 +52,5 @@ module.exports = {
         }]
       }
     ]
-  },
-  plugins: NODE_ENV === 'production' ? [ new webpack.optimize.UglifyJsPlugin({
-      drop_console: true,
-      minimize: true,
-      output: {
-        comments: false
-      }
-    }
-  )] : [],
-  devServer: {
-    contentBase: BUILD_DIR,
-    port: 8080
   }
 };
