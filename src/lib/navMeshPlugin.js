@@ -1,8 +1,4 @@
-import NavMesh from './navMesh';
-
-const defaultOptions = {
-  collisionIndices: []
-};
+import NavMesh, { defaultOptions } from './navMesh';
 
 export default class NavMeshPlugin extends Phaser.Plugin {
   constructor(game, manager) {

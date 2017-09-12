@@ -41,8 +41,8 @@ export default class DemoState extends State {
 
     game.stage.backgroundColor = '#2d2d2d';
 
-    new DemoSprite(game, 100, 50, this.spriteGroup);
-    new DemoSprite(game, 600, 60, this.spriteGroup);
+    // new DemoSprite(game, 100, 50, this.spriteGroup);
+    // new DemoSprite(game, 600, 60, this.spriteGroup);
     new DemoSprite(game, 200, 500, this.spriteGroup);
     // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
     // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
@@ -142,6 +142,7 @@ export default class DemoState extends State {
 
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
+      narrownessThreshold: 75,
       debug: {
         hulls: false,
         hullBounds: false,

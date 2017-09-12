@@ -86,7 +86,7 @@ function getDotProduct(point, previous, next) {
 /**
  * @method offsetFunnelPath
  * @description Offset the funnel path by ${inflateBy} so steering doesn't get too close to the corners
- * @param {Phaser.Point[]} paths
+ * @param {FunnelPoint[]} paths
  * @param {number} inflateBy
  */
 export function offsetFunnelPath(paths = [], inflateBy = 32) {
@@ -114,6 +114,9 @@ export function offsetFunnelPath(paths = [], inflateBy = 32) {
 
     // Ignore the start & end vertices
     if (!previous || !next) {
+      continue;
+    } else if (current.isNarrow) { // If this was evaluated as too narrow for funneling, just add it & move on.
+      inflated.push(current.clone());
       continue;
     }
 

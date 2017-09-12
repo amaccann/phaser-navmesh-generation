@@ -8,11 +8,9 @@ const SEARCH_CEILING = 1000;
 export default class AStar {
   /**
    * @constructor
-   * @param {Phaser.Game} game
    * @param {NavMesh} navMesh
    */
-  constructor(game, navMesh) {
-    this.game = game;
+  constructor(navMesh) {
     this.navMesh = navMesh;
   }
 
@@ -102,7 +100,8 @@ export default class AStar {
    * @param {Boolean} isConnected
    */
   buildPath(pathNodes = [], startPoint, endPoint, startPolygon, endPolygon, isConnected) {
-    const { game } = this;
-    return new AStarPath(game, pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected });
+    const { navMesh } = this;
+    const { narrownessThreshold } = navMesh;
+    return new AStarPath(pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected, narrownessThreshold });
   }
 }

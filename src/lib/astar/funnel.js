@@ -1,16 +1,17 @@
 import Portal from './portal';
 import { triarea2 } from '../utils';
+import FunnelPoint from './funnelPoint';
 
 export default class Funnel {
 
   /**
    * @constructor
-   * @param {Phaser.Game} game
+   * @param {Number} narrownessThreshold
    */
-  constructor(game) {
-    this.game = game;
+  constructor(narrownessThreshold) {
     this.path = [];
     this.portals = [];
+    this.narrownessThreshold = narrownessThreshold;
   }
 
   /**
@@ -27,12 +28,13 @@ export default class Funnel {
   /**
    * @method addPointToPath
    * @param {Phaser.Point} portal
+   * @param {Boolean} isNarrow
    */
-  addPointToPath(portal) {
+  addPointToPath(portal, isNarrow = false) {
     const { path } = this;
     const exists = path.find(p => p.equals(portal));
     if (!exists) {
-      path.push(portal);
+      path.push(new FunnelPoint(portal.x, portal.y, isNarrow));
     }
   }
 
@@ -42,7 +44,7 @@ export default class Funnel {
    * @TODO Should check if there are any gaps, edges missing points, maybe we could fill with mid-point fallbacks...
    */
   update() {
-    const { path, portals } = this;
+    const { path, portals, narrownessThreshold } = this;
     const portalsLength = portals.length;
 
     let apexIndex = 0;
@@ -61,12 +63,13 @@ export default class Funnel {
     // Reset values and make current apex as ${portal}
     /**
      * @function setApexAndReset
-     * @param {Phaser.Point} portal
+     * @param {Phaser.Point} point
+     * @param {Boolean} isNarrow
      * @param {Number} index
      */
-    const setApexAndReset = (portal, index) => {
-      this.addPointToPath(portal);
-      apex = portal;
+    const setApexAndReset = (point, index, isNarrow = false) => {
+      this.addPointToPath(point, isNarrow);
+      apex = point;
       apexIndex = index;
 
       portalLeft = apex;
@@ -79,6 +82,10 @@ export default class Funnel {
     for (i; i < portalsLength; i++) {
       left = portals[i].left;
       right = portals[i].right;
+      if (portals[i].isTooNarrow(narrownessThreshold)) {
+        setApexAndReset(portals[i].midPoint, i, true);
+        continue;
+      }
 
       // Update right vertex.
       if (triarea2(apex, portalRight, right) <= 0.0) {

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "cdt2d": "^1.0.0",
-    "phaser-ce": "^2.8.4"
+    "phaser-ce": "^2.8.4",
+    "uuid": "^3.1.0"
   }
 }

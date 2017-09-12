@@ -1,14 +1,15 @@
+import uuid from 'uuid';
 import { angleDifference } from './utils';
 
 export default class NavMeshPolygon extends Phaser.Polygon {
-  constructor(game, points = []) {
+  constructor(points = []) {
     super(points);
 
     this.centroid = Phaser.Point.centroid(this.points);
     this.edges = [];
     this.neighbors = [];
     this.portals = [];
-    this.uuid = game.rnd.uuid();
+    this.uuid = uuid();
     this.initialiseEdges();
     this.initialiseRadius();
   }

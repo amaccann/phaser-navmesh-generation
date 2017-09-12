@@ -5,6 +5,11 @@ import Debug from './debug';
 import { offsetFunnelPath } from './utils';
 import DelaunayGenerator from './delaunay/delaunayGenerator';
 
+export const defaultOptions = {
+  collisionIndices: [],
+  narrownessThreshold: 0
+};
+
 /**
  * @class NavMesh
  * @description TODO: Establish a stronger algorithm to generate hulls, ideally something usning
@@ -17,7 +22,7 @@ export default class NavMesh {
     this.tileMap = tileMap;
     this.tileLayer = tileLayer;
 
-    this.delaunay = new DelaunayGenerator(game, tileMap);
+    this.delaunay = new DelaunayGenerator(tileMap);
 
     this.generate(options);
   }
@@ -27,14 +32,14 @@ export default class NavMesh {
    * @param {Object} options
    */
   generate(options) {
-    const { game, tileLayer, tileMap } = this;
+    const { tileLayer, tileMap } = this;
     const timerName = 'NavMesh generated in';
 
     console.warn('🛠 Building NavMesh. Beep Boop Boop 🤖');
     console.time(timerName);
     this.setOptions(options);
     this.delaunay.generate(this.collisionIndices, tileLayer, tileMap);
-    this.aStar = new AStar(game, this); // Calculate the a-star grid for the polygons.
+    this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
     console.timeEnd(timerName);
 
     Debug.draw({ delaunay: this.delaunay });
@@ -69,7 +74,10 @@ export default class NavMesh {
    */
   setOptions(options) {
     const { game, tileLayer } = this;
+    const { collisionIndices, narrownessThreshold } = defaultOptions;
+
     Debug.set(game, tileLayer, options.debug);
-    this.collisionIndices = options.collisionIndices || [];
+    this.collisionIndices = options.collisionIndices || collisionIndices;
+    this.narrownessThreshold = options.narrownessThreshold || narrownessThreshold;
   }
 }

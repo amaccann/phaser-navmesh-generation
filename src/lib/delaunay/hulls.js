@@ -1,14 +1,20 @@
 import MarchingSquares from './marchingSquares';
 import Cluster from './cluster';
 
+/**
+ * @class Hulls
+ */
 export default class Hulls extends MarchingSquares {
-  constructor(game, tileLayer, options = {}) {
+  /**
+   * @constructor
+   * @param {Phaser.TilemapLayer} tileLayer
+   * @param {Object} options
+   */
+  constructor(tileLayer, options = {}) {
     const { data } = tileLayer.layer;
     super(data, options.collisionIndices);
 
-    this.game = game;
     this.tileLayer = tileLayer;
-
     this.generate();
   }
 

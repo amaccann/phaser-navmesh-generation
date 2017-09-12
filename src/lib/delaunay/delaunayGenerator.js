@@ -8,8 +8,7 @@ import DelaunayCluster from './delaunayCluster';
  * @description Helper class to generate the delaunay triangles used in building the NavMesh
  */
 export default class DelaunayGenerator {
-  constructor(game, tileMap) {
-    this.game = game;
+  constructor(tileMap) {
     this.points = [];
     this.polygons = [];
     this.tileMap = tileMap;
@@ -58,7 +57,6 @@ export default class DelaunayGenerator {
    * @description Find (recursively) all outlines of Hulls in the map, and generate Delaunay triangulation from them
    */
   generate(collisionIndices, tileLayer, tileMap) {
-    const { game } = this;
     const { tileWidth, tileHeight } = tileMap;
     const options = { exterior: false };
 
@@ -76,7 +74,7 @@ export default class DelaunayGenerator {
         const { edges } = child;
         const { polygons } = new DelaunayCluster(edges, parentEdges, child.allChildEdges, tileWidth, tileHeight, options);
 
-        polygons.forEach(poly => clusterPolygons.push(new NavMeshPolygon(game, poly)));
+        polygons.forEach(poly => clusterPolygons.push(new NavMeshPolygon(poly)));
 
         if (child.children.length) {
           child.children.forEach(parseCluster);
@@ -98,7 +96,6 @@ export default class DelaunayGenerator {
    * @param {Phaser.Tilemap} tileMap
    */
   generateHulls(collisionIndices, tileLayer, tileMap) {
-    const { game } = this;
     const { width, height, tileWidth, tileHeight } = tileMap;
     const parentEdges = [
       new Phaser.Line(),
@@ -109,11 +106,11 @@ export default class DelaunayGenerator {
     let edges = [];
 
     this.polygons = [];
-    this.hulls = new Hulls(game, tileLayer, { collisionIndices });
+    this.hulls = new Hulls(tileLayer, { collisionIndices });
     this.hulls.clusters.forEach(cluster => edges = edges.concat(cluster.edges));
 
     const { polygons } = new DelaunayCluster(edges, parentEdges, [], tileWidth, tileHeight, { interior: false });
-    polygons.forEach(p => this.polygons.push(new NavMeshPolygon(game, p)));
+    polygons.forEach(p => this.polygons.push(new NavMeshPolygon(p)));
     this.calculateClusterNeighbours(this.polygons);
   }
 }

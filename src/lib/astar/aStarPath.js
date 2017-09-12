@@ -5,15 +5,15 @@ export default class AStarPath {
 
   /**
    * @constructor
-   * @param {Phaser.Game} game
    * @param {NavMeshPolygon[]} polygons
    * @param {Object} options
    */
-  constructor(game, polygons = [], options = {}) {
-    const { startPoint, endPoint, startPolygon, endPolygon, isConnected } = options;
-    this.game = game;
+  constructor(polygons = [], options = {}) {
+    const { startPoint, endPoint, startPolygon, endPolygon, isConnected, narrownessThreshold } = options;
     this.polygons = polygons;
     this.isConnected = isConnected;
+    this.narrownessThreshold = narrownessThreshold;
+    console.log('narrownessThreshold', narrownessThreshold);
 
     this.startPoint = startPoint;
     this.endPoint = endPoint;
@@ -67,11 +67,11 @@ export default class AStarPath {
    * @method initFunnel
    */
   initFunnel() {
-    const { game, portals, startPoint, endPoint } = this;
+    const { portals, startPoint, endPoint, narrownessThreshold } = this;
     const length = portals.length;
     let i = 0;
 
-    this.funnel = new Funnel(game);
+    this.funnel = new Funnel(narrownessThreshold);
     this.funnel.add(startPoint);
 
     for (i; i < length; i++) {
