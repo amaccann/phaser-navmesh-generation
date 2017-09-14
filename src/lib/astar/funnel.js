@@ -6,12 +6,12 @@ export default class Funnel {
 
   /**
    * @constructor
-   * @param {Number} narrownessThreshold
+   * @param {Number} midPointThreshold
    */
-  constructor(narrownessThreshold) {
+  constructor(midPointThreshold) {
     this.path = [];
     this.portals = [];
-    this.narrownessThreshold = narrownessThreshold;
+    this.midPointThreshold = midPointThreshold;
   }
 
   /**
@@ -44,7 +44,7 @@ export default class Funnel {
    * @TODO Should check if there are any gaps, edges missing points, maybe we could fill with mid-point fallbacks...
    */
   update() {
-    const { path, portals, narrownessThreshold } = this;
+    const { path, portals, midPointThreshold } = this;
     const portalsLength = portals.length;
 
     let apexIndex = 0;
@@ -82,7 +82,7 @@ export default class Funnel {
     for (i; i < portalsLength; i++) {
       left = portals[i].left;
       right = portals[i].right;
-      if (portals[i].isTooNarrow(narrownessThreshold)) {
+      if (portals[i].isTooNarrow(midPointThreshold)) {
         setApexAndReset(portals[i].midPoint, i, true);
         continue;
       }

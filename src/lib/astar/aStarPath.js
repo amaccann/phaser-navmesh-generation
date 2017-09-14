@@ -9,11 +9,10 @@ export default class AStarPath {
    * @param {Object} options
    */
   constructor(polygons = [], options = {}) {
-    const { startPoint, endPoint, startPolygon, endPolygon, isConnected, narrownessThreshold } = options;
+    const { startPoint, endPoint, startPolygon, endPolygon, isConnected, midPointThreshold } = options;
     this.polygons = polygons;
     this.isConnected = isConnected;
-    this.narrownessThreshold = narrownessThreshold;
-    console.log('narrownessThreshold', narrownessThreshold);
+    this.midPointThreshold = midPointThreshold;
 
     this.startPoint = startPoint;
     this.endPoint = endPoint;
@@ -67,11 +66,11 @@ export default class AStarPath {
    * @method initFunnel
    */
   initFunnel() {
-    const { portals, startPoint, endPoint, narrownessThreshold } = this;
+    const { portals, startPoint, endPoint, midPointThreshold } = this;
     const length = portals.length;
     let i = 0;
 
-    this.funnel = new Funnel(narrownessThreshold);
+    this.funnel = new Funnel(midPointThreshold);
     this.funnel.add(startPoint);
 
     for (i; i < length; i++) {

@@ -101,7 +101,7 @@ export default class AStar {
    */
   buildPath(pathNodes = [], startPoint, endPoint, startPolygon, endPolygon, isConnected) {
     const { navMesh } = this;
-    const { narrownessThreshold } = navMesh;
-    return new AStarPath(pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected, narrownessThreshold });
+    const { midPointThreshold } = navMesh;
+    return new AStarPath(pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected, midPointThreshold });
   }
 }

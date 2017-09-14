@@ -7,7 +7,7 @@ import DelaunayGenerator from './delaunay/delaunayGenerator';
 
 export const defaultOptions = {
   collisionIndices: [],
-  narrownessThreshold: 0
+  midPointThreshold: 0
 };
 
 /**
@@ -74,10 +74,10 @@ export default class NavMesh {
    */
   setOptions(options) {
     const { game, tileLayer } = this;
-    const { collisionIndices, narrownessThreshold } = defaultOptions;
+    const { collisionIndices, midPointThreshold } = defaultOptions;
 
     Debug.set(game, tileLayer, options.debug);
     this.collisionIndices = options.collisionIndices || collisionIndices;
-    this.narrownessThreshold = options.narrownessThreshold || narrownessThreshold;
+    this.midPointThreshold = options.midPointThreshold || midPointThreshold;
   }
 }
