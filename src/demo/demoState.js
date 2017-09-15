@@ -98,9 +98,9 @@ export default class DemoState extends State {
 
     for (y; y < yLength; y++) {
       x = startAtX;
-      xLength = startAtX + 15;
+      xLength = startAtX + 20;
       for (x; x < xLength; x++) {
-        if (x !== startAtX && y !== startAtY && x !== xLength - 1 && y !== yLength - 1) {
+        if (x !== startAtX && y !== startAtY && x !== xLength - 4 && y !== yLength - 1) {
           continue;
         }
 
@@ -161,7 +161,7 @@ export default class DemoState extends State {
       debug: {
         hulls: false,
         hullBounds: false,
-        navMesh: false,
+        navMesh: true,
         navMeshNodes: false,
         polygonBounds: false,
         aStarPath: false
@@ -189,15 +189,32 @@ export default class DemoState extends State {
       const [pathStart, ...otherPathPoints] = path;
       const [offsetStart, ...otherOffsetPoints] = offsetPath;
 
-      PATH_GRAPHICS.moveTo(pathStart.x, pathStart.y);
-      PATH_GRAPHICS.lineStyle(4, 0x6666ff, 1);
-      otherPathPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
-      PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
+      function renderPoint(point) {
+        PATH_GRAPHICS.lineTo(point.x, point.y);
 
+        PATH_GRAPHICS.beginFill(0xff0000);
+        PATH_GRAPHICS.drawCircle(point.x, point.y, 10);
+        PATH_GRAPHICS.endFill();
+        PATH_GRAPHICS.moveTo(point.x, point.y);
+      }
+
+      // Render the PATHS
+      PATH_GRAPHICS.beginFill(0xff0000);
+      PATH_GRAPHICS.drawCircle(pathStart.x, pathStart.y, 10);
+      PATH_GRAPHICS.endFill();
+      PATH_GRAPHICS.moveTo(pathStart.x, pathStart.y);
+
+      PATH_GRAPHICS.lineStyle(2, 0x6666ff, 1);
+      otherPathPoints.forEach(renderPoint);
+
+      // Render the OFFSET PATHS
+      PATH_GRAPHICS.beginFill(0x00f000);
+      PATH_GRAPHICS.drawCircle(offsetStart.x, offsetStart.y, 10);
+      PATH_GRAPHICS.endFill();
       PATH_GRAPHICS.moveTo(offsetStart.x, offsetStart.y);
+
       PATH_GRAPHICS.lineStyle(2, 0x33ff33, 1);
-      otherOffsetPoints.forEach((point) => PATH_GRAPHICS.lineTo(point.x, point.y));
-      PATH_GRAPHICS.lineStyle(0, 0xffffff, 1);
+      otherOffsetPoints.forEach(renderPoint);
     });
   }
 
