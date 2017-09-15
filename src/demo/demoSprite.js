@@ -1,6 +1,6 @@
 import Physics, { Sprite } from 'phaser-ce';
 
-const SPEED = 150;
+const SPEED = 125;
 const ANCHOR = 0.5;
 const NINETY_DEGREES_IN_RADIANS = 1.5708;
 const DEFAULT_PATH = {
@@ -15,11 +15,13 @@ export default class DemoSprite extends Sprite {
    * @param {Number} x
    * @param {Number} y
    * @param {Phaser.Group} group
+   * @param {Phaser.TilemapLayer} tileLayer
    */
-  constructor(game, x, y, group) {
+  constructor(game, x, y, group, tileLayer) {
     super(game, x, y, 'agent');
     this.path = DEFAULT_PATH;
     this.anchor.setTo(ANCHOR, ANCHOR);
+    this.tileLayer = tileLayer;
     game.physics.enable(this, Physics.ARCADE);
     game.world.bringToTop(this);
     group.add(this);
@@ -36,7 +38,7 @@ export default class DemoSprite extends Sprite {
    * @method update
    */
   update() {
-    const { game, path, position } = this;
+    const { game, path, position, tileLayer } = this;
     const { arcade } = game.physics;
     const offsetPath = path.offsetPath || [];
 
@@ -52,5 +54,7 @@ export default class DemoSprite extends Sprite {
 
     this.rotation = arcade.angleBetween(position, current) + NINETY_DEGREES_IN_RADIANS;
     arcade.moveToXY(this, current.x, current.y, SPEED);
+
+    game.physics.arcade.collide(this, tileLayer);
   }
 }

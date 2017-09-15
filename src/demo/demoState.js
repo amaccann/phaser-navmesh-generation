@@ -39,6 +39,7 @@ export default class DemoState extends State {
     // Create blank tilemap
     this.tileMap = game.add.tilemap();
     this.tileMap.addTilesetImage('ground_1x1');
+    this.tileMap.setCollision(COLLISION_INDICES);
 
     this.tileLayer = this.tileMap.create('demoLayer', WIDTH_TILES, HEIGHT_TILES, TILE_SIZE, TILE_SIZE);
     this.tileLayer.resizeWorld();
@@ -57,12 +58,12 @@ export default class DemoState extends State {
 
     this.spriteGroup = new Phaser.Group(game);
 
-    // new DemoSprite(game, 100, 50, this.spriteGroup);
-    // new DemoSprite(game, 600, 60, this.spriteGroup);
-    new DemoSprite(game, 200, 500, this.spriteGroup);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    // new DemoSprite(game, 100, 50, this.spriteGroup, this.tileLayer);
+    // new DemoSprite(game, 600, 60, this.spriteGroup, this.tileLayer);
+    new DemoSprite(game, 200, 500, this.spriteGroup, this.tileLayer);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup, this.tileLayer);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup, this.tileLayer);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup, this.tileLayer);
   }
 
   /**
@@ -156,11 +157,11 @@ export default class DemoState extends State {
 
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
-      midPointThreshold: 75,
+      midPointThreshold: 0,
       debug: {
         hulls: false,
         hullBounds: false,
-        navMesh: true,
+        navMesh: false,
         navMeshNodes: false,
         polygonBounds: false,
         aStarPath: false
