@@ -34,19 +34,7 @@ export default class DemoState extends State {
    */
   create() {
     const { game } = this;
-    const { world } = game;
-    console.log('world', world);
-
-    this.spriteGroup = new Phaser.Group(game);
-
     game.stage.backgroundColor = '#2d2d2d';
-
-    // new DemoSprite(game, 100, 50, this.spriteGroup);
-    // new DemoSprite(game, 600, 60, this.spriteGroup);
-    new DemoSprite(game, 200, 500, this.spriteGroup);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
 
     // Create blank tilemap
     this.tileMap = game.add.tilemap();
@@ -55,6 +43,7 @@ export default class DemoState extends State {
     this.tileLayer = this.tileMap.create('demoLayer', WIDTH_TILES, HEIGHT_TILES, TILE_SIZE, TILE_SIZE);
     this.tileLayer.resizeWorld();
 
+    this.drawAllGround();
     this.drawInitGrid();
     this.updateNavMesh();
 
@@ -65,6 +54,31 @@ export default class DemoState extends State {
     this.cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
     game.input.keyboard.addKey(Keyboard.SPACEBAR).onDown.add(() => game.paused = !game.paused, this);
+
+    this.spriteGroup = new Phaser.Group(game);
+
+    // new DemoSprite(game, 100, 50, this.spriteGroup);
+    // new DemoSprite(game, 600, 60, this.spriteGroup);
+    new DemoSprite(game, 200, 500, this.spriteGroup);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup);
+  }
+
+  /**
+   * @method drawAllGround
+   */
+  drawAllGround() {
+    const { tileLayer, tileMap } = this;
+    const { width, height } = tileMap;
+    let y = 0;
+    let x;
+    for (y; y < height; y++) {
+      x = 0;
+      for (x; x < width; x++) {
+        tileMap.putTile(24, x, y, tileLayer);
+      }
+    }
   }
 
   /**
@@ -138,7 +152,7 @@ export default class DemoState extends State {
    * @method buildNavMesh
    */
   buildNavMesh() {
-    const { tileMap, tileLayer } = this;
+    const { game, tileMap, tileLayer } = this;
 
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
@@ -154,6 +168,8 @@ export default class DemoState extends State {
     });
 
     timeout = undefined;
+
+    game.world.bringToTop(this.spriteGroup);
   }
 
   /**

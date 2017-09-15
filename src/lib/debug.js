@@ -157,7 +157,7 @@ class Debug {
      * @method Render the Delaunay triangles generated...
      */
     if (settings.navMesh) {
-      gfx.beginFill(0xff33ff, 0.25);
+      gfx.beginFill(0xff33ff, 0.6);
       gfx.lineStyle(1, 0xffffff, 1);
       polygons.forEach(poly => gfx.drawPolygon(poly.points));
       gfx.endFill();
