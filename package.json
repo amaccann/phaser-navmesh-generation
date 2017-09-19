@@ -1,6 +1,6 @@
 {
   "name": "phaser-navmesh-generation",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/navmesh-plugin.js",
   "keywords": [],
   "repository": "git@github.com:amaccann/phaser-navmesh-generation.git",
