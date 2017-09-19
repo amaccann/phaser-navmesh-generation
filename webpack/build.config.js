@@ -7,7 +7,7 @@ module.exports = Object.assign({}, defaultConfig, {
     plugin: `${APP_DIR}/lib/navMeshPlugin.js`
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: 'navmesh-plugin.js',
     path: DIST_DIR
   },
   externals: ['phaser-ce'],

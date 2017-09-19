@@ -33,11 +33,15 @@ export default class NavMesh {
    */
   generate(options) {
     const { tileLayer, tileMap } = this;
-    const timerName = 'NavMesh generated in';
+    const timerName = '[NavMeshPlugin] NavMesh generated in';
 
-    console.warn('🛠 Building NavMesh. Beep Boop Boop 🤖');
-    console.time(timerName);
     this.setOptions(options);
+    if (!this.collisionIndices || !this.collisionIndices.length) {
+      console.error('[NavMeshPlugin] No collision-indices found, cannot generate NavMesh. Exiting...');
+    }
+
+    console.warn('[NavMeshPlugin] 🛠 Building NavMesh. Beep Boop Boop 🤖');
+    console.time(timerName);
     this.delaunay.generate(this.collisionIndices, tileLayer, tileMap);
     this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
     console.timeEnd(timerName);

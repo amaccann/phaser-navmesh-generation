@@ -13,6 +13,10 @@ export default class NavMeshPlugin extends Phaser.Plugin {
    */
   buildFromTileLayer(tileMap, tileLayer, options = {}) {
     const opts = Object.assign({}, defaultOptions, options);
+    if (!tileMap || !tileLayer) {
+      return console.error('[NavMeshPlugin] no TileMap / TileLayer found');
+    }
+
     if (this.navMesh) {
       this.navMesh.generate(opts);
     } else {
@@ -22,3 +26,5 @@ export default class NavMeshPlugin extends Phaser.Plugin {
     return this.navMesh;
   }
 }
+
+window.NavMeshPlugin = NavMeshPlugin;
