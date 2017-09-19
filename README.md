@@ -6,7 +6,7 @@ This Phaser plugin generates Navigation Meshes from supplied `Phaser.TilemapLaye
 
 ### Getting Started:
 
-#### ES6 / NPM etc.
+#### ES6 / Node
 
 import it as you would any other project:
 
@@ -14,23 +14,30 @@ import it as you would any other project:
 import NavMeshPlugin from '';
 ```
 
-Then in your game:
+#### Legacy 
+
+If you're doing it the old fashioned way, simply add `<script>` tag after your main Phaser tag:
+```
+<script src="my/path/to/phaser.js"></script>
+<script src="my/path/to/navmesh-plugin.js"></script>
+```
+
+Then in your game's JS code:
 
 ```
   preload() {
-    const { game } = this;
-    this.plugin = game.plugins.add(NavMeshPlugin);
+    var plugin = this.game.plugins.add(NavMeshPlugin);
   }
 
 ```
 
 #### Usage:
 
-1. First, generate a new navigation mesh using the following method (options will be explained later)
+1. First, we need to generate a new navigation mesh using the following method (options are below)
 
 
 ```
-this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
+var navMesh = plugin.buildFromTileLayer(tileMap, tileLayer, {
   collisionIndices: [1, 2, 3],
   midPointThreshold: 0,
   debug: {
@@ -46,7 +53,7 @@ this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
 Params:
 * `collisionIndices` an `Array` of collision indices that your tilemap uses for collisions **(required)**
 * `midPointThreshold` a `Number` value telling how narrow a navmesh triangle needs to be before it's ignored during pathing (optional)
-* `debug` various debug options to Render the stages of NavMesh calculation:
+* `debug` various optional debug options to Render the stages of NavMesh calculation:
     * `hulls`: Every (recursive) 'chunk' of impassable tiles found on the tilemap
     * `hullBounds`: The bounding-box generated for each of these hull clusters
     * `navMesh`: Draw all the actual triangles generated for this navmesh
@@ -56,9 +63,14 @@ Params:
 
 2. Then, to find a path between two `Phaser.Point` instances, call:
 ```
-navMesh.getPath(position, destination, size);
+navMesh.getPath(position, destination, offset);
 ```
 Params:
 * `position` is a `Phaser.Point` of your starting _world_ position **(required)**
 * `destination` is a `Phaser.Point` of the destination / end _world_ position **(required)**
-* `size` is an offset value to keep a distance (optional, default `0`) 
+* `offset` is an offset value to keep a distance (optional, default `0`) 
+
+This method returns two useful pieces of data:
+
+`path` an `Array` of Points that is the shortest path to your destination
+`offsetPath` an `Array` containing the _offset_ path, relative to the `offset` value given in `getPath`
