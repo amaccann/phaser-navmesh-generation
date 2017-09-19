@@ -6,7 +6,7 @@
   "repository": "git@github.com:amaccann/phaser-navmesh-generation.git",
   "license": "MIT",
   "scripts": {
-    "build": "NODE_ENV=production webpack --config webpack/build.config.js",
+    "build": "webpack --config webpack/build.config.js",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open --config webpack/dev.config.js"
   },

@@ -1,5 +1,3 @@
-/* globals Phaser */
-
 import AStarPath from './aStarPath';
 import PriorityQueue from './priorityQueue';
 

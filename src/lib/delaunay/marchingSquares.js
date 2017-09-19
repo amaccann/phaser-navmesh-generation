@@ -109,75 +109,32 @@ export default class MarchingSquares {
     while (!closed) {
       const squareValue = this.getSquareValue(currentPoint);
       switch (squareValue) {
-        // /* going UP with these cases:
-        //
-        // +---+---+   +---+---+   +---+---+
-        // | 1 |   |   | 1 |   |   | 1 |   |
-        // +---+---+   +---+---+   +---+---+
-        // |   |   |   | 4 |   |   | 4 | 8 |
-        // +---+---+  	+---+---+  	+---+---+
-        //
-        // */
+        // UP
         case 1 :
         case 5 :
         case 13 :
           step.setTo(DIRECTIONS.NONE, DIRECTIONS.UP);
           break;
-        // /* going DOWN with these cases:
-        //
-        // +---+---+   +---+---+   +---+---+
-        // |   |   |   |   | 2 |   | 1 | 2 |
-        // +---+---+   +---+---+   +---+---+
-        // |   | 8 |   |   | 8 |   |   | 8 |
-        // +---+---+  	+---+---+  	+---+---+
-        //
-        // */
+        // DOWN
         case 8 :
         case 10 :
         case 11 :
           step.setTo(DIRECTIONS.NONE, DIRECTIONS.DOWN);
           break;
-        // /* going LEFT with these cases:
-        //
-        // +---+---+   +---+---+   +---+---+
-        // |   |   |   |   |   |   |   | 2 |
-        // +---+---+   +---+---+   +---+---+
-        // | 4 |   |   | 4 | 8 |   | 4 | 8 |
-        // +---+---+  	+---+---+  	+---+---+
-        //
-        // */
+        // LEFT
         case 4 :
         case 12 :
         case 14 :
           step.setTo(DIRECTIONS.LEFT, DIRECTIONS.NONE);
           break;
-        // /* going RIGHT with these cases:
-        //
-        // +---+---+   +---+---+   +---+---+
-        // |   | 2 |   | 1 | 2 |   | 1 | 2 |
-        // +---+---+   +---+---+   +---+---+
-        // |   |   |   |   |   |   | 4 |   |
-        // +---+---+  	+---+---+  	+---+---+
-        //
-        // */
+        // RIGHT
         case 2 :
         case 3 :
         case 7 :
           step.setTo(DIRECTIONS.RIGHT, DIRECTIONS.NONE);
           break;
         case 6 :
-          // /* special saddle point case 1:
-          //
-          // +---+---+
-          // |   | 2 |
-          // +---+---+
-          // | 4 |   |
-          // +---+---+
-          //
-          // going LEFT if coming from UP
-          // else going RIGHT
-          //
-          // */
+          // SPECIAL DIAGONAL CASE #1
           if (previous.x === DIRECTIONS.NONE && previous.y === DIRECTIONS.UP) {
             step.setTo(DIRECTIONS.LEFT, DIRECTIONS.NONE);
           } else {
@@ -185,18 +142,7 @@ export default class MarchingSquares {
           }
           break;
         case 9 :
-          // /* special saddle point case 2:
-          //
-          //   +---+---+
-          //   | 1 |   |
-          //   +---+---+
-          //   |   | 8 |
-          //   +---+---+
-          //
-          //   going UP if coming from RIGHT
-          //   else going DOWN
-          //
-          //   */
+          // SPECIAL DIAGONAL CASE #2
           if (previous.x === DIRECTIONS.RIGHT && previous.y === DIRECTIONS.NONE) {
             step.setTo(DIRECTIONS.NONE, DIRECTIONS.LEFT);
           } else {

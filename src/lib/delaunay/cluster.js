@@ -3,8 +3,6 @@ import MarchingSquares from './marchingSquares';
 
 /**
  * @class Cluster
- * @TODO - Maybe look into making this recursive itself; iteratively checking internally for
- *         either 'holes' or 'blobs', depending on what was last checked at invoking level
  */
 export default class Cluster extends MarchingSquares {
   constructor(contours, edges, grid, collisionIndices, checkCollision) {
