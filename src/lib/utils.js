@@ -64,7 +64,7 @@ export function sortLine(line) {
  * @param {Phaser.Point} previous
  * @param {Phaser.Point} next
  */
-function getCrossProduct(point, previous, next) {
+export function getCrossProduct(point, previous, next) {
   const vector1 = Phaser.Point.subtract(point, previous);
   const vector2 = Phaser.Point.subtract(point, next);
   return vector1.cross(vector2);
@@ -77,7 +77,7 @@ function getCrossProduct(point, previous, next) {
  * @param {Phaser.Point} previous
  * @param {Phaser.Point} next
  */
-function getDotProduct(point, previous, next) {
+export function getDotProduct(point, previous, next) {
   const normal1 = Phaser.Point.subtract(previous, point).normalize();
   const normal2 = Phaser.Point.subtract(next, point).normalize();
   return normal1.dot(normal2);
@@ -89,7 +89,7 @@ function getDotProduct(point, previous, next) {
  * @param {FunnelPoint[]} paths
  * @param {number} inflateBy
  */
-export function offsetFunnelPath(paths = [], inflateBy = 32) {
+export function offsetFunnelPath(paths = [], inflateBy = 0) {
   const length = paths.length;
   if (!length) {
     return [];
