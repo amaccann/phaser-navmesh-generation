@@ -171,3 +171,54 @@ export function optimiseEdges(edges) {
 
   return edges;
 }
+
+/**
+ * @method offsetPolygon
+ * @param {Phaser.Point[]} points
+ * @param {Number} offset
+ * @param {Boolean} invert
+ */
+export function offsetPolygon(points = [], offset, invert) {
+  const offsetBy = offset * (invert ? -1 : 1);
+  const pointsLength = points.length;
+  const inflated = [];
+  const offsetPoint = new Phaser.Point();
+  let i = 0;
+  let current;
+  let previous;
+  let next;
+  let nextCurrent;
+  let cross;
+  let dot;
+  let angle;
+  let isAntiClockwise;
+  let area;
+
+  for (i; i < pointsLength; i++) {
+    previous = points[i === 0 ? pointsLength - 1 : i - 1];
+    current = points[i];
+    next = points[i === pointsLength - 1 ? 0 : i + 1];
+    nextCurrent = new Phaser.Line(current.x, current.y, next.x, next.y);
+    area = triarea2(previous, current, next);
+
+
+    dot = getDotProduct(current, previous, next);
+    cross = getCrossProduct(current, previous, next);
+    isAntiClockwise = cross >= 0;
+    angle = Math.acos(dot) * (isAntiClockwise ? -1 : 1);
+
+    const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
+
+    if (area < 0) {
+      offsetPoint.x = start.x + (end.x - start.x) / length * offsetBy;
+      offsetPoint.y = start.y + (end.y - start.y) / length * offsetBy;
+    } else {
+      offsetPoint.x = start.x - (end.x - start.x) / length * offsetBy;
+      offsetPoint.y = start.y - (end.y - start.y) / length * offsetBy;
+    }
+
+    inflated.push(offsetPoint.clone());
+  }
+
+  return inflated;
+}
