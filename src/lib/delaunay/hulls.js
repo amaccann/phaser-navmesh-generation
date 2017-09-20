@@ -28,7 +28,7 @@ export default class Hulls extends MarchingSquares {
 
     this.clusters = [];
     super.generate((contours, edges) => {
-      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices, true));
+      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices));
     });
   }
 

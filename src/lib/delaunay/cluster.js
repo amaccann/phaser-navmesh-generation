@@ -5,12 +5,12 @@ import MarchingSquares from './marchingSquares';
  * @class Cluster
  */
 export default class Cluster extends MarchingSquares {
-  constructor(contours, edges, grid, collisionIndices, checkCollision) {
+  constructor(contours, edges, grid, collisionIndices, invert = false) {
     super(grid, collisionIndices);
 
     this.polygon = new Phaser.Polygon(contours);
     this.edges = edges;
-    this.checkCollision = checkCollision;
+    this.invert = invert;
 
     optimiseEdges(this.edges);
 
@@ -23,11 +23,11 @@ export default class Cluster extends MarchingSquares {
    * @description
    */
   generate() {
-    const { collisionIndices, grid, checkCollision } = this;
+    const { collisionIndices, grid, invert } = this;
 
     this.children = [];
     super.generate((contours, edges) => {
-      this.children.push(new Cluster(contours, edges, grid, collisionIndices, !checkCollision));
+      this.children.push(new Cluster(contours, edges, grid, collisionIndices, !invert));
     });
   }
 
@@ -96,17 +96,17 @@ export default class Cluster extends MarchingSquares {
    * @param {Number} y
    */
   isValidTile(x, y) {
-    const { collisionIndices, checkCollision, polygon } = this;
+    const { collisionIndices, invert, polygon } = this;
     const tile = this.get(x, y);
 
     if (!polygon.contains(x, y) || this.isChild(x, y) || !tile) {
       return false;
     }
 
-    if (checkCollision) {
-      return collisionIndices.indexOf(tile.index) === -1;
-    } else {
+    if (invert) {
       return collisionIndices.indexOf(tile.index) > -1;
+    } else {
+      return collisionIndices.indexOf(tile.index) === -1;
     }
   }
 
