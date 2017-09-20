@@ -22,7 +22,7 @@ export default class NavMesh {
     this.tileMap = tileMap;
     this.tileLayer = tileLayer;
 
-    this.delaunay = new DelaunayGenerator(tileMap);
+    this.delaunay = new DelaunayGenerator(tileMap, tileLayer);
 
     this.generate(options);
   }
@@ -32,7 +32,6 @@ export default class NavMesh {
    * @param {Object} options
    */
   generate(options) {
-    const { tileLayer, tileMap } = this;
     const timerName = '[NavMeshPlugin] NavMesh generated in';
 
     this.setOptions(options);
@@ -42,7 +41,7 @@ export default class NavMesh {
 
     console.warn('[NavMeshPlugin] 🛠 Building NavMesh. Beep Boop Boop 🤖');
     console.time(timerName);
-    this.delaunay.generate(this.collisionIndices, tileLayer, tileMap);
+    this.delaunay.generate(this.collisionIndices);
     this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
     console.timeEnd(timerName);
 

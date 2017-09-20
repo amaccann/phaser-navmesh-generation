@@ -8,10 +8,11 @@ import DelaunayCluster from './delaunayCluster';
  * @description Helper class to generate the delaunay triangles used in building the NavMesh
  */
 export default class DelaunayGenerator {
-  constructor(tileMap) {
+  constructor(tileMap, tileLayer) {
     this.points = [];
     this.polygons = [];
     this.tileMap = tileMap;
+    this.tileLayer = tileLayer;
   }
 
   /**
@@ -56,7 +57,8 @@ export default class DelaunayGenerator {
    * @method generate
    * @description Find (recursively) all outlines of Hulls in the map, and generate Delaunay triangulation from them
    */
-  generate(collisionIndices, tileLayer, tileMap) {
+  generate(collisionIndices) {
+    const { tileLayer, tileMap } = this;
     const { tileWidth, tileHeight } = tileMap;
     const options = { exterior: false };
 
