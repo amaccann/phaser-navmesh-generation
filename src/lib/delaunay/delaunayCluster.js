@@ -55,6 +55,7 @@ export default class DelaunayCluster {
     const { edges, points, options } = this;
     let startIndex;
     let endIndex;
+    let delaunay;
 
     const addEdgeToPoints = edge => {
       startIndex = this.addPoint(edge.start.x, edge.start.y);
@@ -73,8 +74,7 @@ export default class DelaunayCluster {
       edges.push([ startIndex, endIndex ]);
     });
 
-
-    const delaunay = cdt2d(points, edges, options) ||  [];
+    delaunay = cdt2d(points, edges, options) ||  [];
     this.polygons = delaunay.map(triangle => triangle.map(index => points[index]));
   }
 }

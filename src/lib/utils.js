@@ -1,4 +1,7 @@
+import EdgePoint from './delaunay/edgePoint';
+
 const THREE_SIXTY_DEGREES = Math.PI * 2;
+const OFFSET_BY = 0.1;
 
 export function areLinesEqual(line1, line2) {
   const line1Start = line1.start;
@@ -181,8 +184,6 @@ export function optimiseEdges(edges) {
 export function offsetPolygon(points = [], offset, invert) {
   const offsetBy = offset * (invert ? -1 : 1);
   const pointsLength = points.length;
-  const inflated = [];
-  const offsetPoint = new Phaser.Point();
   let i = 0;
   let current;
   let previous;
@@ -210,15 +211,44 @@ export function offsetPolygon(points = [], offset, invert) {
     const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
 
     if (area < 0) {
-      offsetPoint.x = start.x + (end.x - start.x) / length * offsetBy;
-      offsetPoint.y = start.y + (end.y - start.y) / length * offsetBy;
+      current.x = start.x + (end.x - start.x) / length * offsetBy;
+      current.y = start.y + (end.y - start.y) / length * offsetBy;
     } else {
-      offsetPoint.x = start.x - (end.x - start.x) / length * offsetBy;
-      offsetPoint.y = start.y - (end.y - start.y) / length * offsetBy;
+      current.x = start.x - (end.x - start.x) / length * offsetBy;
+      current.y = start.y - (end.y - start.y) / length * offsetBy;
     }
-
-    inflated.push(offsetPoint.clone());
   }
 
-  return inflated;
+  return points;
+}
+
+/**
+ * @method offsetEdges
+ * @param {Phaser.Line[]} edges
+ * @param {Boolean} invert
+ */
+export function offsetEdges(edges = [], invert) {
+  const allPoints = [];
+  const length = edges.length;
+  const offset = OFFSET_BY * (invert ? -1: 1);
+  let i = 0;
+  let exists;
+  let offsetPoints;
+
+  const addPoint = point => {
+    exists = allPoints.find(p => p.equals(point));
+    if (exists) {
+      exists.addSource(point);
+    } else {
+      allPoints.push(new EdgePoint(point));
+    }
+  };
+
+  for (i; i < length; i++) {
+    addPoint(edges[i].start);
+    addPoint(edges[i].end);
+  }
+
+  offsetPoints = offsetPolygon(allPoints, offset, false);
+  offsetPoints.forEach(point => point.updateSources());
 }
