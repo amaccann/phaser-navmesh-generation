@@ -1,7 +1,8 @@
 import Hulls from './hulls';
 import NavMeshPolygon from '../navMeshPolygon';
-import { areLinesEqual, sortLine } from '../utils';
+import {areLinesEqual, offsetEdges, sortLine} from '../utils';
 import DelaunayCluster from './delaunayCluster';
+import polygonBoolean from '2d-polygon-boolean';
 
 /**
  * @class DelaunayGenerator
@@ -59,10 +60,23 @@ export default class DelaunayGenerator {
    */
   generate(collisionIndices) {
     const { tileLayer, tileMap } = this;
-    const { tileWidth, tileHeight } = tileMap;
+    const { tileWidth, tileHeight, width, height } = tileMap;
     const options = { exterior: false };
 
     this.generateHulls(collisionIndices, tileLayer, tileMap);
+
+    /**
+     * @method getOffsetChildEdges
+     * @param {Cluster} cluster
+     * @return {Phaser.Line[]}
+     */
+    const getOffsetChildEdges = cluster => {
+      const { children } = cluster;
+      let edges = [];
+
+      children.forEach(child =>  edges = edges.concat(offsetEdges(child.edges, { width, height })));
+      return edges;
+    };
 
     /**
      * @function parseCluster
@@ -73,8 +87,9 @@ export default class DelaunayGenerator {
 
       cluster.children.forEach(child => {
         const parentEdges = cluster.edges;
-        const { edges } = child;
-        const { polygons } = new DelaunayCluster(edges, parentEdges, child.allChildEdges, tileWidth, tileHeight, options);
+        const edges = offsetEdges(child.edges, { invert: true, width, height });
+        const allChildEdges = getOffsetChildEdges(child);
+        const { polygons } = new DelaunayCluster(edges, parentEdges, allChildEdges, tileWidth, tileHeight, options);
 
         polygons.forEach(poly => clusterPolygons.push(new NavMeshPolygon(poly)));
 
@@ -109,7 +124,7 @@ export default class DelaunayGenerator {
 
     this.polygons = [];
     this.hulls = new Hulls(tileLayer, { collisionIndices });
-    this.hulls.clusters.forEach(cluster => edges = edges.concat(cluster.edges));
+    this.hulls.clusters.forEach(cluster => edges = edges.concat(offsetEdges(cluster.edges, { width, height })));
 
     const { polygons } = new DelaunayCluster(edges, parentEdges, [], tileWidth, tileHeight, { interior: false });
     polygons.forEach(p => this.polygons.push(new NavMeshPolygon(p)));

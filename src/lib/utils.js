@@ -1,7 +1,7 @@
 import EdgePoint from './delaunay/edgePoint';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
-const OFFSET_BY = 0.1;
+const OFFSET_BY = 0.15;
 
 export function areLinesEqual(line1, line2) {
   const line1Start = line1.start;
@@ -178,10 +178,10 @@ export function optimiseEdges(edges) {
 /**
  * @method offsetPolygon
  * @param {Phaser.Point[]} points
- * @param {Number} offset
- * @param {Boolean} invert
+ * @param {Object} opts
  */
-export function offsetPolygon(points = [], offset, invert) {
+export function offsetPolygon(points = [], opts) {
+  const { offset, invert, width, height } = Object.assign({}, defaultOffsetOptions, opts);
   const offsetBy = offset * (invert ? -1 : 1);
   const pointsLength = points.length;
   let i = 0;
@@ -202,11 +202,14 @@ export function offsetPolygon(points = [], offset, invert) {
     nextCurrent = new Phaser.Line(current.x, current.y, next.x, next.y);
     area = triarea2(previous, current, next);
 
-
     dot = getDotProduct(current, previous, next);
     cross = getCrossProduct(current, previous, next);
     isAntiClockwise = cross >= 0;
     angle = Math.acos(dot) * (isAntiClockwise ? -1 : 1);
+
+    if (current.x === 0 || current.y === 0 || current.x === width || current.y === height) {
+      continue;
+    }
 
     const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
 
@@ -225,12 +228,12 @@ export function offsetPolygon(points = [], offset, invert) {
 /**
  * @method offsetEdges
  * @param {Phaser.Line[]} edges
- * @param {Boolean} invert
+ * @param {Object} opts
  */
-export function offsetEdges(edges = [], invert) {
+export function offsetEdges(edges = [], opts = {}) {
+  const options = Object.assign({}, defaultOffsetOptions, opts);
   const allPoints = [];
   const length = edges.length;
-  const offset = OFFSET_BY * (invert ? -1: 1);
   let i = 0;
   let exists;
   let offsetPoints;
@@ -249,6 +252,16 @@ export function offsetEdges(edges = [], invert) {
     addPoint(edges[i].end);
   }
 
-  offsetPoints = offsetPolygon(allPoints, offset, false);
+  offsetPoints = offsetPolygon(allPoints, options);
   offsetPoints.forEach(point => point.updateSources());
+
+  return edges;
 }
+
+const defaultOffsetOptions = {
+  offset: OFFSET_BY,
+  invert: false,
+  width: -1,
+  height: -1
+};
+

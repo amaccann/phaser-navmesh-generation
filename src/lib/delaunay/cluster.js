@@ -32,18 +32,6 @@ export default class Cluster extends MarchingSquares {
   }
 
   /**
-   * @method allChildEdges
-   * @description Extract all edges from child Clusters
-   */
-  get allChildEdges() {
-    const { children } = this;
-    let edges = [];
-
-    children.forEach(child => edges = edges.concat(child.edges || []));
-    return edges;
-  }
-
-  /**
    * @method getStartingPoint
    */
   getStartingPoint() {
