@@ -2,18 +2,16 @@ import Hulls from './hulls';
 import NavMeshPolygon from '../navMeshPolygon';
 import {areLinesEqual, offsetEdges, sortLine} from '../utils';
 import DelaunayCluster from './delaunayCluster';
-import polygonBoolean from '2d-polygon-boolean';
+import Config from '../config';
 
 /**
  * @class DelaunayGenerator
  * @description Helper class to generate the delaunay triangles used in building the NavMesh
  */
 export default class DelaunayGenerator {
-  constructor(tileMap, tileLayer) {
+  constructor() {
     this.points = [];
     this.polygons = [];
-    this.tileMap = tileMap;
-    this.tileLayer = tileLayer;
   }
 
   /**
@@ -58,12 +56,11 @@ export default class DelaunayGenerator {
    * @method generate
    * @description Find (recursively) all outlines of Hulls in the map, and generate Delaunay triangulation from them
    */
-  generate(collisionIndices) {
-    const { tileLayer, tileMap } = this;
-    const { tileWidth, tileHeight, width, height } = tileMap;
+  generate() {
+    const { width, height } = Config.mapDimensions;
     const options = { exterior: false };
 
-    this.generateHulls(collisionIndices, tileLayer, tileMap);
+    this.generateHulls();
 
     /**
      * @method getOffsetChildEdges
@@ -74,7 +71,7 @@ export default class DelaunayGenerator {
       const { children } = cluster;
       let edges = [];
 
-      children.forEach(child =>  edges = edges.concat(offsetEdges(child.edges, { width, height })));
+      children.forEach(child =>  edges = edges.concat(offsetEdges(child.edges)));
       return edges;
     };
 
@@ -87,9 +84,9 @@ export default class DelaunayGenerator {
 
       cluster.children.forEach(child => {
         const parentEdges = cluster.edges;
-        const edges = offsetEdges(child.edges, { invert: true, width, height });
+        const edges = offsetEdges(child.edges, true);
         const allChildEdges = getOffsetChildEdges(child);
-        const { polygons } = new DelaunayCluster(edges, parentEdges, allChildEdges, tileWidth, tileHeight, options);
+        const { polygons } = new DelaunayCluster(edges, parentEdges, allChildEdges, options);
 
         polygons.forEach(poly => clusterPolygons.push(new NavMeshPolygon(poly)));
 
@@ -108,12 +105,9 @@ export default class DelaunayGenerator {
   /**
    * @method generateHulls
    * @description Create initial triangulation of "root" clusters of hulls
-   * @param {Number[]} collisionIndices
-   * @param {Phaser.TilemapLayer} tileLayer
-   * @param {Phaser.Tilemap} tileMap
    */
-  generateHulls(collisionIndices, tileLayer, tileMap) {
-    const { width, height, tileWidth, tileHeight } = tileMap;
+  generateHulls() {
+    const { width, height } = Config.mapDimensions;
     const parentEdges = [
       new Phaser.Line(),
       new Phaser.Line(width, 0),
@@ -123,10 +117,10 @@ export default class DelaunayGenerator {
     let edges = [];
 
     this.polygons = [];
-    this.hulls = new Hulls(tileLayer, { collisionIndices });
-    this.hulls.clusters.forEach(cluster => edges = edges.concat(offsetEdges(cluster.edges, { width, height })));
+    this.hulls = new Hulls();
+    this.hulls.clusters.forEach(cluster => edges = edges.concat(offsetEdges(cluster.edges)));
 
-    const { polygons } = new DelaunayCluster(edges, parentEdges, [], tileWidth, tileHeight, { interior: false });
+    const { polygons } = new DelaunayCluster(edges, parentEdges, [], { interior: false });
     polygons.forEach(p => this.polygons.push(new NavMeshPolygon(p)));
     this.calculateClusterNeighbours(this.polygons);
   }

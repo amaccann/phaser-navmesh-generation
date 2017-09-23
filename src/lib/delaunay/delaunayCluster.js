@@ -1,4 +1,5 @@
 import cdt2d from 'cdt2d';
+import Config from '../config';
 
 /**
  * @class DelaunayCluster
@@ -10,17 +11,12 @@ export default class DelaunayCluster {
    * @param {Phaser.Line[]} edges
    * @param {Phaser.Line[]} parentEdges
    * @param {Phaser.Line[]} allChildEdges
-   * @param {Number} tileWidth
-   * @param {Number} tileHeight
    * @param {Object} options
    */
-  constructor(edges = [], parentEdges = [], allChildEdges = [], tileWidth, tileHeight, options = {}) {
+  constructor(edges = [], parentEdges = [], allChildEdges = [], options = {}) {
     this.points = [];
     this.edges = [];
     this.polygons = [];
-
-    this.tileWidth = tileWidth;
-    this.tileHeight = tileHeight;
     this.options = options;
 
     this.generate(edges, parentEdges, allChildEdges);
@@ -34,7 +30,8 @@ export default class DelaunayCluster {
    * @return {Number}
    */
   addPoint(x, y) {
-    const { points, tileWidth, tileHeight } = this;
+    const { tileWidth, tileHeight } = Config.mapDimensions;
+    const { points } = this;
 
     const index = points.findIndex(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
     if (index !== -1) {

@@ -4,44 +4,33 @@ import AStar from './astar/aStar';
 import Debug from './debug';
 import { offsetFunnelPath } from './utils';
 import DelaunayGenerator from './delaunay/delaunayGenerator';
-
-export const defaultOptions = {
-  collisionIndices: [],
-  midPointThreshold: 0
-};
+import Config from './config';
 
 /**
  * @class NavMesh
- * @description TODO: Establish a stronger algorithm to generate hulls, ideally something usning
- *              The Marching Squares algorithm to better establish 'block' areas, gaps etc. Currently
- *              the Phaser, phaserTiledHull plugin ain't the best...
  */
 export default class NavMesh {
-  constructor(game, tileMap, tileLayer, options = {}) {
+  constructor(game) {
     this.game = game;
-    this.tileMap = tileMap;
-    this.tileLayer = tileLayer;
 
-    this.delaunay = new DelaunayGenerator(tileMap, tileLayer);
-
-    this.generate(options);
+    this.delaunay = new DelaunayGenerator();
+    this.generate();
   }
 
   /**
    * @method generate
-   * @param {Object} options
    */
-  generate(options) {
+  generate() {
     const timerName = '[NavMeshPlugin] NavMesh generated in';
+    const collisionIndices = Config.collisionIndices;
 
-    this.setOptions(options);
-    if (!this.collisionIndices || !this.collisionIndices.length) {
+    if (!collisionIndices || !collisionIndices.length) {
       console.error('[NavMeshPlugin] No collision-indices found, cannot generate NavMesh. Exiting...');
     }
 
     console.warn('[NavMeshPlugin] 🛠 Building NavMesh. Beep Boop Boop 🤖');
     console.time(timerName);
-    this.delaunay.generate(this.collisionIndices);
+    this.delaunay.generate();
     this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
     console.timeEnd(timerName);
 
@@ -71,16 +60,4 @@ export default class NavMesh {
     return this.delaunay.polygons.find(polygon => polygon.contains(x, y));
   }
 
-  /**
-   * @method setOptions
-   * @param {Object} options
-   */
-  setOptions(options) {
-    const { game, tileLayer } = this;
-    const { collisionIndices, midPointThreshold } = defaultOptions;
-
-    Debug.set(game, tileLayer, options.debug);
-    this.collisionIndices = options.collisionIndices || collisionIndices;
-    this.midPointThreshold = options.midPointThreshold || midPointThreshold;
-  }
 }

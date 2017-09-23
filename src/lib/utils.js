@@ -1,4 +1,5 @@
 import EdgePoint from './delaunay/edgePoint';
+import Config from './config';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
 const OFFSET_BY = 0.15;
@@ -178,11 +179,11 @@ export function optimiseEdges(edges) {
 /**
  * @method offsetPolygon
  * @param {Phaser.Point[]} points
- * @param {Object} opts
+ * @param {Boolean} invert
  */
-export function offsetPolygon(points = [], opts) {
-  const { offset, invert, width, height } = Object.assign({}, defaultOffsetOptions, opts);
-  const offsetBy = offset * (invert ? -1 : 1);
+export function offsetPolygon(points = [], invert) {
+  const { width, height } = Config.mapDimensions;
+  const offsetBy = OFFSET_BY * (invert ? -1 : 1);
   const pointsLength = points.length;
   let i = 0;
   let current;
@@ -228,10 +229,9 @@ export function offsetPolygon(points = [], opts) {
 /**
  * @method offsetEdges
  * @param {Phaser.Line[]} edges
- * @param {Object} opts
+ * @param {Boolean} invert
  */
-export function offsetEdges(edges = [], opts = {}) {
-  const options = Object.assign({}, defaultOffsetOptions, opts);
+export function offsetEdges(edges = [], invert = false) {
   const allPoints = [];
   const length = edges.length;
   let i = 0;
@@ -252,7 +252,7 @@ export function offsetEdges(edges = [], opts = {}) {
     addPoint(edges[i].end);
   }
 
-  offsetPoints = offsetPolygon(allPoints, options);
+  offsetPoints = offsetPolygon(allPoints, invert);
   offsetPoints.forEach(point => point.updateSources());
 
   return edges;

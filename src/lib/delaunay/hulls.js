@@ -1,5 +1,6 @@
 import MarchingSquares from './marchingSquares';
 import Cluster from './cluster';
+import Config from '../config';
 
 /**
  * @class Hulls
@@ -7,14 +8,11 @@ import Cluster from './cluster';
 export default class Hulls extends MarchingSquares {
   /**
    * @constructor
-   * @param {Phaser.TilemapLayer} tileLayer
-   * @param {Object} options
    */
-  constructor(tileLayer, options = {}) {
-    const { data } = tileLayer.layer;
-    super(data, options.collisionIndices);
+  constructor() {
+    const { data } = Config.tileLayer.layer;
+    super(data, Config.collisionIndices);
 
-    this.tileLayer = tileLayer;
     this.generate();
   }
 

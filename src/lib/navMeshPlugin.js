@@ -1,4 +1,6 @@
 import NavMesh, { defaultOptions } from './navMesh';
+import Config from './config';
+import Debug from './debug';
 
 export default class NavMeshPlugin extends Phaser.Plugin {
   constructor(game, manager) {
@@ -17,10 +19,13 @@ export default class NavMeshPlugin extends Phaser.Plugin {
       return console.error('[NavMeshPlugin] no TileMap / TileLayer found');
     }
 
+    Config.set({ tileMap, tileLayer, ...options });
+    Debug.set(this.game, tileLayer, options.debug);
+
     if (this.navMesh) {
       this.navMesh.generate(opts);
     } else {
-      this.navMesh = new NavMesh(this.game, tileMap, tileLayer, opts);
+      this.navMesh = new NavMesh(this.game);
     }
 
     return this.navMesh;

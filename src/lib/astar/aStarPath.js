@@ -1,5 +1,6 @@
 import { areLinesEqual } from '../utils';
 import Funnel from './funnel';
+import Config from '../config';
 
 export default class AStarPath {
 
@@ -9,10 +10,9 @@ export default class AStarPath {
    * @param {Object} options
    */
   constructor(polygons = [], options = {}) {
-    const { startPoint, endPoint, startPolygon, endPolygon, isConnected, midPointThreshold } = options;
+    const { startPoint, endPoint, startPolygon, endPolygon, isConnected } = options;
     this.polygons = polygons;
     this.isConnected = isConnected;
-    this.midPointThreshold = midPointThreshold;
 
     this.startPoint = startPoint;
     this.endPoint = endPoint;
@@ -66,7 +66,8 @@ export default class AStarPath {
    * @method initFunnel
    */
   initFunnel() {
-    const { portals, startPoint, endPoint, midPointThreshold } = this;
+    const { portals, startPoint, endPoint } = this;
+    const midPointThreshold = Config.midPointThreshold;
     const length = portals.length;
     let i = 0;
 
