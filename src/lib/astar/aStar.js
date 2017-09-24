@@ -85,19 +85,6 @@ export default class AStar {
       MAIN_LOOP++;
     }
 
-    return this.buildPath(pathNodes, start, end, startPolygon, endPolygon, isConnected);
-  }
-
-  /**
-   * @method buildPath
-   * @param {NavMeshPolygon[]} pathNodes
-   * @param {Phaser.Point} startPoint
-   * @param {Phaser.Point} endPoint
-   * @param {Phaser.Polygon} startPolygon
-   * @param {Phaser.Polygon} endPolygon
-   * @param {Boolean} isConnected
-   */
-  buildPath(pathNodes = [], startPoint, endPoint, startPolygon, endPolygon, isConnected) {
-    return new AStarPath(pathNodes, { startPoint, endPoint, startPolygon, endPolygon, isConnected });
+    return new AStarPath(pathNodes, { start, end, startPolygon, endPolygon, isConnected });
   }
 }

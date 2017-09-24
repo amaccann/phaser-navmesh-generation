@@ -6,16 +6,16 @@ export default class AStarPath {
 
   /**
    * @constructor
-   * @param {NavMeshPolygon[]} polygons
+   * @param {Array} polygons
    * @param {Object} options
    */
   constructor(polygons = [], options = {}) {
-    const { startPoint, endPoint, startPolygon, endPolygon, isConnected } = options;
+    const { start, end, startPolygon, endPolygon, isConnected } = options;
     this.polygons = polygons;
     this.isConnected = isConnected;
 
-    this.startPoint = startPoint;
-    this.endPoint = endPoint;
+    this.startPoint = start;
+    this.endPoint = end;
 
     this.startPolygon = startPolygon;
     this.endPolygon = endPolygon;
