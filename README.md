@@ -11,7 +11,7 @@ This Phaser plugin generates Navigation Meshes from supplied `Phaser.TilemapLaye
 import it as you would any other project:
 
 ```
-import NavMeshPlugin from '';
+import NavMeshPlugin from 'phaser-navmesh-generation';
 ```
 
 #### Legacy 
