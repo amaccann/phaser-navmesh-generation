@@ -1,6 +1,5 @@
 const types = [
   'hulls',
-  'hullBounds',
   'navMesh',
   'navMeshNodes',
   'polygonBounds',
@@ -27,10 +26,10 @@ class Debug {
    */
   draw({ delaunay, aStarPath }) {
     const { settings } = this;
-    const { hulls, hullBounds, navMesh, navMeshNodes, polygonBounds } = settings;
+    const { hulls, navMesh, navMeshNodes, polygonBounds } = settings;
     this.initGraphics();
 
-    if ((hulls || hullBounds || navMesh || navMeshNodes || polygonBounds) && delaunay) {
+    if ((hulls || navMesh || navMeshNodes || polygonBounds) && delaunay) {
       this.drawDelaunay(delaunay);
     }
 
@@ -124,26 +123,6 @@ class Debug {
       if (cluster.children.length) {
         cluster.children.forEach(drawCluster, this);
       }
-    }
-
-    function drawClusterBounds(cluster) {
-      const { bounds } = cluster;
-      const coordinates = this.getWorldXY(bounds);
-      const { width, height } = this.tileDimensions;
-      const boundsWidth = bounds.width * width;
-      const boundsHeight = bounds.height * height;
-
-      gfx.beginFill(DEBUG_COLOUR_GREEN, 0.6);
-      gfx.drawRect(coordinates.x, coordinates.y, boundsWidth, boundsHeight);
-      gfx.endFill();
-
-      if (cluster.children.length) {
-        cluster.children.forEach(drawClusterBounds, this);
-      }
-    }
-
-    if (settings.hullBounds) {
-      clusters.forEach(drawClusterBounds, this);
     }
 
     /**

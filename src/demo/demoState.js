@@ -160,7 +160,6 @@ export default class DemoState extends State {
       midPointThreshold: 0,
       debug: {
         hulls: false,
-        hullBounds: false,
         navMesh: true,
         navMeshNodes: false,
         polygonBounds: false,

@@ -2,7 +2,7 @@ import EdgePoint from './delaunay/edgePoint';
 import Config from './config';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
-const OFFSET_BY = 0.15;
+const OFFSET_BY = 0.1;
 
 export function areLinesEqual(line1, line2) {
   const line1Start = line1.start;
@@ -180,11 +180,13 @@ export function optimiseEdges(edges) {
  * @method offsetPolygon
  * @param {Phaser.Point[]} points
  * @param {Boolean} invert
+ * @param {Cluster[]} clusters
  */
-export function offsetPolygon(points = [], invert) {
+export function offsetPolygon(points = [], invert, clusters = []) {
   const { width, height } = Config.mapDimensions;
   const offsetBy = OFFSET_BY * (invert ? -1 : 1);
   const pointsLength = points.length;
+  const offsetPoint = new Phaser.Point();
   let i = 0;
   let current;
   let previous;
@@ -215,11 +217,16 @@ export function offsetPolygon(points = [], invert) {
     const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
 
     if (area < 0) {
-      current.x = start.x + (end.x - start.x) / length * offsetBy;
-      current.y = start.y + (end.y - start.y) / length * offsetBy;
+      offsetPoint.x = start.x + (end.x - start.x) / length * offsetBy;
+      offsetPoint.y = start.y + (end.y - start.y) / length * offsetBy;
     } else {
-      current.x = start.x - (end.x - start.x) / length * offsetBy;
-      current.y = start.y - (end.y - start.y) / length * offsetBy;
+      offsetPoint.x = start.x - (end.x - start.x) / length * offsetBy;
+      offsetPoint.y = start.y - (end.y - start.y) / length * offsetBy;
+    }
+
+    // Only update the edge point IF the new offset does NOT overlap with any sibling cluster
+    if (!clusters.find(cluster => cluster.polygon.contains(offsetPoint.x, offsetPoint.y))) {
+      current.copyFrom(offsetPoint);
     }
   }
 
@@ -230,8 +237,9 @@ export function offsetPolygon(points = [], invert) {
  * @method offsetEdges
  * @param {Phaser.Line[]} edges
  * @param {Boolean} invert
+ * @param {Cluster[]} clusters
  */
-export function offsetEdges(edges = [], invert = false) {
+export function offsetEdges(edges = [], invert = false, clusters = []) {
   const allPoints = [];
   const length = edges.length;
   let i = 0;
@@ -252,7 +260,7 @@ export function offsetEdges(edges = [], invert = false) {
     addPoint(edges[i].end);
   }
 
-  offsetPoints = offsetPolygon(allPoints, invert);
+  offsetPoints = offsetPolygon(allPoints, invert, clusters);
   offsetPoints.forEach(point => point.updateSources());
 
   return edges;

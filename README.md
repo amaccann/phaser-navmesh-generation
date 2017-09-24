@@ -42,7 +42,6 @@ var navMesh = plugin.buildFromTileLayer(tileMap, tileLayer, {
   midPointThreshold: 0,
   debug: {
     hulls: false,
-    hullBounds: false,
     navMesh: false,
     navMeshNodes: false,
     polygonBounds: false,
@@ -55,7 +54,6 @@ Params:
 * `midPointThreshold` a `Number` value telling how narrow a navmesh triangle needs to be before it's ignored during pathing (optional)
 * `debug` various optional debug options to Render the stages of NavMesh calculation:
     * `hulls`: Every (recursive) 'chunk' of impassable tiles found on the tilemap
-    * `hullBounds`: The bounding-box generated for each of these hull clusters
     * `navMesh`: Draw all the actual triangles generated for this navmesh
     * `navMeshNodes`: Draw all connections found between neighbouring triangles
     * `polygonBounds`: Draw the bonding radius between each navmesh triangle
