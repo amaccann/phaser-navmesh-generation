@@ -3,6 +3,7 @@ const defaultConfig = {
   midPointThreshold: 0,
   tileMap: null,
   tileLayer: null,
+  useMidPoint: false
 };
 
 class Config {
@@ -11,11 +12,11 @@ class Config {
   }
 
   /**
-   * @method collisionIndices
-   * @return {Object}
+   * @method get
+   * @param {String} key
    */
-  get collisionIndices() {
-    return this._c.collisionIndices || [];
+  get(key) {
+    return this._c[key];
   }
 
   /**
@@ -25,22 +26,6 @@ class Config {
   get mapDimensions() {
     const { width, height, tileWidth, tileHeight, widthInPixels, heightInPixels } = this._c.tileMap;
     return { width, height, tileWidth, tileHeight, widthInPixels, heightInPixels };
-  }
-
-  /**
-   * @method midPointThreshold
-   * @return {Object}
-   */
-  get midPointThreshold() {
-    return this._c.midPointThreshold;
-  }
-
-  /**
-   * @method tileLayer
-   * @return {Object}
-   */
-  get tileLayer() {
-    return this._c.tileLayer;
   }
 
   /**

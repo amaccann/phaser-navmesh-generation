@@ -2,16 +2,12 @@ const types = [
   'hulls',
   'navMesh',
   'navMeshNodes',
-  'polygonBounds',
-  'aStarPath'
+  'polygonBounds'
 ];
 
 const DEBUG_DIAMETER = 10;
 const DEBUG_COLOUR_YELLOW = 0xffff00;
-const DEBUG_COLOUR_ORANGE = 0xffa500;
-const DEBUG_COLOUR_GREEN = 0x33ff33;
 const DEBUG_COLOUR_RED = 0xC83E30;
-const DEBUG_PORTAL_WIDTH = 2;
 
 const defaultOptions = {};
 types.forEach(type => defaultOptions[type] = false);
@@ -23,18 +19,15 @@ class Debug {
 
   /**
    * @method draw
+   * @param {DelaunayGenerator} delaunay
    */
-  draw({ delaunay, aStarPath }) {
+  draw(delaunay) {
     const { settings } = this;
     const { hulls, navMesh, navMeshNodes, polygonBounds } = settings;
     this.initGraphics();
 
     if ((hulls || navMesh || navMeshNodes || polygonBounds) && delaunay) {
       this.drawDelaunay(delaunay);
-    }
-
-    if (settings.aStarPath && aStarPath) {
-      this.drawAStarPath(aStarPath);
     }
   }
 
@@ -59,35 +52,6 @@ class Debug {
       x: point.x * width,
       y: point.y * height
     };
-  }
-
-  /**
-   * @method drawAStarPath
-   */
-  drawAStarPath(aStarPath) {
-    const gfx = this.gfx;
-    const { startPoint, endPoint } = aStarPath;
-
-    gfx.clear();
-    gfx.beginFill(DEBUG_COLOUR_ORANGE, 1);
-    gfx.lineStyle(DEBUG_PORTAL_WIDTH, DEBUG_COLOUR_ORANGE, 1);
-    aStarPath.polygons.forEach(poly =>
-      gfx.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER));
-    aStarPath.portals.forEach(portal => {
-      gfx.moveTo(portal.start.x, portal.start.y);
-      gfx.lineTo(portal.end.x, portal.end.y);
-    });
-    gfx.endFill();
-
-    gfx.lineStyle(0, 0xffffff, 1);
-    gfx.beginFill(DEBUG_COLOUR_RED, 1);
-    gfx.drawCircle(startPoint.x, startPoint.y, DEBUG_DIAMETER);
-    gfx.endFill();
-
-    gfx.lineStyle(0, 0xffffff, 1);
-    gfx.beginFill(DEBUG_COLOUR_GREEN, 1);
-    gfx.drawCircle(endPoint.x, endPoint.y, DEBUG_DIAMETER);
-    gfx.endFill();
   }
 
   /**

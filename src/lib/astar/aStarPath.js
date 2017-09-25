@@ -67,7 +67,7 @@ export default class AStarPath {
    */
   initFunnel() {
     const { portals, startPoint, endPoint } = this;
-    const midPointThreshold = Config.midPointThreshold;
+    const midPointThreshold = Config.get('midPointThreshold');
     const length = portals.length;
     let i = 0;
 

@@ -111,10 +111,10 @@ export default class DelaunayGenerator {
     const { hulls } = this;
     const { width, height } = Config.mapDimensions;
     const parentEdges = [
-      new Phaser.Line(),
-      new Phaser.Line(width, 0),
-      new Phaser.Line(0, height),
-      new Phaser.Line(width, height)
+      new Phaser.Line(0, 0, width, 0),
+      new Phaser.Line(width, 0, width, height),
+      new Phaser.Line(width, height, 0, height),
+      new Phaser.Line(0, height, 0, 0)
     ];
     let edges = [];
 

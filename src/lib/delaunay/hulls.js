@@ -10,8 +10,8 @@ export default class Hulls extends MarchingSquares {
    * @constructor
    */
   constructor() {
-    const { data } = Config.tileLayer.layer;
-    super(data, Config.collisionIndices);
+    const { data } = Config.get('tileLayer').layer;
+    super(data, Config.get('collisionIndices'));
 
     this.generate();
   }

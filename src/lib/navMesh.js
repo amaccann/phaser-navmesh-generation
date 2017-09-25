@@ -22,7 +22,7 @@ export default class NavMesh {
    */
   generate() {
     const timerName = '[NavMeshPlugin] NavMesh generated in';
-    const collisionIndices = Config.collisionIndices;
+    const collisionIndices = Config.get('collisionIndices');
 
     if (!collisionIndices || !collisionIndices.length) {
       console.error('[NavMeshPlugin] No collision-indices found, cannot generate NavMesh. Exiting...');
@@ -34,7 +34,7 @@ export default class NavMesh {
     this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
     console.timeEnd(timerName);
 
-    Debug.draw({ delaunay: this.delaunay });
+    Debug.draw(this.delaunay);
   }
 
   /**
@@ -49,7 +49,6 @@ export default class NavMesh {
 
     const path = aStarPath.path;
     const offsetPath = offsetFunnelPath(path, offset);
-    Debug.draw({ aStarPath });
     return { path, offsetPath };
   }
 

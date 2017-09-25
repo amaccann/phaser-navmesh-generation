@@ -25,11 +25,11 @@ export default class DelaunayCluster {
   /**
    * @method addPoint
    * @description Adds new vertex point to Array. Returns index of newly pushed point, or existin
-   * @param {Number} x
-   * @param {Number} y
+   * @param {Phaser.Point} point
    * @return {Number}
    */
-  addPoint(x, y) {
+  addPoint(point) {
+    const { x, y } = point;
     const { tileWidth, tileHeight } = Config.mapDimensions;
     const { points } = this;
 
@@ -52,23 +52,36 @@ export default class DelaunayCluster {
     const { edges, points, options } = this;
     let startIndex;
     let endIndex;
+    let midPointIndex;
     let delaunay;
 
     const addEdgeToPoints = edge => {
-      startIndex = this.addPoint(edge.start.x, edge.start.y);
-      endIndex = this.addPoint(edge.end.x, edge.end.y);
+      startIndex = this.addPoint(edge.start);
+      endIndex = this.addPoint(edge.end);
+      if (Config.get('useMidPoint')) {
+        midPointIndex = this.addPoint(edge.midPoint());
+      }
+    };
+
+    const addToEdges = () => {
+      if (Config.get('useMidPoint')) {
+        edges.push([ startIndex, midPointIndex ]);
+        edges.push([ midPointIndex, endIndex]);
+      } else {
+        edges.push([ startIndex, endIndex ]);
+      }
     };
 
     parentEdges.forEach(addEdgeToPoints, this);
 
     childClusterEdge.forEach(edge => {
       addEdgeToPoints(edge);
-      edges.push([ startIndex, endIndex ]);
+      addToEdges();
     });
 
     polygonEdges.forEach(edge => {
       addEdgeToPoints(edge);
-      edges.push([ startIndex, endIndex ]);
+      addToEdges();
     });
 
     delaunay = cdt2d(points, edges, options) ||  [];
