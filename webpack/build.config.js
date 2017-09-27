@@ -8,7 +8,10 @@ module.exports = Object.assign({}, defaultConfig, {
   },
   output: {
     filename: '[name]-plugin.js',
-    path: DIST_DIR
+    path: DIST_DIR,
+    library: 'phaser-navmesh-generation',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   externals: ['phaser-ce'],
   plugins: [ new webpack.optimize.UglifyJsPlugin({
