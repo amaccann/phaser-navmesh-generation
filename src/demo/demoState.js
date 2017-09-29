@@ -157,6 +157,7 @@ export default class DemoState extends State {
 
     this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
+      timingInfo: true,
       midPointThreshold: 0,
       debug: {
         hulls: false,
