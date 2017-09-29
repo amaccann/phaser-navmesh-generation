@@ -21,35 +21,43 @@ export default class NavMesh {
    * @method generate
    */
   generate() {
-    const timerName = '[NavMeshPlugin] NavMesh generated in';
+    const timerName = '[NavMeshPlugin] 🛠 Building NavMesh. Beep Boop Boop 🤖';
     const collisionIndices = Config.get('collisionIndices');
 
     if (!collisionIndices || !collisionIndices.length) {
       console.error('[NavMeshPlugin] No collision-indices found, cannot generate NavMesh. Exiting...');
     }
 
-    console.warn('[NavMeshPlugin] 🛠 Building NavMesh. Beep Boop Boop 🤖');
-    console.time(timerName);
+    Config.get('timingInfo') && console.time(timerName);
     this.delaunay.generate();
     this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
-    console.timeEnd(timerName);
 
+    Config.get('timingInfo') && console.timeEnd(timerName);
     Debug.draw(this.delaunay);
   }
 
   /**
    * @method getPath
+   * @param {Phaser.Point} startPosition
+   * @param {Phaser.Point} endPosition
+   * @param {Number} offset
    */
   getPath(startPosition, endPosition, offset) {
+    const timerName = '[NavMeshPlugin] 🛠 Search for optimal path...';
     const { aStar } = this;
+    Config.get('timingInfo') && console.time(timerName);
+
     const aStarPath = aStar.search(startPosition, endPosition);
     if (!aStarPath) {
+      Config.get('timingInfo') && console.timeEnd(timerName);
       return false;
     }
 
-    const path = aStarPath.path;
+    const { path, polygons, uuid } = aStarPath;
     const offsetPath = offsetFunnelPath(path, offset);
-    return { path, offsetPath };
+    Config.get('timingInfo') && console.timeEnd(timerName);
+
+    return { path, polygons, offsetPath, uuid };
   }
 
   /**

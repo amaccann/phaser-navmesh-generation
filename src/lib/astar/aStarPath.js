@@ -1,12 +1,13 @@
 import { areLinesEqual } from '../utils';
 import Funnel from './funnel';
 import Config from '../config';
+import uuid from 'uuid';
 
 export default class AStarPath {
 
   /**
    * @constructor
-   * @param {Array} polygons
+   * @param {NavMeshPolygon[]} polygons
    * @param {Object} options
    */
   constructor(polygons = [], options = {}) {
@@ -20,6 +21,7 @@ export default class AStarPath {
     this.startPolygon = startPolygon;
     this.endPolygon = endPolygon;
     this.portals = [];
+    this.uuid = uuid();
 
     this.initPortals();
     this.initFunnel();
