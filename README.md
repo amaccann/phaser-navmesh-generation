@@ -51,10 +51,11 @@ var navMesh = plugin.buildFromTileLayer(tileMap, tileLayer, {
 });
 ```
 Params:
-* `collisionIndices` an `Array` of collision indices that your tilemap uses for collisions **(required)**
-* `midPointThreshold` a `Number` value telling how narrow a navmesh triangle needs to be before it's ignored during pathing (optional; default `0`)
-* `useMidPoint` a `Boolean` value on whether to include all triangle edge mid-points in calculating triangulation (optional; default: `true`)
-* `debug` various optional debug options to Render the stages of NavMesh calculation:
+* `collisionIndices`: an `Array` of collision indices that your tilemap uses for collisions **(required)**
+* `midPointThreshold`: a `Number` value telling how narrow a navmesh triangle needs to be before it's ignored during pathing (optional; default `0`)
+* `timingInfo`: Show in the console how long it took to build the NavMesh - and search for paths (optional; default `false`)
+* `useMidPoint`: a `Boolean` value on whether to include all triangle edge mid-points in calculating triangulation (optional; default: `true`)
+* `debug`: various optional debug options to Render the stages of NavMesh calculation:
     * `hulls`: Every (recursive) 'chunk' of impassable tiles found on the tilemap
     * `navMesh`: Draw all the actual triangles generated for this navmesh
     * `navMeshNodes`: Draw all connections found between neighbouring triangles

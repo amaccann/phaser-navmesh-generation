@@ -1,5 +1,6 @@
 const defaultConfig = {
   collisionIndices: [],
+  timingInfo: false,
   midPointThreshold: 0,
   tileMap: null,
   tileLayer: null,
