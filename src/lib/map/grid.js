@@ -36,7 +36,6 @@ class MapGrid {
    * @param {Array} tileLayer
    */
   copyFrom(tileLayer = []) {
-    console.warn('copyFrom', tileLayer);
     if (!tileLayer.length) {
       return;
     }

@@ -32,6 +32,19 @@ class Config {
     return MapGrid.getAt(x, y);
   }
 
+  /**
+   * @method toggleTileBlockedAtXY
+   * @param {Number} x
+   * @param {Number} y
+   * @param {Boolean} toggle
+   */
+  toggleTileBlockedAtXY(x, y, toggle) {
+    MapGrid.toggleBlocked(x, y, toggle);
+  }
+
+  /**
+   * @method gridDimensions
+   */
   get gridDimensions() {
     const { width, height } = MapGrid;
     return { width, height };

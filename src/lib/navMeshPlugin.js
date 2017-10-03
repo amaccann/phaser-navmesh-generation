@@ -2,6 +2,10 @@ import NavMesh, { defaultOptions } from './navMesh';
 import Config from './config';
 import Debug from './debug';
 
+function err() {
+  return console.error('[NavMeshPlugin] no TileMap / TileLayer found');
+}
+
 export default class NavMeshPlugin extends Phaser.Plugin {
   constructor(game, manager) {
     super(game, manager);
@@ -16,7 +20,7 @@ export default class NavMeshPlugin extends Phaser.Plugin {
   buildFromTileLayer(tileMap, tileLayer, options = {}) {
     const opts = Object.assign({}, defaultOptions, options);
     if (!tileMap || !tileLayer) {
-      return console.error('[NavMeshPlugin] no TileMap / TileLayer found');
+      return err();
     }
 
     Config.set({ tileMap, tileLayer, ...options });
@@ -30,6 +34,21 @@ export default class NavMeshPlugin extends Phaser.Plugin {
 
     return this.navMesh;
   }
+
+  /**
+   * @method toggleBlockedAtXY
+   * @param {Number} x
+   * @param {Number} y
+   */
+  toggleBlockedAtXY(x, y) {
+    const tileLayer = Config.get('tileLayer');
+    if (!tileLayer) {
+      return err();
+    }
+
+    Config.toggleTileBlockedAtXY(x, y);
+  }
+
 }
 
 window.NavMeshPlugin = NavMeshPlugin;
