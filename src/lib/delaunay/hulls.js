@@ -10,9 +10,7 @@ export default class Hulls extends MarchingSquares {
    * @constructor
    */
   constructor() {
-    const { data } = Config.get('tileLayer').layer;
-    super(data, Config.get('collisionIndices'));
-
+    super();
     this.generate();
   }
 
@@ -22,11 +20,9 @@ export default class Hulls extends MarchingSquares {
    *              the interior of that Cluster is checked for any 'reverse'
    */
   generate() {
-    const { grid, collisionIndices } = this;
-
     this.clusters = [];
     super.generate((contours, edges) => {
-      this.clusters.push(new Cluster(contours, edges, grid, collisionIndices));
+      this.clusters.push(new Cluster(contours, edges));
     });
   }
 
@@ -34,9 +30,7 @@ export default class Hulls extends MarchingSquares {
    * @method getStartingPoint
    */
   getStartingPoint() {
-    const { grid } = this;
-    const height = grid.length;
-    const width = grid[0].length;
+    const { width, height } = Config.gridDimensions;
     let y = 0;
     let x;
     const offsetPoint = new Phaser.Point();
@@ -60,14 +54,14 @@ export default class Hulls extends MarchingSquares {
    *              part of a discovered outline of a chunk, so it's safe to ignore
    */
   isValidTile(x, y) {
-    const { collisionIndices } = this;
+    const collisionIndices = Config.get('collisionIndices');
 
     if (this.isPartOfCluster(x, y)) {
       return false;
     }
 
     const tile = this.get(x, y);
-    return tile && collisionIndices.indexOf(tile.index) > -1;
+    return tile && (collisionIndices.indexOf(tile.index) > -1 );
   }
 
   /**

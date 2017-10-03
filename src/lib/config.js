@@ -1,3 +1,5 @@
+import MapGrid from './map/grid';
+
 const defaultConfig = {
   collisionIndices: [],
   timingInfo: false,
@@ -21,6 +23,21 @@ class Config {
   }
 
   /**
+   * @method getTileAt
+   * @param {Number} x
+   * @param {Number} y
+   * @return {MapTile}
+   */
+  getTileAt(x, y) {
+    return MapGrid.getAt(x, y);
+  }
+
+  get gridDimensions() {
+    const { width, height } = MapGrid;
+    return { width, height };
+  }
+
+  /**
    * @method mapDimensions
    * @return {Object}
    */
@@ -35,6 +52,7 @@ class Config {
    */
   set(config = defaultConfig) {
     this._c = { ...defaultConfig, ...config };
+    MapGrid.copyFrom(config.tileLayer.layer.data);
   }
 }
 

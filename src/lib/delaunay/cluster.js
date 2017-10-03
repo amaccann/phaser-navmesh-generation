@@ -1,12 +1,13 @@
 import { optimiseEdges } from '../utils';
 import MarchingSquares from './marchingSquares';
+import Config from '../config';
 
 /**
  * @class Cluster
  */
 export default class Cluster extends MarchingSquares {
-  constructor(contours, edges, grid, collisionIndices, invert = false) {
-    super(grid, collisionIndices);
+  constructor(contours, edges, invert = false) {
+    super();
 
     this.polygon = new Phaser.Polygon(contours);
     this.edges = edges;
@@ -23,11 +24,11 @@ export default class Cluster extends MarchingSquares {
    * @description
    */
   generate() {
-    const { collisionIndices, grid, invert } = this;
+    const { invert } = this;
 
     this.children = [];
     super.generate((contours, edges) => {
-      this.children.push(new Cluster(contours, edges, grid, collisionIndices, !invert));
+      this.children.push(new Cluster(contours, edges, !invert));
     });
   }
 
@@ -72,8 +73,7 @@ export default class Cluster extends MarchingSquares {
       return false;
     }
 
-    const row = this.grid[tileY];
-    return row && row[tileX];
+    return Config.getTileAt(tileX, tileY);
   }
 
   /**
@@ -84,7 +84,8 @@ export default class Cluster extends MarchingSquares {
    * @param {Number} y
    */
   isValidTile(x, y) {
-    const { collisionIndices, invert, polygon } = this;
+    const collisionIndices = Config.get('collisionIndices');
+    const { invert, polygon } = this;
     const tile = this.get(x, y);
 
     if (!polygon.contains(x, y) || this.isChild(x, y) || !tile) {

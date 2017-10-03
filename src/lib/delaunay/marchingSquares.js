@@ -1,3 +1,5 @@
+import Config from '../config';
+
 const WHILE_CEILING = 500;
 const DIRECTIONS = {
   NONE: 0,
@@ -8,11 +10,6 @@ const DIRECTIONS = {
 };
 
 export default class MarchingSquares {
-  constructor(grid, collisionIndices) {
-    this.collisionIndices = collisionIndices;
-    this.grid = grid;
-  }
-
   /**
    * @method generate
    * @param {Function} onClusterFound
@@ -75,8 +72,7 @@ export default class MarchingSquares {
    * @method get
    */
   get(x, y) {
-    const row = this.grid[y];
-    return row && row[x];
+    return Config.getTileAt(x, y);
   }
 
   /**
