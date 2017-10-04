@@ -18,7 +18,6 @@ export default class NavMeshPlugin extends Phaser.Plugin {
    * @param {Object} options
    */
   buildFromTileLayer(tileMap, tileLayer, options = {}) {
-    const opts = Object.assign({}, defaultOptions, options);
     if (!tileMap || !tileLayer) {
       return err();
     }
@@ -27,7 +26,7 @@ export default class NavMeshPlugin extends Phaser.Plugin {
     Debug.set(this.game, tileLayer, options.debug);
 
     if (this.navMesh) {
-      this.navMesh.generate(opts);
+      this.navMesh.generate();
     } else {
       this.navMesh = new NavMesh(this.game);
     }
@@ -36,19 +35,43 @@ export default class NavMeshPlugin extends Phaser.Plugin {
   }
 
   /**
-   * @method toggleBlockedAtXY
+   * @method addSprite
    * @param {Number} x
    * @param {Number} y
+   * @param {Number} width
+   * @param {Number} height
+   * @param {Boolean} refresh
    */
-  toggleBlockedAtXY(x, y) {
+  addSprite(x, y, width, height, refresh = true) {
     const tileLayer = Config.get('tileLayer');
     if (!tileLayer) {
       return err();
     }
 
-    Config.toggleTileBlockedAtXY(x, y);
+    const sprite = Config.mapGrid.addSprite(x, y, width, height);
+    if (refresh) {
+      this.navMesh.generate();
+    }
+
+    return sprite;
   }
 
+  /**
+   * @method removeSprite
+   * @param {String} uuid
+   * @param {Boolean} refresh
+   */
+  removeSprite(uuid, refresh = true) {
+    const tileLayer = Config.get('tileLayer');
+    if (!tileLayer) {
+      return err();
+    }
+
+    Config.mapGrid.removeSprite(uuid);
+    if (refresh) {
+      this.navMesh.generate();
+    }
+  }
 }
 
 window.NavMeshPlugin = NavMeshPlugin;

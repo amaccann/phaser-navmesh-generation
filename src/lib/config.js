@@ -22,6 +22,10 @@ class Config {
     return this._c[key];
   }
 
+  get mapGrid() {
+    return MapGrid;
+  }
+
   /**
    * @method getTileAt
    * @param {Number} x
@@ -30,16 +34,6 @@ class Config {
    */
   getTileAt(x, y) {
     return MapGrid.getAt(x, y);
-  }
-
-  /**
-   * @method toggleTileBlockedAtXY
-   * @param {Number} x
-   * @param {Number} y
-   * @param {Boolean} toggle
-   */
-  toggleTileBlockedAtXY(x, y, toggle) {
-    MapGrid.toggleBlocked(x, y, toggle);
   }
 
   /**

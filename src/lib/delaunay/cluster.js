@@ -93,9 +93,9 @@ export default class Cluster extends MarchingSquares {
     }
 
     if (invert) {
-      return collisionIndices.indexOf(tile.index) > -1;
+      return collisionIndices.indexOf(tile.index) > -1 || tile.blocked;
     } else {
-      return collisionIndices.indexOf(tile.index) === -1;
+      return collisionIndices.indexOf(tile.index) === -1 && !tile.blocked;
     }
   }
 

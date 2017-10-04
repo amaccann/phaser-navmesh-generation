@@ -1,4 +1,5 @@
 import MapTile from './tile';
+import MapSprite from './sprite';
 
 /**
  * @class MapGrid
@@ -10,6 +11,7 @@ class MapGrid {
    */
   constructor() {
     this.data = [];
+    this.sprites = [];
     this.width = null;
     this.height = null;
   }
@@ -52,6 +54,56 @@ class MapGrid {
         this.data.push(new MapTile(tileLayer[y][x]));
       }
     }
+  }
+
+  /**
+   * @method addSprite
+   * @description Add a 'sprite' that acts as a blocker within the map-grid
+   */
+  addSprite(x, y, width, height) {
+    const tiles = [];
+    const yLength = y + height;
+    const xLength = x + width;
+    let yy = y;
+    let xx;
+    let tile;
+
+    for (yy; yy < yLength; yy++) {
+      xx = x;
+      for (xx; xx < xLength; xx++) {
+        tile = this.getAt(xx, yy);
+        if (tile) {
+          tile.blocked = true;
+          tiles.push(tile);
+        }
+      }
+    }
+
+    const sprite = new MapSprite(x, y, width, height, tiles);
+    this.sprites.push(sprite);
+
+    return sprite;
+  }
+
+  /**
+   * @method removeSprite
+   * @description Remove sprite, toggle tiles back to false (but only those not overlapping with other sprites)
+   * @param {String} uuid
+   */
+  removeSprite(uuid) {
+    const { tiles } = this.sprites.find(sprite => sprite.uuid === uuid);
+    let overlapping;
+
+    // First, remove the sprite matching the provided UUID
+    this.sprites = this.sprites.filter(sprite => sprite.uuid !== uuid);
+
+    // Now, iterate through the removed Sprite's tiles and toggle to FALSE only those NOT also in other Sprites
+    tiles.forEach(tile => {
+      overlapping = this.sprites.find(sprite => sprite.tiles.find(t => t.x === tile.x && t.y === tile.y));
+      if (!overlapping) {
+        tile.blocked = false;
+      }
+    });
   }
 
   /**

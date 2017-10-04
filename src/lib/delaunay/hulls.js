@@ -61,7 +61,7 @@ export default class Hulls extends MarchingSquares {
     }
 
     const tile = this.get(x, y);
-    return tile && (collisionIndices.indexOf(tile.index) > -1 );
+    return tile && (collisionIndices.indexOf(tile.index) > -1 || tile.blocked);
   }
 
   /**
