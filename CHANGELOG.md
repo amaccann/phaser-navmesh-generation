@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0] - 07 Oct 2017
+
+### Added
+- Included support for 'sprites' to mark blocked areas of navMesh that isn't an explicit
+collision tile. This can be accessed through `addSprite()` method of plugin (use `removeSprite` to remove the sprite by `uuid`
+- Tilelayer data is now flattened from 2D Phaser format into 1D array; this makes it faster to iterate across the whole grid. 
+- Added `updatedAt` timestamp to generated navMesh
+- Added `createdAt` timestamp for generated paths
+
 ## [0.1.1] - 29 Sept 2017
 
 ### Added
