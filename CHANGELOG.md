@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0] - 07 Oct 2017
+## [0.2.1] - 07 Oct 2017
 
 ### Added
 - Included support for 'sprites' to mark blocked areas of navMesh that isn't an explicit
