@@ -22,7 +22,7 @@ export default class DemoState extends State {
   preload() {
     const { game } = this;
     this.plugin = game.plugins.add(NavMeshPlugin);
-    // this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
+    this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
 
     // Load the demo assets
     game.load.image('ground_1x1', 'assets/tilemaps/tiles/ground_1x1.png');
@@ -53,17 +53,16 @@ export default class DemoState extends State {
     game.canvas.oncontextmenu = this.onRightClick;
 
     this.cursors = game.input.keyboard.createCursorKeys();
+    this.isSpriteStamp = false;
+    this.spriteUUIDs = [];
     game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
     game.input.keyboard.addKey(Keyboard.SPACEBAR).onDown.add(() => game.paused = !game.paused, this);
+    game.input.keyboard.addKey(Keyboard.S).onDown.add(() => this.isSpriteStamp = !this.isSpriteStamp);
+    game.input.keyboard.addKey(Keyboard.K).onDown.add(() => this.removeSprite());
 
     this.spriteGroup = new Phaser.Group(game);
 
-    // new DemoSprite(game, 100, 50, this.spriteGroup, this.tileLayer);
-    // new DemoSprite(game, 600, 60, this.spriteGroup, this.tileLayer);
     new DemoSprite(game, 200, 500, this.spriteGroup, this.tileLayer);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup, this.tileLayer);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup, this.tileLayer);
-    // new DemoSprite(game, world.randomX, world.randomY, this.spriteGroup, this.tileLayer);
   }
 
   /**
@@ -100,7 +99,7 @@ export default class DemoState extends State {
       x = startAtX;
       xLength = startAtX + 20;
       for (x; x < xLength; x++) {
-        if (x !== startAtX && y !== startAtY && x !== xLength - 4 && y !== yLength - 1) {
+        if (x !== startAtX && y !== startAtY && x !== xLength - 1 && y !== yLength - 1) {
           continue;
         }
 
@@ -243,15 +242,20 @@ export default class DemoState extends State {
   /**
    * @method updateMarker
    */
-  updateMarker() {
-    const { game, tileLayer, tileMap } = this;
-    const { activePointer, mousePointer } = game.input;
+  updateMarker({ leftButton, worldX, worldY }, originalEvent, c) {
+    const { tileLayer, tileMap } = this;
+
+    if (this.isSpriteStamp) {
+      return this.updateSprite(leftButton, worldX, worldY);
+    }
+    this.stamp && this.stamp.clear();
+
     const tile = Math.floor(PhaserMath.random(0, COLLISION_INDICES.length));
 
-    const x = tileLayer.getTileX(activePointer.worldX) * TILE_SIZE;
-    const y = tileLayer.getTileY(activePointer.worldY) * TILE_SIZE;
+    const x = tileLayer.getTileX(worldX) * TILE_SIZE;
+    const y = tileLayer.getTileY(worldY) * TILE_SIZE;
 
-    if (mousePointer.leftButton.isDown) {
+    if (leftButton.isDown) {
       tileMap.putTile(tile, tileLayer.getTileX(x), tileLayer.getTileY(y), tileLayer);
       this.updateNavMesh(1000);
     }
@@ -266,5 +270,48 @@ export default class DemoState extends State {
       clearTimeout(timeout);
     }
     timeout = setTimeout(() => this.buildNavMesh(), delay);
+  }
+
+  /**
+   * @method updateSprite
+   * @description Track the mouse movement and 'stamp' a test cluster onto the map
+   */
+  updateSprite(leftButton, x, y) {
+    const { tileWidth, tileHeight } = this.tileMap;
+    const stampWidth = 3;
+    const stampHeight = 2;
+
+    if (!this.stamp) {
+      this.stamp = this.game.add.graphics(0, 0);
+    } else {
+      this.stamp.clear();
+    }
+
+    this.stamp.beginFill(0x0000ff, 0.8);
+    const tileX = Math.floor(x / 32);
+    const tileY = Math.floor(y / 32);
+    this.stamp.drawRect(tileX * tileWidth, tileY * tileHeight, stampWidth * tileWidth, stampHeight * tileHeight);
+    this.stamp.endFill();
+
+    if (!leftButton.isDown) {
+      return;
+    }
+
+    const sprite = this.plugin.addSprite(tileX, tileY, stampWidth, stampHeight);
+    if (sprite) {
+      this.spriteUUIDs.push(sprite.uuid);
+    }
+  }
+
+  /**
+   * @method removeSprite
+   * @description Pop and remove the last sprite
+   */
+  removeSprite() {
+    if (!this.spriteUUIDs.length) {
+      return;
+    }
+
+    this.plugin.removeSprite(this.spriteUUIDs.pop());
   }
 }
