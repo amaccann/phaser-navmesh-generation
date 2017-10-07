@@ -77,3 +77,25 @@ This method returns two useful pieces of data:
 
 `path` an `Array` of Points that is the shortest path to your destination
 `offsetPath` an `Array` containing the _offset_ path, relative to the `offset` value given in `getPath`
+
+
+#### Other methods:
+`const sprite = plugin.addSprite(x, y, width, height, refresh);`
+
+Your map may have Sprites that act as impassable areas (houses, trees etc), and you can mark this area of the map using the above method
+
+Params:
+* `x` the Tile X location of the sprite **(required)**
+* `y` the Tile Y location of the sprite **(required)**
+* `width` the Width of the sprite, expressed as tile units **(required)**
+* `height` the Height of the sprite, expressed as tile units **(required)**
+* `refresh`: If you wish the navMesh to be re-calculated after removing the sprite (optional, default `true`)
+
+Returns:
+* The internal instance of the sprite; includes a `uuid` that can be used for later removal
+
+`plugin.removeSprite(uuid, refresh);`
+
+Params:
+* `uuid`: the String UUID of the sprite you wish to remove **(required)**
+* `refresh`: If you wish the navMesh to be re-calculated after removing the sprite (optional, default `true`)
