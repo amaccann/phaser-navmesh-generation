@@ -17,6 +17,17 @@ class MapGrid {
   }
 
   /**
+   * @method findSprite
+   * @param {Number} x
+   * @param {Number} y
+   * @param {Number} width
+   * @param {Number} height
+   */
+  findSprite(x, y, width, height) {
+    return this.sprites.find(s => s.x === x && s.y === y && s.width === width && s.height === height);
+  }
+
+  /**
    * @method get
    */
   get() {
@@ -67,6 +78,11 @@ class MapGrid {
     let yy = y;
     let xx;
     let tile;
+
+    // If we already added a sprite with these exact dimensions, ignore
+    if (this.findSprite(x, y, width, height)) {
+      return false;
+    }
 
     for (yy; yy < yLength; yy++) {
       xx = x;

@@ -49,7 +49,7 @@ export default class NavMeshPlugin extends Phaser.Plugin {
     }
 
     const sprite = Config.mapGrid.addSprite(x, y, width, height);
-    if (refresh) {
+    if (sprite && refresh) {
       this.navMesh.generate();
     }
 

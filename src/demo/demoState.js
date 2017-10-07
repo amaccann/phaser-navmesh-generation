@@ -297,8 +297,10 @@ export default class DemoState extends State {
       return;
     }
 
-    const { uuid } = this.plugin.addSprite(tileX, tileY, stampWidth, stampHeight);
-    this.spriteUUIDs.push(uuid);
+    const sprite = this.plugin.addSprite(tileX, tileY, stampWidth, stampHeight);
+    if (sprite) {
+      this.spriteUUIDs.push(sprite.uuid);
+    }
   }
 
   /**

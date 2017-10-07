@@ -31,6 +31,7 @@ export default class NavMesh {
     Config.get('timingInfo') && console.time(timerName);
     this.delaunay.generate();
     this.aStar = new AStar(this); // Calculate the a-star grid for the polygons.
+    this.updatedAt = Date.now();
 
     Config.get('timingInfo') && console.timeEnd(timerName);
     Debug.draw(this.delaunay);
@@ -55,9 +56,10 @@ export default class NavMesh {
 
     const { path, polygons, uuid } = aStarPath;
     const offsetPath = offsetFunnelPath(path, offset);
+    const createdAt = Date.now();
     Config.get('timingInfo') && console.timeEnd(timerName);
 
-    return { path, polygons, offsetPath, uuid };
+    return { createdAt, path, polygons, offsetPath, uuid };
   }
 
   /**
