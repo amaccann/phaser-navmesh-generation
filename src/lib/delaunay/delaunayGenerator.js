@@ -59,7 +59,11 @@ export default class DelaunayGenerator {
   generate() {
     const options = { exterior: false };
 
-    this.hulls = new Hulls();
+    if (this.hulls) {
+      this.hulls.generate();
+    } else {
+      this.hulls = new Hulls();
+    }
 
     this.parseHullClusters();
 
