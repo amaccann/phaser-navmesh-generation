@@ -57,6 +57,7 @@ Params:
 * `midPointThreshold`: a `Number` value telling how narrow a navmesh triangle needs to be before it's ignored during pathing (optional; default `0`)
 * `timingInfo`: Show in the console how long it took to build the NavMesh - and search for paths (optional; default `false`)
 * `useMidPoint`: a `Boolean` value on whether to include all triangle edge mid-points in calculating triangulation (optional; default: `true`)
+* `offsetHullsBy`: a `Number` value to offset (expand) each hull cluster by. Useful to use a small value to prevent excessively parallel edges (optional; default: `0.1`)
 * `debug`: various optional debug options to Render the stages of NavMesh calculation:
     * `hulls`: Every (recursive) 'chunk' of impassable tiles found on the tilemap
     * `navMesh`: Draw all the actual triangles generated for this navmesh

@@ -2,10 +2,11 @@ import MapGrid from './map/grid';
 
 const defaultConfig = {
   collisionIndices: [],
-  timingInfo: false,
   midPointThreshold: 0,
+  offsetHullsBy: 0.1,
   tileMap: null,
   tileLayer: null,
+  timingInfo: false,
   useMidPoint: false
 };
 
