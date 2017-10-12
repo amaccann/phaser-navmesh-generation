@@ -2,7 +2,6 @@ import EdgePoint from './delaunay/edgePoint';
 import Config from './config';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
-const OFFSET_BY = 0.1;
 
 export function areLinesEqual(line1, line2) {
   const line1Start = line1.start;
@@ -184,7 +183,7 @@ export function optimiseEdges(edges) {
  */
 export function offsetPolygon(points = [], invert, clusters = []) {
   const { width, height } = Config.mapDimensions;
-  const offsetBy = OFFSET_BY * (invert ? -1 : 1);
+  const offsetBy = Config.get('offsetHullsBy') * (invert ? -1 : 1);
   const pointsLength = points.length;
   const offsetPoint = new Phaser.Point();
   let i = 0;
@@ -265,11 +264,3 @@ export function offsetEdges(edges = [], invert = false, clusters = []) {
 
   return edges;
 }
-
-const defaultOffsetOptions = {
-  offset: OFFSET_BY,
-  invert: false,
-  width: -1,
-  height: -1
-};
-

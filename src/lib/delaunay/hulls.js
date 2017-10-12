@@ -24,6 +24,34 @@ export default class Hulls extends MarchingSquares {
     super.generate((contours, edges) => {
       this.clusters.push(new Cluster(contours, edges));
     });
+
+    this.extractAllEdges();
+  }
+
+  /**
+   * @method extractAllEdges
+   * @description Extract all edges from all clusters
+   */
+  extractAllEdges() {
+    const { width, height, tileWidth, tileHeight } = Config.mapDimensions;
+    const w = width * tileWidth;
+    const h = height * tileHeight;
+    this.allEdges = [
+      new Phaser.Line(0, 0, w, 0),
+      new Phaser.Line(w, 0, w, h),
+      new Phaser.Line(w, h, 0, h),
+      new Phaser.Line(0, h, 0, 0)
+    ];
+
+    const parseCluster = ({ children, edges }) => {
+      this.allEdges = this.allEdges.concat(edges.map(({ start, end }) => ({
+        start: start.clone().multiply(tileWidth, tileHeight),
+        end: end.clone().multiply(tileWidth, tileHeight)
+      })));
+      children.forEach(parseCluster);
+    };
+
+    this.clusters.forEach(parseCluster);
   }
 
   /**

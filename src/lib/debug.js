@@ -60,40 +60,23 @@ class Debug {
   drawDelaunay(delaunay) {
     const { gfx, settings } = this;
     const { polygons } = delaunay;
-    const { clusters } = delaunay.hulls;
+    const { allEdges } = delaunay.hulls;
     gfx.clear();
 
-    function drawCluster(cluster) {
-      gfx.beginFill(DEBUG_COLOUR_RED, 0.6);
-      gfx.drawPolygon(cluster.polygon.points.map(this.getWorldXY, this));
-      gfx.endFill();
-      const [startEdge, ...otherEdges] = cluster.edges;
-      const startEdgeStart = this.getWorldXY(startEdge.start);
-      const startEdgeEnd = this.getWorldXY(startEdge.end);
-
+    function drawEdge(edge) {
+      const start = (edge.start);
+      const end = (edge.end);
       gfx.lineStyle(2, DEBUG_COLOUR_YELLOW);
-      gfx.moveTo(startEdgeStart.x, startEdgeStart.y);
-      gfx.lineTo(startEdgeEnd.x, startEdgeEnd.y);
-
-      otherEdges.forEach(edge => {
-        const start = this.getWorldXY(edge.start);
-        const end = this.getWorldXY(edge.end);
-
-        gfx.moveTo(start.x, start.y);
-        gfx.lineTo(end.x, end.y);
-      });
+      gfx.moveTo(start.x, start.y);
+      gfx.lineTo(end.x, end.y);
       gfx.lineStyle(0);
-
-      if (cluster.children.length) {
-        cluster.children.forEach(drawCluster, this);
-      }
     }
 
     /**
      * @description Render the hulls found using the Marching Squares algorithm
      */
     if (settings.hulls) {
-      clusters.forEach(drawCluster, this);
+      allEdges.forEach(drawEdge, this);
     }
 
     /**
@@ -114,7 +97,7 @@ class Debug {
 
       gfx.lineStyle(lineWidth, 0x00b2ff, 0.5);
       polygons.forEach((poly) => {
-        poly.neighbors.forEach((neighbour) => {
+        poly.neighbors.forEach(neighbour => {
           gfx.moveTo(poly.centroid.x, poly.centroid.y);
           gfx.lineTo(neighbour.centroid.x, neighbour.centroid.y);
         });
