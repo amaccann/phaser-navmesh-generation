@@ -4,7 +4,7 @@
 
 This Phaser plugin generates Navigation Meshes from supplied `Phaser.TilemapLayer` data and collison indices thereof. Contains configuration options
 
-#### Current version: `0.2.1`
+#### Current version: `0.2.2`
 
 ### Getting Started:
 
