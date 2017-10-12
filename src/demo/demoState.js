@@ -99,7 +99,7 @@ export default class DemoState extends State {
       x = startAtX;
       xLength = startAtX + 20;
       for (x; x < xLength; x++) {
-        if (x !== startAtX && y !== startAtY && x !== xLength - 1 && y !== yLength - 1) {
+        if (x !== startAtX && y !== startAtY && x !== xLength - 4 && y !== yLength - 1) {
           continue;
         }
 
