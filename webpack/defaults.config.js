@@ -25,10 +25,6 @@ module.exports = {
         include: APP_DIR,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['env'],
-            plugins: [require('babel-plugin-transform-object-rest-spread')]
-          }
         }
       },
       {
