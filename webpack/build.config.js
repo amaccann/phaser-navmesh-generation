@@ -1,8 +1,11 @@
-const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
 const { APP_DIR, DIST_DIR } = require('./conf');
 const defaultConfig = require('./defaults.config');
 
 module.exports = Object.assign({}, defaultConfig, {
+  mode: 'production',
   entry: {
     navmesh: `${APP_DIR}/lib/navMeshPlugin.js`
   },
@@ -14,13 +17,18 @@ module.exports = Object.assign({}, defaultConfig, {
     umdNamedDefine: true
   },
   externals: ['phaser-ce'],
-  plugins: [ new webpack.optimize.UglifyJsPlugin({
-      drop_console: true,
-      sourceMap: true,
-      minimize: true,
-      output: {
-        comments: false
-      }
-    }
-  )]
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          output: {
+            comments: false,
+          },
+        },
+      }),
+    ],
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+  ]
 });
