@@ -3,8 +3,8 @@ import DemoState from './demoState';
 import NavMeshPlugin from '../lib/navMeshPlugin';
 
 const config = {
-  width: 800,
-  height: 600,
+  width: 1200,
+  height: 900,
   physicsConfig: { arcade: true },
   plugins: {
     scene: [
