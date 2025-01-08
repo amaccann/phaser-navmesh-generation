@@ -84,10 +84,8 @@ class Debug {
      * @method Render the Delaunay triangles generated...
      */
     if (settings.navMesh) {
-      gfx.fillStyle(0xff33ff, 0.6);
       gfx.lineStyle(1, 0xffffff, 1);
-      polygons.forEach(poly => gfx.fillPoints(poly.points));
-      // gfx.endFill();
+      polygons.forEach(poly => gfx.strokePoints(poly.points));
     }
 
     /**
