@@ -50,7 +50,8 @@ class Config {
    * @return {Object}
    */
   get mapDimensions() {
-    const { width, height, tileWidth, tileHeight, widthInPixels, heightInPixels } = this._c.tileMap;
+    const {layer}  = this._c.tileLayer;
+    const { width, height, tileWidth, tileHeight, widthInPixels, heightInPixels } = layer;
     return { width, height, tileWidth, tileHeight, widthInPixels, heightInPixels };
   }
 

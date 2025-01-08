@@ -4,7 +4,6 @@
  */
 export default class EdgePoint extends Phaser.Math.Vector2 {
   constructor(point) {
-    console.log('point', point);
     super(point.x, point.y);
     this.sources = [point];
   }
