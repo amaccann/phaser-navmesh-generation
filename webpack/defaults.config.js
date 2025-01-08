@@ -10,12 +10,12 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [APP_DIR, 'node_modules'],
-    alias: {
-      constants: `${APP_DIR}/constants`, // https://github.com/webpack/webpack/issues/4666
-      phaser: path.join(PHASER_DIR, 'build/custom/phaser-split.js'),
-      pixi: path.join(PHASER_DIR, 'build/custom/pixi.js'),
-      p2: path.join(PHASER_DIR, 'build/custom/p2.js')
-    }
+    // alias: {
+    //   constants: `${APP_DIR}/constants`, // https://github.com/webpack/webpack/issues/4666
+    //   phaser: path.join(PHASER_DIR, 'build/custom/phaser-split.js'),
+    //   pixi: path.join(PHASER_DIR, 'build/custom/pixi.js'),
+    //   p2: path.join(PHASER_DIR, 'build/custom/p2.js')
+    // }
   },
   module: {
     rules: [
@@ -27,27 +27,6 @@ module.exports = {
           loader: 'babel-loader',
         }
       },
-      {
-        test: /pixi\.js/,
-        use: [{
-          loader: 'expose-loader',
-          options: 'PIXI'
-        }]
-      },
-      {
-        test: /phaser-split\.js$/,
-        use: [{
-          loader: 'expose-loader',
-          options: 'Phaser'
-        }]
-      },
-      {
-        test: /p2\.js/,
-        use: [{
-          loader: 'expose-loader',
-          options: 'p2'
-        }]
-      }
     ]
   }
 };

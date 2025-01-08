@@ -39,7 +39,9 @@ export default class DelaunayGenerator {
               continue;
             }
 
-            const { start, end } = sortLine(edge);
+            const sortedLine = sortLine(edge);
+            const start = sortedLine.getPointA();
+            const end = sortedLine.getPointB();
 
             polygon.addNeighbor(otherPolygon);
             otherPolygon.addNeighbor(polygon);
@@ -115,10 +117,10 @@ export default class DelaunayGenerator {
     const { hulls } = this;
     const { width, height } = Config.mapDimensions;
     const parentEdges = [
-      new Phaser.Line(0, 0, width, 0),
-      new Phaser.Line(width, 0, width, height),
-      new Phaser.Line(width, height, 0, height),
-      new Phaser.Line(0, height, 0, 0)
+      new Phaser.Geom.Line(0, 0, width, 0),
+      new Phaser.Geom.Line(width, 0, width, height),
+      new Phaser.Geom.Line(width, height, 0, height),
+      new Phaser.Geom.Line(0, height, 0, 0)
     ];
     let edges = [];
 

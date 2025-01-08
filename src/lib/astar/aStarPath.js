@@ -1,7 +1,7 @@
 import { areLinesEqual } from '../utils';
 import Funnel from './funnel';
 import Config from '../config';
-import uuid from 'uuid';
+import {v4} from 'uuid';
 
 export default class AStarPath {
 
@@ -21,7 +21,7 @@ export default class AStarPath {
     this.startPolygon = startPolygon;
     this.endPolygon = endPolygon;
     this.portals = [];
-    this.uuid = uuid();
+    this.uuid = v4();
 
     this.initPortals();
     this.initFunnel();

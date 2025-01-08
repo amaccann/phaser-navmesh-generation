@@ -1,14 +1,14 @@
 export default class Portal {
   /**
    * @constructor
-   * @param {Phaser.Point} left
-   * @param {Phaser.Point} right
+   * @param {Phaser.Geom.Point} left
+   * @param {Phaser.Geom.Point} right
    */
   constructor(left, right) {
     this.left = left;
     this.right = right;
-    this.midPoint = Phaser.Point.centroid([ left, right ]);
-    this.length = Phaser.Point.distance(left, right);
+    this.midPoint = Phaser.Geom.Point.centroid([ left, right ]);
+    this.length = Phaser.Geom.Point.distance(left, right);
   }
 
   /**

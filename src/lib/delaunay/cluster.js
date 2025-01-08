@@ -9,7 +9,7 @@ export default class Cluster extends MarchingSquares {
   constructor(contours, edges, invert = false) {
     super();
 
-    this.polygon = new Phaser.Polygon(contours);
+    this.polygon = new Phaser.Geom.Polygon(contours);
     this.edges = edges;
     this.invert = invert;
 
@@ -36,7 +36,7 @@ export default class Cluster extends MarchingSquares {
    * @method getStartingPoint
    */
   getStartingPoint() {
-    const offsetPoint = new Phaser.Point();
+    const offsetPoint = new Phaser.Math.Vector2();
     const { bounds } = this;
     const { x, y, width, height } = bounds;
 
@@ -120,13 +120,16 @@ export default class Cluster extends MarchingSquares {
    */
   setBounds() {
     const [ first, ...rest ] = this.edges;
-    let startingX = Math.min(first.start.x, first.end.x);
-    let startingY = Math.min(first.start.y, first.end.y);
-    let endX = Math.max(first.start.x, first.end.x);
-    let endY = Math.max(first.start.y, first.end.y);
+    const firstStart = first.getPointA();
+    const firstEnd = first.getPointB();
+    let startingX = Math.min(firstStart.x, firstEnd.x);
+    let startingY = Math.min(firstStart.y, firstEnd.y);
+    let endX = Math.max(firstStart.x, firstEnd.x);
+    let endY = Math.max(firstStart.y, firstEnd.y);
 
     rest.forEach(edge => {
-      const { start, end } = edge;
+      const start = edge.getPointA();
+      const end = edge.getPointB();
       const minX = Math.min(start.x, end.x);
       const minY = Math.min(start.y, end.y);
       const maxX = Math.max(start.x, end.x);

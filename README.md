@@ -65,13 +65,13 @@ Params:
     * `polygonBounds`: Draw the bonding radius between each navmesh triangle
     * `aStarPath`: Draw the aStar path found between points (WIP debug, will remove later) 
 
-2. Then, to find a path between two `Phaser.Point` instances, call:
+2. Then, to find a path between two `Phaser.Geom.Point` instances, call:
 ```
 navMesh.getPath(position, destination, offset);
 ```
 Params:
-* `position` is a `Phaser.Point` of your starting _world_ position **(required)**
-* `destination` is a `Phaser.Point` of the destination / end _world_ position **(required)**
+* `position` is a `Phaser.Geom.Point` of your starting _world_ position **(required)**
+* `destination` is a `Phaser.Geom.Point` of the destination / end _world_ position **(required)**
 * `offset` is an offset value to keep a distance (optional, default `0`) 
 
 This method returns two useful pieces of data:
