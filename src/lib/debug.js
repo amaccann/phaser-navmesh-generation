@@ -58,17 +58,18 @@ class Debug {
    * @method drawDelaunay
    */
   drawDelaunay(delaunay) {
+    console.log('this', this.gfx);
+    console.log('del', delaunay);
     const { gfx, settings } = this;
     const { polygons } = delaunay;
     const { allEdges } = delaunay.hulls;
     gfx.clear();
 
     function drawEdge(edge) {
-      const start = (edge.start);
-      const end = (edge.end);
+      console.log('edge', edge);
       gfx.lineStyle(2, DEBUG_COLOUR_YELLOW);
-      gfx.moveTo(start.x, start.y);
-      gfx.lineTo(end.x, end.y);
+      gfx.moveTo(edge.x1, edge.y1);
+      gfx.lineTo(edge.x2, edge.y2);
       gfx.lineStyle(0);
     }
 
@@ -83,10 +84,10 @@ class Debug {
      * @method Render the Delaunay triangles generated...
      */
     if (settings.navMesh) {
-      gfx.beginFill(0xff33ff, 0.6);
+      gfx.fillStyle(0xff33ff, 0.6);
       gfx.lineStyle(1, 0xffffff, 1);
-      polygons.forEach(poly => gfx.drawPolygon(poly.points));
-      gfx.endFill();
+      polygons.forEach(poly => gfx.fillPoints(poly.points));
+      // gfx.endFill();
     }
 
     /**
@@ -102,9 +103,9 @@ class Debug {
           gfx.lineTo(neighbour.centroid.x, neighbour.centroid.y);
         });
 
-        gfx.beginFill(0xffffff);
-        gfx.drawCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER);
-        gfx.endFill();
+        gfx.fillStyle(0xffffff, 0.1);
+        gfx.fillCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER);
+        // gfx.endFill();
       });
     }
 
@@ -114,7 +115,7 @@ class Debug {
     if (settings.polygonBounds) {
       polygons.forEach(polygon => {
         gfx.lineStyle(2, DEBUG_COLOUR_YELLOW, 1);
-        gfx.drawCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
+        gfx.fillCircle(polygon.centroid.x, polygon.centroid.y, polygon.boundsRadius * 2)
       });
       gfx.lineStyle(0, 0xffffff);
     }
@@ -125,7 +126,6 @@ class Debug {
    */
   initGraphics() {
     const { scene } = this;
-    console.log('this', this);
     if (!this.gfx && !!scene) {
       this.gfx = scene.add.graphics(0, 0);
     }

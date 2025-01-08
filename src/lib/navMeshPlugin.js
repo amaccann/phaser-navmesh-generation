@@ -1,6 +1,6 @@
 import NavMesh, { defaultOptions } from './navMesh';
 import Config from './config';
-// import Debug from './debug';
+import Debug from './debug';
 
 function err() {
   return console.error('[NavMeshPlugin] no TileMap / TileLayer found');
@@ -23,9 +23,8 @@ export default class NavMeshPlugin extends Phaser.Plugins.ScenePlugin {
     }
 
     Config.set({ tileMap, tileLayer, ...options });
-    // Debug.set(this.scene, tileLayer, options.debug);
+    Debug.set(this.scene, tileLayer, options.debug);
 
-    console.log('123', this);
     if (this.navMesh) {
       this.navMesh.generate();
     } else {

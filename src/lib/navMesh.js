@@ -34,7 +34,7 @@ export default class NavMesh {
     this.updatedAt = Date.now();
 
     Config.get('timingInfo') && console.timeEnd(timerName);
-    // Debug.draw(this.delaunay);
+    Debug.draw(this.delaunay);
   }
 
   /**

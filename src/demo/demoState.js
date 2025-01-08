@@ -1,6 +1,4 @@
-import { Keyboard, Math as PhaserMath, Point, State } from 'phaser';
-import NavMeshPlugin from '../lib/navMeshPlugin';
-// import AdvancedTiming from 'phaser-plugin-advanced-timing';
+import {Point} from 'phaser';
 import DemoSprite from './demoSprite';
 
 const SCROLL_CAMERA_BY = 10;
@@ -16,13 +14,6 @@ export default class DemoState extends Phaser.Scene {
    * @method preload
    */
   preload() {
-    const { game } = this;
-    console.log('game', game);
-    // this.plugin = game.plugins.add(NavMeshPlugin);
-    // this.plugin = this.load.plugin({key: 'navMeshPlugin', plugin: NavMeshPlugin, mapping: 'blah'});
-    console.log('this', this);
-    // this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
-
     // Load the demo assets
     this.load.image('ground_1x1', 'assets/tilemaps/tiles/ground_1x1.png');
     this.load.image('agent', 'assets/agent.png');
@@ -111,7 +102,7 @@ export default class DemoState extends Phaser.Scene {
           continue;
         }
 
-        tileIndex = Math.floor(Phaser.Math.Between(0, COLLISION_INDICES.length));
+        tileIndex = Math.floor(Phaser.Math.Between(0, COLLISION_INDICES.length - 1));
         tileLayer.putTileAt(tileIndex, x, y, false);
       }
     }
@@ -257,13 +248,13 @@ export default class DemoState extends Phaser.Scene {
     // }
     // this.stamp && this.stamp.clear();
 
-    const tileIndex = Math.floor(Phaser.Math.Between(0, COLLISION_INDICES.length));
+    const tileIndex = Math.floor(Phaser.Math.Between(0, COLLISION_INDICES.length - 1));
     const tile = tileLayer.getTileAtWorldXY(worldX, worldY);
     if (tile) {
       tile.index = tileIndex;
       tileLayer.calculateFacesAt(tile.x, tile.y);
       // @TODO Update navmesh
-      // this.updateNavMesh(1000);
+      this.updateNavMesh(1000);
     }
   }
 
