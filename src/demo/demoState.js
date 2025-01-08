@@ -1,6 +1,6 @@
-import { Keyboard, Math as PhaserMath, Point, State } from 'phaser-ce';
+import { Keyboard, Math as PhaserMath, Point, State } from 'phaser';
 import NavMeshPlugin from '../lib/navMeshPlugin';
-import AdvancedTiming from 'phaser-plugin-advanced-timing';
+// import AdvancedTiming from 'phaser-plugin-advanced-timing';
 import DemoSprite from './demoSprite';
 
 const SCROLL_CAMERA_BY = 10;
@@ -11,58 +11,66 @@ const TILE_SIZE = 32;
 let PATH_GRAPHICS;
 let timeout;
 
-export default class DemoState extends State {
-  constructor() {
-    super();
-  }
-
+export default class DemoState extends Phaser.Scene {
   /**
    * @method preload
    */
   preload() {
     const { game } = this;
-    this.plugin = game.plugins.add(NavMeshPlugin);
-    this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
+    console.log('game', game);
+    // this.plugin = game.plugins.add(NavMeshPlugin);
+    // this.plugin = this.load.plugin({key: 'navMeshPlugin', plugin: NavMeshPlugin, mapping: 'blah'});
+    console.log('this', this);
+    // this.timing = game.plugins.add(AdvancedTiming, { mode: 'graph' });
 
     // Load the demo assets
-    game.load.image('ground_1x1', 'assets/tilemaps/tiles/ground_1x1.png');
-    game.load.image('agent', 'assets/agent.png');
+    this.load.image('ground_1x1', 'assets/tilemaps/tiles/ground_1x1.png');
+    this.load.image('agent', 'assets/agent.png');
   }
 
   /**
    * @method create
    */
   create() {
-    const { game } = this;
-    game.stage.backgroundColor = '#2d2d2d';
-
     // Create blank tilemap
-    this.tileMap = game.add.tilemap();
-    this.tileMap.addTilesetImage('ground_1x1');
+    this.tileMap = this.make.tilemap({key: 'map', tileWidth: TILE_SIZE, tileHeight: TILE_SIZE});
+    this.tileSet = this.tileMap.addTilesetImage('ground_1x1');
+    this.tileLayer = this.tileMap.createBlankLayer('Layer1', this.tileSet, 0, 0, WIDTH_TILES, HEIGHT_TILES)
     this.tileMap.setCollision(COLLISION_INDICES);
-
-    this.tileLayer = this.tileMap.create('demoLayer', WIDTH_TILES, HEIGHT_TILES, TILE_SIZE, TILE_SIZE);
-    this.tileLayer.resizeWorld();
 
     this.drawAllGround();
     this.drawInitGrid();
     this.updateNavMesh();
 
-    game.input.addMoveCallback(this.updateMarker, this);
-    game.input.onUp.add(this.onUp, this);
-    game.canvas.oncontextmenu = this.onRightClick;
 
-    this.cursors = game.input.keyboard.createCursorKeys();
-    this.isSpriteStamp = false;
-    this.spriteUUIDs = [];
-    game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
-    game.input.keyboard.addKey(Keyboard.SPACEBAR).onDown.add(() => game.paused = !game.paused, this);
-    game.input.keyboard.addKey(Keyboard.S).onDown.add(() => this.isSpriteStamp = !this.isSpriteStamp);
-    game.input.keyboard.addKey(Keyboard.K).onDown.add(() => this.removeSprite());
+    // game.input.addMoveCallback(this.updateMarker, this);
+    // game.input.on(this.onUp, this);
+    this.input.on('pointerup', this.onUp, this)
+    this.input.mouse.disableContextMenu()
 
-    this.spriteGroup = new Phaser.Group(game);
+    const cursors = this.input.keyboard.createCursorKeys();
+    const controlConfig = {
+        camera: this.cameras.main,
+        left: cursors.left,
+        right: cursors.right,
+        up: cursors.up,
+        down: cursors.down,
+        speed: 0.5
+    };
 
-    new DemoSprite(game, 200, 500, this.spriteGroup, this.tileLayer);
+    this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
+    this.cameras.main.setBounds(0, 0, this.tileLayer.width, this.tileLayer.height);
+
+    // this.isSpriteStamp = false;
+    // this.spriteUUIDs = [];
+    // game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
+    // game.input.keyboard.addKey(Keyboard.SPACEBAR).onDown.add(() => game.paused = !game.paused, this);
+    // game.input.keyboard.addKey(Keyboard.S).onDown.add(() => this.isSpriteStamp = !this.isSpriteStamp);
+    // game.input.keyboard.addKey(Keyboard.K).onDown.add(() => this.removeSprite());
+
+    this.spriteGroup = new Phaser.GameObjects.Group(this);
+
+    const sprite = new DemoSprite(this, 200, 500, this.spriteGroup);
   }
 
   /**
@@ -70,13 +78,13 @@ export default class DemoState extends State {
    */
   drawAllGround() {
     const { tileLayer, tileMap } = this;
-    const { width, height } = tileMap;
+    const { width, height } = tileLayer;
     let y = 0;
     let x;
     for (y; y < height; y++) {
       x = 0;
       for (x; x < width; x++) {
-        tileMap.putTile(24, x, y, tileLayer);
+        tileLayer.putTileAt(24, x, y, false)
       }
     }
   }
@@ -86,7 +94,7 @@ export default class DemoState extends State {
    * @description Draw a quick, 'enclosed' area
    */
   drawInitGrid() {
-    const { tileLayer, tileMap } = this;
+    const { tileLayer } = this;
     const startAtX = 3;
     const startAtY = 3;
     const yLength = startAtY + 10;
@@ -103,8 +111,8 @@ export default class DemoState extends State {
           continue;
         }
 
-        tileIndex = Math.floor(PhaserMath.random(0, COLLISION_INDICES.length));
-        tileMap.putTile(tileIndex, x, y, tileLayer);
+        tileIndex = Math.floor(Phaser.Math.Between(0, COLLISION_INDICES.length));
+        tileLayer.putTileAt(tileIndex, x, y, false);
       }
     }
   }
@@ -122,15 +130,27 @@ export default class DemoState extends State {
    */
   onUp(pointer) {
     const { navMesh, spriteGroup } = this;
-    const isRightButton = pointer.rightButton.isDown;
-    const { withinGame, worldX, worldY } = pointer;
+    const isRightButton = pointer.button === 2;
+    const isLeftButton = pointer.button === 0;
+    const { worldX, worldY } = pointer;
     const paths = [];
 
-    if (!withinGame || !isRightButton || !navMesh) {
+    switch (true) {
+      case isLeftButton:
+        this.updateMarker(pointer);
+        return console.log('hi there');
+        case isRightButton:
+          return console.log('right');
+      default:
+        return null;
+    }
+
+    if (!isRightButton || !navMesh) {
       return;
     }
 
     const destination = new Point(worldX, worldY);
+    console.log('destination', destination);
     spriteGroup.forEachAlive(sprite => {
       const { position, width, height } = sprite;
       const size = Math.max(width, height);
@@ -154,7 +174,7 @@ export default class DemoState extends State {
   buildNavMesh() {
     const { game, tileMap, tileLayer } = this;
 
-    this.navMesh = this.plugin.buildFromTileLayer(tileMap, tileLayer, {
+    this.navMesh = this.navMeshPlugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
       timingInfo: true,
       midPointThreshold: 0,
@@ -166,10 +186,11 @@ export default class DemoState extends State {
         aStarPath: false
       }
     });
+    console.log('this.navMesh', this.navMesh);
 
     timeout = undefined;
 
-    game.world.bringToTop(this.spriteGroup);
+    // game.world.bringToTop(this.spriteGroup);
   }
 
   /**
@@ -220,44 +241,29 @@ export default class DemoState extends State {
   /**
    * @method update
    */
-  update() {
-    const { cursors, game } = this;
-    const camera = game.camera;
-
-    if (cursors.left.isDown) {
-      camera.x -= SCROLL_CAMERA_BY;
-    } else if (cursors.right.isDown) {
-      camera.x += SCROLL_CAMERA_BY;
-    }
-
-    if (cursors.up.isDown) {
-      camera.y -= SCROLL_CAMERA_BY;
-    } else if (cursors.down.isDown) {
-      camera.y += SCROLL_CAMERA_BY;
-    }
-
-    this.spriteGroup.update();
+  update(time, delta) {
+    this.controls.update(delta);
+    // this.spriteGroup.update();
   }
 
   /**
    * @method updateMarker
    */
-  updateMarker({ leftButton, worldX, worldY }, originalEvent, c) {
-    const { tileLayer, tileMap } = this;
+  updateMarker({worldX, worldY } = {}) {
+    const { tileLayer } = this;
 
-    if (this.isSpriteStamp) {
-      return this.updateSprite(leftButton, worldX, worldY);
-    }
-    this.stamp && this.stamp.clear();
+    // if (this.isSpriteStamp) {
+    //   return this.updateSprite(leftButton, worldX, worldY);
+    // }
+    // this.stamp && this.stamp.clear();
 
-    const tile = Math.floor(PhaserMath.random(0, COLLISION_INDICES.length));
-
-    const x = tileLayer.getTileX(worldX) * TILE_SIZE;
-    const y = tileLayer.getTileY(worldY) * TILE_SIZE;
-
-    if (leftButton.isDown) {
-      tileMap.putTile(tile, tileLayer.getTileX(x), tileLayer.getTileY(y), tileLayer);
-      this.updateNavMesh(1000);
+    const tileIndex = Math.floor(Phaser.Math.Between(0, COLLISION_INDICES.length));
+    const tile = tileLayer.getTileAtWorldXY(worldX, worldY);
+    if (tile) {
+      tile.index = tileIndex;
+      tileLayer.calculateFacesAt(tile.x, tile.y);
+      // @TODO Update navmesh
+      // this.updateNavMesh(1000);
     }
   }
 

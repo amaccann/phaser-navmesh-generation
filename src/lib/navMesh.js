@@ -34,13 +34,13 @@ export default class NavMesh {
     this.updatedAt = Date.now();
 
     Config.get('timingInfo') && console.timeEnd(timerName);
-    Debug.draw(this.delaunay);
+    // Debug.draw(this.delaunay);
   }
 
   /**
    * @method getPath
-   * @param {Phaser.Point} startPosition
-   * @param {Phaser.Point} endPosition
+   * @param {Phaser.Geom.Point} startPosition
+   * @param {Phaser.Geom.Point} endPosition
    * @param {Number} offset
    */
   getPath(startPosition, endPosition, offset) {

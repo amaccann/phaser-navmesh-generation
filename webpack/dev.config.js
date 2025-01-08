@@ -15,7 +15,7 @@ const minimizer = NODE_ENV === 'production' ? [
 ] : [];
 
 module.exports = Object.assign({}, defaultConfig, {
-  mode: NODE_ENV,
+  mode: NODE_ENV || 'development',
   entry: {
     demo: `${APP_DIR}/demo/index.js`
   },
@@ -31,7 +31,7 @@ module.exports = Object.assign({}, defaultConfig, {
     minimizer
   },
   devServer: {
-    contentBase: BUILD_DIR,
+    // contentBase: BUILD_DIR,
     port: 9999
   }
 });

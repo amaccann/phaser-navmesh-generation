@@ -4,13 +4,14 @@ import Config from './config';
 const THREE_SIXTY_DEGREES = Math.PI * 2;
 
 export function areLinesEqual(line1, line2) {
-  const line1Start = line1.start;
-  const line1End = line1.end;
-  const line2Start = line2.start;
-  const line2End = line2.end;
+  const line1Start = line1.getPointA();
+  const line1End = line1.getPointB();
+  const line2Start = line2.getPointA();
+  const line2End = line2.getPointB;
+  
 
-  const startEqual = line1Start.equals(line2Start) || line1Start.equals(line2End);
-  const endEqual = line1End.equals(line2Start) || line1End.equals(line2End);
+  const startEqual = Phaser.Geom.Line.Equals(line1Start, line2Start) || Phaser.Geom.Line.Equals(line1Start, line2End);
+  const endEqual = line1Start.equals(line1End, line2Start) || line1End.equals(line1End, line2End);
 
   return startEqual && endEqual;
 }
@@ -49,13 +50,14 @@ export function angleDifference(x, y) {
  * @description Sort a line by its end-points. Prioritise first by the X values, but if they're equal, sort by Y
  */
 export function sortLine(line) {
-  const { start, end } = line;
+  const start = line.getPointA();
+  const end = line.getPointB();
   if (end.x < start.x) {
-    return new Phaser.Line(end.x, end.y, start.x, start.y);
+    return new Phaser.Geom.Line(end.x, end.y, start.x, start.y);
   } else if (end.x > start.x) {
     return line;
   } else if (end.y < start.y) {
-    return new Phaser.Line(end.x, end.y, start.x, start.y);
+    return new Phaser.Geom.Line(end.x, end.y, start.x, start.y);
   }
   return line;
 }
@@ -63,26 +65,26 @@ export function sortLine(line) {
 /**
  * @function getCrossProduct
  * @description Calculate the cross-product between a corner (3 points)
- * @param {Phaser.Point} point
- * @param {Phaser.Point} previous
- * @param {Phaser.Point} next
+ * @param {Phaser.Geom.Point} point
+ * @param {Phaser.Geom.Point} previous
+ * @param {Phaser.Geom.Point} next
  */
 export function getCrossProduct(point, previous, next) {
-  const vector1 = Phaser.Point.subtract(point, previous);
-  const vector2 = Phaser.Point.subtract(point, next);
+  const vector1 = new Phaser.Math.Vector2(point.x - previous.x, point.y - previous.y);
+  const vector2 = new Phaser.Math.Vector2(point.x - next.x, point.y - next.y);
   return vector1.cross(vector2);
 }
 
 /**
  * @method getDotProduct
  * @description Calculate the dot-product between a corner
- * @param {Phaser.Point} point
- * @param {Phaser.Point} previous
- * @param {Phaser.Point} next
+ * @param {Phaser.Geom.Point} point
+ * @param {Phaser.Geom.Point} previous
+ * @param {Phaser.Geom.Point} next
  */
 export function getDotProduct(point, previous, next) {
-  const normal1 = Phaser.Point.subtract(previous, point).normalize();
-  const normal2 = Phaser.Point.subtract(next, point).normalize();
+  const normal1 = new Phaser.Math.Vector2(previous.x - point.x, previous.y - point.y).normalize();
+  const normal2 = new Phaser.Math.Vector2(next.x - point.x, next.y - point.y).normalize();
   return normal1.dot(normal2);
 }
 
@@ -99,7 +101,7 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
   }
 
   const inflated = [ paths[0].clone() ];
-  const offsetPoint = new Phaser.Point();
+  const offsetPoint = new Phaser.Math.Vector2();
   let i = 0;
   let nextCurrent;
   let previous;
@@ -123,7 +125,7 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
       continue;
     }
 
-    nextCurrent = new Phaser.Line(current.x, current.y, next.x, next.y);
+    nextCurrent = new Phaser.Geom.Line(current.x, current.y, next.x, next.y);
 
     cross = getCrossProduct(current, previous, next);
     dot = getDotProduct(current, previous, next);
@@ -164,8 +166,12 @@ export function optimiseEdges(edges) {
       continue;
     }
 
-    const area = triarea2(line1.start, line1.end, line2.end);
-    line = new Phaser.Line(line1.start.x, line1.start.y, line2.end.x, line2.end.y);
+    const line1Start = line1.getPointA();
+    const line1End = line1.getPointB();
+    const line2Start = line2.getPointA();
+    const line2End = line2.getPointB();
+    const area = triarea2(line1Start, line1End, line2End);
+    line = new Phaser.Geom.Line(line1Start.x, line1Start.y, line2End.x, line2End.y);
     if (!area) {
       edges.splice(i, 2, line);
       i--; // start again
@@ -177,7 +183,7 @@ export function optimiseEdges(edges) {
 
 /**
  * @method offsetPolygon
- * @param {Phaser.Point[]} points
+ * @param {Phaser.Geom.Point[]} points
  * @param {Boolean} invert
  * @param {Cluster[]} clusters
  */
@@ -185,7 +191,7 @@ export function offsetPolygon(points = [], invert, clusters = []) {
   const { width, height } = Config.mapDimensions;
   const offsetBy = Config.get('offsetHullsBy') * (invert ? -1 : 1);
   const pointsLength = points.length;
-  const offsetPoint = new Phaser.Point();
+  const offsetPoint = new Phaser.Math.Vector2();
   let i = 0;
   let current;
   let previous;
@@ -201,7 +207,7 @@ export function offsetPolygon(points = [], invert, clusters = []) {
     previous = points[i === 0 ? pointsLength - 1 : i - 1];
     current = points[i];
     next = points[i === pointsLength - 1 ? 0 : i + 1];
-    nextCurrent = new Phaser.Line(current.x, current.y, next.x, next.y);
+    nextCurrent = new Phaser.Geom.Line(current.x, current.y, next.x, next.y);
     area = triarea2(previous, current, next);
 
     dot = getDotProduct(current, previous, next);
@@ -213,7 +219,11 @@ export function offsetPolygon(points = [], invert, clusters = []) {
       continue;
     }
 
-    const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
+    const rotated = Phaser.Geom.Line.RotateAroundPoint( Phaser.Geom.Line.Clone(nextCurrent), current, (angle / 2))
+    const length = Phaser.Geom.Line.Length(rotated);
+    const start = rotated.getPointA();
+    const end = rotated.getPointB();
+    
 
     if (area < 0) {
       offsetPoint.x = start.x + (end.x - start.x) / length * offsetBy;
@@ -225,7 +235,7 @@ export function offsetPolygon(points = [], invert, clusters = []) {
 
     // Only update the edge point IF the new offset does NOT overlap with any sibling cluster
     if (!clusters.find(cluster => cluster.polygon.contains(offsetPoint.x, offsetPoint.y))) {
-      current.copyFrom(offsetPoint);
+      current.copy(offsetPoint);
     }
   }
 
@@ -255,8 +265,8 @@ export function offsetEdges(edges = [], invert = false, clusters = []) {
   };
 
   for (i; i < length; i++) {
-    addPoint(edges[i].start);
-    addPoint(edges[i].end);
+    addPoint(edges[i].getPointA());
+    addPoint(edges[i].getPointB());
   }
 
   offsetPoints = offsetPolygon(allPoints, invert, clusters);

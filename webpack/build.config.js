@@ -16,7 +16,7 @@ module.exports = Object.assign({}, defaultConfig, {
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
-  externals: ['phaser-ce'],
+  externals: ['phaser'],
   optimization: {
     minimizer: [
       new TerserPlugin({

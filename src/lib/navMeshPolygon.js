@@ -1,15 +1,16 @@
-import uuid from 'uuid';
+import {v4} from 'uuid';
 import { angleDifference } from './utils';
+const getAngle = (a, b) => Phaser.Math.Angle.BetweenPoints(a, b);
 
-export default class NavMeshPolygon extends Phaser.Polygon {
+export default class NavMeshPolygon extends Phaser.Geom.Polygon {
   constructor(points = []) {
     super(points);
 
-    this.centroid = Phaser.Point.centroid(this.points);
+    this.centroid = Phaser.Geom.Point.GetCentroid(this.points);
     this.edges = [];
     this.neighbors = [];
     this.portals = [];
-    this.uuid = uuid();
+    this.uuid = v4();
     this.initialiseEdges();
     this.initialiseRadius();
   }
@@ -25,23 +26,24 @@ export default class NavMeshPolygon extends Phaser.Polygon {
    * @method addPortalFromEdge
    * @description build a portal from an edge
    * @param {Phaser.Line} edge
-   * @param {Phaser.Point} point1
-   * @param {Phaser.Point} point2
+   * @param {Phaser.Geom.Point} point1
+   * @param {Phaser.Geom.Point} point2
    */
   addPortalFromEdge(edge, point1, point2) {
     const { centroid, portals } = this;
-    const edgeStartAngle = centroid.angle(edge.start);
 
-    const angleToStart = centroid.angle(point1);
-    const angleToEnd = centroid.angle(point2);
+    const edgeStartAngle = getAngle(centroid, edge.getPointA());
+
+    const angleToStart = getAngle(centroid, point1);
+    const angleToEnd = getAngle(centroid, point2);
 
     const d1 = angleDifference(edgeStartAngle, angleToStart);
     const d2 = angleDifference(edgeStartAngle, angleToEnd);
 
     if (d1 > d2) {
-      portals.push(new Phaser.Line(point1.x, point1.y, point2.x, point2.y));
+      portals.push(new Phaser.Geom.Line(point1.x, point1.y, point2.x, point2.y));
     } else {
-      portals.push(new Phaser.Line(point2.x, point2.y, point1.x, point1.y));
+      portals.push(new Phaser.Geom.Line(point2.x, point2.y, point1.x, point1.y));
     }
   }
 
@@ -51,7 +53,7 @@ export default class NavMeshPolygon extends Phaser.Polygon {
    * @return {Number}
    */
   distanceTo(polygon) {
-    return this.centroid.distance(polygon.centroid);
+    return Phaser.Math.Distance.BetweenPoints(this.centroid, polygon.centroid);
   }
 
   /**
@@ -69,7 +71,7 @@ export default class NavMeshPolygon extends Phaser.Polygon {
 
       for (j; j < length; j++) {
         if (i !== j) {
-          this.edges.push(new Phaser.Line(points[i].x, points[i].y, points[j].x, points[j].y));
+          this.edges.push(new Phaser.Geom.Line(points[i].x, points[i].y, points[j].x, points[j].y));
         }
       }
     }
@@ -88,7 +90,7 @@ export default class NavMeshPolygon extends Phaser.Polygon {
 
     for (i; i < length; i++) {
       point = points[i];
-      d = centroid.distance(point);
+      d = Phaser.Math.Distance.BetweenPoints(centroid, point);
       if (d > boundingRadius) {
         boundingRadius = d;
       }

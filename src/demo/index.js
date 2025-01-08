@@ -1,20 +1,19 @@
-import 'pixi';
-import 'p2';
-import 'phaser';
-
-import { Game } from 'phaser-ce';
+import {Game} from 'phaser';
 import DemoState from './demoState';
+import NavMeshPlugin from '../lib/navMeshPlugin';
 
 const config = {
   width: 800,
   height: 600,
-  renderer: Phaser.AUTO,
-  parent: '',
-  transparent: false,
-  antialias: true,
-  physicsConfig: { arcade: true }
+  physicsConfig: { arcade: true },
+  plugins: {
+    scene: [
+        { key: 'NavMeshPlugin', plugin: NavMeshPlugin, mapping: 'navMeshPlugin' }
+    ]
+},
+  scene: [
+    DemoState
+  ],
 };
 
 const game = new Game(config);
-game.state.add('demo', DemoState);
-game.state.start('demo');

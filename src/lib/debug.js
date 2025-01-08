@@ -44,7 +44,7 @@ class Debug {
 
   /**
    * @method getWorldXY
-   * @param {Phaser.Point|Object} point
+   * @param {Phaser.Geom.Point|Object} point
    */
   getWorldXY(point) {
     const { width, height } = this.tileDimensions;
@@ -124,23 +124,24 @@ class Debug {
    * @method initGraphics
    */
   initGraphics() {
-    const { game } = this;
-    if (!this.gfx) {
-      this.gfx = game.add.graphics(0, 0);
+    const { scene } = this;
+    console.log('this', this);
+    if (!this.gfx && !!scene) {
+      this.gfx = scene.add.graphics(0, 0);
     }
   }
 
   /**
    * @set
-   * @param {Phaser.Game} game
+   * @param {Phaser.Game} scene
    * @param {Phaser.TilemapLayer} tileLayer
    * @param {Object} options
    */
-  set(game, tileLayer, options = {}) {
-    this.game = game;
+  set(scene, tileLayer, options = {}) {
+    this.scene = scene;
     this.tileLayer = tileLayer;
     this.settings = Object.assign({}, defaultOptions, options);
-    if (game) {
+    if (scene) {
       this.initGraphics();
     }
 

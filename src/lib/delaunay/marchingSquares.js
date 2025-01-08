@@ -87,7 +87,7 @@ export default class MarchingSquares {
    */
   walkPerimeter() {
     const startPoint = this.getStartingPoint();
-    const currentPoint = new Phaser.Point();
+    const currentPoint = new Phaser.Math.Vector2();
     const contours = [];
     const lines = [];
     let clone;
@@ -97,9 +97,9 @@ export default class MarchingSquares {
       return null;
     }
 
-    currentPoint.copyFrom(startPoint);
-    const step = new Phaser.Point();
-    const previous = new Phaser.Point(); // Save the previous step...
+    currentPoint.copy(startPoint);
+    const step = new Phaser.Math.Vector2();
+    const previous = new Phaser.Math.Vector2(); // Save the previous step...
 
     let closed = false;
     while (!closed) {
@@ -149,12 +149,12 @@ export default class MarchingSquares {
 
       clone = currentPoint.clone();
       contours.push(clone); // save contour
-      currentPoint.add(step.x, step.y);
+      currentPoint.add(step);
 
       // Create a line from the current point & next one along...
-      lines.push(new Phaser.Line(clone.x, clone.y, currentPoint.x, currentPoint.y));
+      lines.push(new Phaser.Geom.Line(clone.x, clone.y, currentPoint.x, currentPoint.y));
 
-      previous.copyFrom(step);
+      previous.copy(step);
 
 
       // If we return to first point, loop is done.

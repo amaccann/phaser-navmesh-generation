@@ -15,8 +15,8 @@ export default class AStar {
   /**
    * @method search
    * @description Taken from http://jceipek.com/Olin-Coding-Tutorials/pathing.html
-   * @param {Phaser.Point} start
-   * @param {Phaser.Point} end
+   * @param {Phaser.Geom.Point} start
+   * @param {Phaser.Geom.Point} end
    * @returns {NavMeshPolygon[]|Boolean}
    */
   search(start, end) {

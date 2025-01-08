@@ -25,7 +25,7 @@ export default class DelaunayCluster {
   /**
    * @method addPoint
    * @description Adds new vertex point to Array. Returns index of newly pushed point, or existin
-   * @param {Phaser.Point} point
+   * @param {Phaser.Geom.Point} point
    * @return {Number}
    */
   addPoint(point) {
@@ -56,10 +56,12 @@ export default class DelaunayCluster {
     let delaunay;
 
     const addEdgeToPoints = edge => {
-      startIndex = this.addPoint(edge.start);
-      endIndex = this.addPoint(edge.end);
+      const start = edge.getPointA();
+      const end = edge.getPointB();
+      startIndex = this.addPoint(start);
+      endIndex = this.addPoint(end);
       if (Config.get('useMidPoint')) {
-        midPointIndex = this.addPoint(edge.midPoint());
+        midPointIndex = this.addPoint(Phaser.Geom.Line.GetMidPoint(edge));
       }
     };
 
