@@ -7,7 +7,6 @@ const types = [
 
 const DEBUG_DIAMETER = 5;
 const DEBUG_COLOUR_YELLOW = 0xffff00;
-const DEBUG_COLOUR_RED = 0xC83E30;
 
 const defaultOptions = {};
 types.forEach(type => defaultOptions[type] = false);
@@ -82,7 +81,7 @@ class Debug {
      */
     if (settings.navMesh) {
       gfx.lineStyle(1, 0xffffff, 1);
-      polygons.forEach(({centroid, points, uuid}) => {
+      polygons.forEach(({points}) => {
       //  const text = this.scene.add.text(centroid.x, centroid.y, uuid,  { fontFamily: 'Arial', fontSize: 16 });
       //  text.setOrigin(0.5);
         gfx.strokePoints(points);
@@ -102,7 +101,7 @@ class Debug {
           gfx.moveTo(poly.centroid.x, poly.centroid.y);
           gfx.lineTo(neighbour.centroid.x, neighbour.centroid.y);
           gfx.closePath();
-        gfx.strokePath();
+          gfx.strokePath();
         });
 
         gfx.fillStyle(0xffff00);

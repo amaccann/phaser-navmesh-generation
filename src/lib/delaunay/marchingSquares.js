@@ -156,7 +156,6 @@ export default class MarchingSquares {
 
       previous.copy(step);
 
-
       // If we return to first point, loop is done.
       if (currentPoint.equals(startPoint)) {
         closed = true;

@@ -1,7 +1,5 @@
-import Physics, { Sprite } from 'phaser';
-
 const SPEED = 125;
-const ANCHOR = 0.5;
+
 const NINETY_DEGREES_IN_RADIANS = 1.5708;
 const DEFAULT_PATH = {
   offsetPath: [],
@@ -22,8 +20,8 @@ export default class DemoSprite extends Phaser.GameObjects.Sprite {
     this.path = DEFAULT_PATH;
     // this.anchor.setTo(ANCHOR, ANCHOR);
     scene.physics.add.existing(this, 0);
+    
     scene.children.bringToTop(this);
-    console.log('this', this)
     group.add(this);
 
   }
@@ -39,7 +37,7 @@ export default class DemoSprite extends Phaser.GameObjects.Sprite {
    * @method update
    */
   update() {
-    const { game, path, position, scene, tileLayer } = this;
+    const { path, scene } = this;
     const offsetPath = path.offsetPath || [];
 
     if (!offsetPath.length) {

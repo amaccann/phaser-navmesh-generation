@@ -26,7 +26,6 @@ export default class DelaunayGenerator {
     let polygon;
     let otherPolygon;
 
-
     for (i; i < polyLength; i++) {
       polygon = polygons[i];
 

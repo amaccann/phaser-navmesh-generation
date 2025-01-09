@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 
 import AStar from './astar/aStar';
 import Debug from './debug';

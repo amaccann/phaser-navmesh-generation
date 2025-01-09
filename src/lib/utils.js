@@ -9,7 +9,6 @@ export function areLinesEqual(line1, line2) {
   const line1End = line1.getPointB();
   const line2Start = line2.getPointA();
   const line2End = line2.getPointB();
-  
 
   const startEqual = Phaser.Geom.Point.Equals(line1Start, line2Start) || Phaser.Geom.Point.Equals(line1Start, line2End);
   const endEqual = Phaser.Geom.Point.Equals(line1End, line2Start) || Phaser.Geom.Point.Equals(line1End, line2End);
@@ -100,7 +99,6 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
   if (!length) {
     return [];
   }
-  console.log('paths', paths);
 
   const inflated = [ new Phaser.Math.Vector2(paths[0].x, paths[0].y) ];
   const offsetPoint = new Phaser.Math.Vector2();
@@ -143,7 +141,6 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
     offsetPoint.x = start.x + (start.x - end.x) / length * inflateBy;
     offsetPoint.y = start.y + (start.y - end.y) / length * inflateBy;
 
-    console.log('offsetPoint', offsetPoint);
     inflated.push(new Phaser.Math.Vector2(offsetPoint.x, offsetPoint.y))
   }
 
@@ -174,7 +171,6 @@ export function optimiseEdges(edges) {
 
     const line1Start = line1.getPointA();
     const line1End = line1.getPointB();
-    const line2Start = line2.getPointA();
     const line2End = line2.getPointB();
     const area = triarea2(line1Start, line1End, line2End);
     line = new Phaser.Geom.Line(line1Start.x, line1Start.y, line2End.x, line2End.y);
@@ -229,7 +225,6 @@ export function offsetPolygon(points = [], invert, clusters = []) {
     const length = Phaser.Geom.Line.Length(rotated);
     const start = rotated.getPointA();
     const end = rotated.getPointB();
-    
 
     if (area < 0) {
       offsetPoint.x = start.x + (end.x - start.x) / length * offsetBy;

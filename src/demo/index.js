@@ -9,16 +9,17 @@ const config = {
     arcade: {
       // gravity: { y: 200 },
       debug: true
-  }
-   },
+    }
+  },
   plugins: {
     scene: [
-        { key: 'NavMeshPlugin', plugin: NavMeshPlugin, mapping: 'navMeshPlugin' }
+      { key: 'NavMeshPlugin', plugin: NavMeshPlugin, mapping: 'navMeshPlugin' }
     ]
-},
+  },
   scene: [
     DemoState
   ],
 };
 
 const game = new Game(config);
+console.warn('game', game);
