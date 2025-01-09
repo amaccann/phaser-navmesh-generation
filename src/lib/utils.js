@@ -3,6 +3,20 @@ import Config from './config';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
 
+export function areLinesEqual(line1, line2) {
+  // return Phaser.Geom.Line.Equals(line1, line2);
+  const line1Start = line1.getPointA();
+  const line1End = line1.getPointB();
+  const line2Start = line2.getPointA();
+  const line2End = line2.getPointB();
+  
+
+  const startEqual = Phaser.Geom.Point.Equals(line1Start, line2Start) || Phaser.Geom.Point.Equals(line1Start, line2End);
+  const endEqual = Phaser.Geom.Point.Equals(line1End, line2Start) || Phaser.Geom.Point.Equals(line1End, line2End);
+
+  return startEqual && endEqual;
+}
+
 export function getRandomColour() {
   return Phaser.Color.HSLtoRGB(Math.random(), 1, 0.5).color;
 }
