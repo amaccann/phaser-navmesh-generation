@@ -3,19 +3,6 @@ import Config from './config';
 
 const THREE_SIXTY_DEGREES = Math.PI * 2;
 
-export function areLinesEqual(line1, line2) {
-  const line1Start = line1.getPointA();
-  const line1End = line1.getPointB();
-  const line2Start = line2.getPointA();
-  const line2End = line2.getPointB;
-  
-
-  const startEqual = Phaser.Geom.Line.Equals(line1Start, line2Start) || Phaser.Geom.Line.Equals(line1Start, line2End);
-  const endEqual = line1Start.equals(line1End, line2Start) || line1End.equals(line1End, line2End);
-
-  return startEqual && endEqual;
-}
-
 export function getRandomColour() {
   return Phaser.Color.HSLtoRGB(Math.random(), 1, 0.5).color;
 }
@@ -99,8 +86,9 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
   if (!length) {
     return [];
   }
+  console.log('paths', paths);
 
-  const inflated = [ paths[0].clone() ];
+  const inflated = [ new Phaser.Math.Vector2(paths[0].x, paths[0].y) ];
   const offsetPoint = new Phaser.Math.Vector2();
   let i = 0;
   let nextCurrent;
@@ -121,7 +109,7 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
     if (!previous || !next) {
       continue;
     } else if (current.isNarrow) { // If this was evaluated as too narrow for funneling, just add it & move on.
-      inflated.push(current.clone());
+      inflated.push(new Phaser.Math.Vector2(current.x, current.y));
       continue;
     }
 
@@ -134,15 +122,19 @@ export function offsetFunnelPath(paths = [], inflateBy = 0) {
 
     // Rotate the line segment between current & next points by half the vertex angle; then extend this segment
     // See: https://stackoverflow.com/questions/8292508/algorithm-for-extending-a-line-segment
-    const { start, end, length } = nextCurrent.clone().rotateAround(current.x, current.y, (angle / 2));
+    const rotated = Phaser.Geom.Line.RotateAroundPoint(Phaser.Geom.Line.Clone(nextCurrent), current, angle / 2);
+    const start = rotated.getPointA();
+    const end = rotated.getPointB();
+    const length = Phaser.Geom.Line.Length(rotated);
     offsetPoint.x = start.x + (start.x - end.x) / length * inflateBy;
     offsetPoint.y = start.y + (start.y - end.y) / length * inflateBy;
 
-    inflated.push(offsetPoint.clone());
+    console.log('offsetPoint', offsetPoint);
+    inflated.push(new Phaser.Math.Vector2(offsetPoint.x, offsetPoint.y))
   }
 
   // Add the last point, without inflating it
-  inflated.push(paths[length - 1].clone());
+  inflated.push(new Phaser.Math.Vector2(paths[length - 1]));
 
   return inflated;
 }

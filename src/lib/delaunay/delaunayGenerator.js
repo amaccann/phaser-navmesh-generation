@@ -1,6 +1,6 @@
 import Hulls from './hulls';
 import NavMeshPolygon from '../navMeshPolygon';
-import {areLinesEqual, offsetEdges, sortLine} from '../utils';
+import {offsetEdges, sortLine} from '../utils';
 import DelaunayCluster from './delaunayCluster';
 import Config from '../config';
 
@@ -26,6 +26,7 @@ export default class DelaunayGenerator {
     let polygon;
     let otherPolygon;
 
+
     for (i; i < polyLength; i++) {
       polygon = polygons[i];
 
@@ -35,7 +36,7 @@ export default class DelaunayGenerator {
         for (const edge of polygon.edges) {
           for (const otherEdge of otherPolygon.edges) {
 
-            if (!areLinesEqual(edge, otherEdge)) {
+            if (!Phaser.Geom.Line.Equals(edge, otherEdge)) {
               continue;
             }
 

@@ -1,5 +1,6 @@
 import {v4} from 'uuid';
 import { angleDifference } from './utils';
+
 const getAngle = (a, b) => Phaser.Math.Angle.BetweenPoints(a, b);
 
 export default class NavMeshPolygon extends Phaser.Geom.Polygon {
@@ -53,7 +54,8 @@ export default class NavMeshPolygon extends Phaser.Geom.Polygon {
    * @return {Number}
    */
   distanceTo(polygon) {
-    return Phaser.Math.Distance.BetweenPoints(this.centroid, polygon.centroid);
+    const distance = Phaser.Math.Distance.BetweenPoints(this.centroid, polygon.centroid);
+    return distance;
   }
 
   /**
