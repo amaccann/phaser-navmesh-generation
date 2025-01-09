@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 import DemoSprite from './demoSprite';
 
 const COLLISION_INDICES = [0, 1, 2];
