@@ -24,21 +24,27 @@ export default class DelaunayCluster {
 
   /**
    * @method addPoint
-   * @description Adds new vertex point to Array. Returns index of newly pushed point, or existin
+   * @description Adds new vertex point to Array. Returns index of newly pushed point, or existing.
+   *              (Note that we must take into account any Offset involved in the TilemapLayer)
    * @param {Phaser.Geom.Point} point
    * @return {Number}
    */
   addPoint(point) {
+    const {tileLayer} = Config;
+    const {layer, x: offsetX, y: offsetY} = tileLayer;
+    const {tileHeight, tileWidth} = layer || {};
     const { x, y } = point;
-    const { tileWidth, tileHeight } = Config.mapDimensions;
     const { points } = this;
 
-    const index = points.findIndex(p => p[0] === x * tileWidth && p[1] === y * tileHeight);
+    const worldX = (x * tileWidth) + offsetX;
+    const worldY = (y * tileHeight) + offsetY;
+
+    const index = points.findIndex(p => p[0] === worldX && p[1] === worldY);
     if (index !== -1) {
       return index;
     }
 
-    points.push([ x * tileWidth, y * tileHeight ]);
+    points.push([ worldX, worldY ]);
     return points.length - 1;
   }
 
