@@ -58,15 +58,12 @@ class Debug {
    * @method drawDelaunay
    */
   drawDelaunay(delaunay) {
-    console.log('this', this.gfx);
-    console.log('del', delaunay);
     const { gfx, settings } = this;
     const { polygons } = delaunay;
     const { allEdges } = delaunay.hulls;
     gfx.clear();
 
     function drawEdge(edge) {
-      console.log('edge', edge);
       gfx.lineStyle(2, DEBUG_COLOUR_YELLOW);
       gfx.moveTo(edge.x1, edge.y1);
       gfx.lineTo(edge.x2, edge.y2);

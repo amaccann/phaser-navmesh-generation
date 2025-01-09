@@ -7,8 +7,8 @@ export default class Portal {
   constructor(left, right) {
     this.left = left;
     this.right = right;
-    this.midPoint = Phaser.Geom.Point.centroid([ left, right ]);
-    this.length = Phaser.Geom.Point.distance(left, right);
+    this.midPoint = Phaser.Geom.Point.GetCentroid([ left, right ]);
+    this.length = Phaser.Geom.Line.Length(left, right);
   }
 
   /**

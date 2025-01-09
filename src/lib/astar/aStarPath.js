@@ -1,4 +1,3 @@
-import { areLinesEqual } from '../utils';
 import Funnel from './funnel';
 import Config from '../config';
 import {v4} from 'uuid';
@@ -56,7 +55,7 @@ export default class AStarPath {
       }
 
       // Find the matching Line segment in the next node along the path.
-      portal = node.portals.find(portal => nextNode.portals.find(p => areLinesEqual(p, portal)));
+      portal = node.portals.find(portal => nextNode.portals.find(p => Phaser.Geom.Line.Equals(p, portal)));
       if (portal) {
         this.portals.push(portal);
       }
@@ -77,7 +76,7 @@ export default class AStarPath {
     this.funnel.add(startPoint);
 
     for (i; i < length; i++) {
-      this.funnel.add(portals[i].start, portals[i].end);
+      this.funnel.add(portals[i].getPointA(), portals[i].getPointB());
     }
 
     this.funnel.add(endPoint);

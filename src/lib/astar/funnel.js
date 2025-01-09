@@ -32,7 +32,7 @@ export default class Funnel {
    */
   addPointToPath(portal, isNarrow = false) {
     const { path } = this;
-    const exists = path.find(p => p.equals(portal));
+    const exists = path.find(p => Phaser.Geom.Point.Equals(p, portal));
     if (!exists) {
       path.push(new FunnelPoint(portal.x, portal.y, isNarrow));
     }
@@ -89,7 +89,7 @@ export default class Funnel {
 
       // Update right vertex.
       if (triarea2(apex, portalRight, right) <= 0.0) {
-        if (apex.equals(portalRight) || triarea2(apex, portalLeft, right) > 0.0) {
+        if (Phaser.Geom.Point.Equals(apex, portalRight) || triarea2(apex, portalLeft, right) > 0.0) {
           portalRight = right; // Tighten the funnel
           rightIndex = i;
         } else { // Vertices crossed over, left so now be part of path
@@ -99,7 +99,7 @@ export default class Funnel {
       }
 
       if (triarea2(apex, portalLeft, left) >= 0.0) {
-        if (apex.equals(portalLeft) || triarea2(apex, portalRight, left) < 0.0) {
+        if (Phaser.Geom.Point.Equals(apex, portalLeft) || triarea2(apex, portalRight, left) < 0.0) {
           portalLeft = left; // Tighten the funnel.
           leftIndex = i;
         } else { // left crossed right, so right vertex now part of the path
@@ -109,7 +109,7 @@ export default class Funnel {
       }
     }
 
-    if (!path.length || (!path[path.length - 1].equals(portals[portalsLength - 1].left))) {
+    if (!path.length || (! Phaser.Geom.Point.Equals(path[path.length - 1], portals[portalsLength - 1].left))) {
       this.addPointToPath(portals[portals.length - 1].left);
     }
   }
