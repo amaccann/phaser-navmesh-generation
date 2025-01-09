@@ -1,13 +1,14 @@
 {
   "name": "phaser-navmesh-generation",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "main": "dist/navmesh-plugin.js",
   "keywords": [],
   "repository": "git@github.com:amaccann/phaser-navmesh-generation.git",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --config webpack/build.config.js",
+    "build": "yarn lint && webpack --config webpack/build.config.js",
     "deploy": "yarn build && yarn publish",
+    "lint": "eslint",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open --config webpack/dev.config.js"
   },
