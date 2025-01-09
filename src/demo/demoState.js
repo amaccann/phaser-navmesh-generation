@@ -36,7 +36,7 @@ export default class DemoState extends Phaser.Scene {
 
     // game.input.addMoveCallback(this.updateMarker, this);
     // game.input.on(this.onUp, this);
-    this.input.on('pointerup', this.onUp, this)
+    this.input.on('pointerdown', this.onMouseUp, this)
     this.input.mouse.disableContextMenu()
 
     const cursors = this.input.keyboard.createCursorKeys();
@@ -56,12 +56,12 @@ export default class DemoState extends Phaser.Scene {
     // this.spriteUUIDs = [];
     // game.input.keyboard.addKey(Keyboard.P).onDown.add(() => game.paused = !game.paused, this);
     // game.input.keyboard.addKey(Keyboard.SPACEBAR).onDown.add(() => game.paused = !game.paused, this);
-    // game.input.keyboard.addKey(Keyboard.S).onDown.add(() => this.isSpriteStamp = !this.isSpriteStamp);
+    // this.input.keyboard.addKey(Keyboard.S).onDown.add(() => this.isSpriteStamp = !this.isSpriteStamp);
     // game.input.keyboard.addKey(Keyboard.K).onDown.add(() => this.removeSprite());
 
     this.spriteGroup = new Phaser.GameObjects.Group(this);
 
-    const sprite = new DemoSprite(this, 200, 500, this.spriteGroup);
+    this.sprite = new DemoSprite(this, 200, 500, this.spriteGroup);
   }
 
   /**
@@ -119,45 +119,39 @@ export default class DemoState extends Phaser.Scene {
    * @method onUp
    * @param {Phaser.Pointer} pointer
    */
-  onUp(pointer) {
-    const { navMesh, spriteGroup } = this;
+  onMouseUp(pointer) {
     const isRightButton = pointer.button === 2;
     const isLeftButton = pointer.button === 0;
     const { worldX, worldY } = pointer;
-    const paths = [];
 
     switch (true) {
       case isLeftButton:
-        this.updateMarker(pointer);
-        return console.log('hi there');
+        return this.updateMarker(pointer);
         case isRightButton:
-          return console.log('right');
+          return this.getNavMeshPath(new Phaser.Geom.Point(worldX, worldY));
       default:
         return null;
     }
-
-    if (!isRightButton || !navMesh) {
-      return;
-    }
-
-    const destination = new Point(worldX, worldY);
-    console.log('destination', destination);
-    spriteGroup.forEachAlive(sprite => {
+  }
+  
+  getNavMeshPath (destination) {
+    const sprites = this.spriteGroup.getChildren() || [];
+    sprites.forEach(sprite => {
       const { position, width, height } = sprite;
       const size = Math.max(width, height);
-      const path = navMesh.getPath(position, destination, size);
+      const path = this.navMesh.getPath(sprite, destination, size);
 
       // If no path found, do nothing with the sprite
       if (!path) {
         return sprite.addPath([]);
       }
 
-      paths.push(path);
-      sprite.addPath(path);
+      // paths.push(path);
+      this.sprite.addPath(path);
+      this.renderPaths([path])
     }, this);
+  };
 
-    this.renderPaths(paths);
-  }
 
   /**
    * @method buildNavMesh
@@ -172,7 +166,7 @@ export default class DemoState extends Phaser.Scene {
       debug: {
         hulls: false,
         navMesh: true,
-        navMeshNodes: false,
+        navMeshNodes: true,
         polygonBounds: false,
         aStarPath: false
       }
@@ -188,44 +182,52 @@ export default class DemoState extends Phaser.Scene {
    * @method renderPaths
    */
   renderPaths(paths = []) {
-    const { game } = this;
     if (!PATH_GRAPHICS) {
-      PATH_GRAPHICS = game.add.graphics(0, 0);
+      PATH_GRAPHICS = this.add.graphics(0, 0);
     } else {
       PATH_GRAPHICS.clear();
     }
 
-    paths.forEach(p => {
-      const { path, offsetPath } = p;
+    paths.forEach(data => {
+      console.log('data', data);
+      const { path, offsetPath } = data;
       const [pathStart, ...otherPathPoints] = path;
       const [offsetStart, ...otherOffsetPoints] = offsetPath;
+      const [polygonStart, ...polygons] = data.polygons || [];
 
       function renderPoint(point) {
         PATH_GRAPHICS.lineTo(point.x, point.y);
 
-        PATH_GRAPHICS.beginFill(0xff0000);
-        PATH_GRAPHICS.drawCircle(point.x, point.y, 10);
-        PATH_GRAPHICS.endFill();
+        PATH_GRAPHICS.fillStyle(0xff0000);
+        PATH_GRAPHICS.fillCircle(point.x, point.y, 10);
         PATH_GRAPHICS.moveTo(point.x, point.y);
       }
 
       // Render the PATHS
-      PATH_GRAPHICS.beginFill(0xff0000);
-      PATH_GRAPHICS.drawCircle(pathStart.x, pathStart.y, 10);
-      PATH_GRAPHICS.endFill();
+      PATH_GRAPHICS.fillStyle(0xff0000);
+      PATH_GRAPHICS.fillCircle(pathStart.x, pathStart.y, 10);
       PATH_GRAPHICS.moveTo(pathStart.x, pathStart.y);
 
       PATH_GRAPHICS.lineStyle(2, 0x6666ff, 1);
       otherPathPoints.forEach(renderPoint);
 
       // Render the OFFSET PATHS
-      PATH_GRAPHICS.beginFill(0x00f000);
-      PATH_GRAPHICS.drawCircle(offsetStart.x, offsetStart.y, 10);
-      PATH_GRAPHICS.endFill();
+      PATH_GRAPHICS.fillStyle(0x00f000);
+      PATH_GRAPHICS.fillCircle(offsetStart.x, offsetStart.y, 10);
       PATH_GRAPHICS.moveTo(offsetStart.x, offsetStart.y);
 
       PATH_GRAPHICS.lineStyle(2, 0x33ff33, 1);
       otherOffsetPoints.forEach(renderPoint);
+
+      if (data?.polygons?.length) {
+        PATH_GRAPHICS.fillStyle(0x3333ff, 0.25);
+      PATH_GRAPHICS.fillPoints(polygonStart?.points);
+
+      PATH_GRAPHICS.fillStyle(0xff3333, 0.25);
+      polygons.forEach((poly) => {
+        PATH_GRAPHICS.fillPoints(poly.points);
+      })
+      }
     });
   }
 
@@ -234,6 +236,7 @@ export default class DemoState extends Phaser.Scene {
    */
   update(time, delta) {
     this.controls.update(delta);
+    this.sprite.update();
     // this.spriteGroup.update();
   }
 

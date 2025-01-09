@@ -21,9 +21,11 @@ export default class DemoSprite extends Phaser.GameObjects.Sprite {
     scene.add.existing(this);
     this.path = DEFAULT_PATH;
     // this.anchor.setTo(ANCHOR, ANCHOR);
-    // game.physics.enable(this, Physics.ARCADE);
-    // game.world.bringToTop(this);
+    scene.physics.add.existing(this, 0);
+    scene.children.bringToTop(this);
+    console.log('this', this)
     group.add(this);
+
   }
 
   /**
@@ -37,23 +39,22 @@ export default class DemoSprite extends Phaser.GameObjects.Sprite {
    * @method update
    */
   update() {
-    // const { game, path, position, tileLayer } = this;
-    // const { arcade } = game.physics;
-    // const offsetPath = path.offsetPath || [];
+    const { game, path, position, scene, tileLayer } = this;
+    const offsetPath = path.offsetPath || [];
 
-    // if (!offsetPath.length) {
-    //   return this.body.stop();
-    // }
+    if (!offsetPath.length) {
+      return this.body.stop();
+    }
 
-    // const [ current ] = offsetPath;
-    // if (position.distance(current) < 5) {
-    //   path.offsetPath = offsetPath.slice(1);
-    //   return;
-    // }
+    const [ current ] = offsetPath;
+    if (Phaser.Math.Distance.BetweenPoints(this, current) < 5) {
+      path.offsetPath = offsetPath.slice(1);
+      return;
+    }
 
-    // this.rotation = arcade.angleBetween(position, current) + NINETY_DEGREES_IN_RADIANS;
-    // arcade.moveToXY(this, current.x, current.y, SPEED);
+    this.rotation = Phaser.Math.Angle.BetweenPoints(this, current) + NINETY_DEGREES_IN_RADIANS// arcade.angleBetween(position, current) + NINETY_DEGREES_IN_RADIANS;
+    scene.physics.moveToObject(this, current, SPEED);
 
-    // game.physics.arcade.collide(this, tileLayer);
+    scene.physics.collide(this, scene.tileLayer);
   }
 }

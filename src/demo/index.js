@@ -5,7 +5,12 @@ import NavMeshPlugin from '../lib/navMeshPlugin';
 const config = {
   width: 1200,
   height: 900,
-  physicsConfig: { arcade: true },
+  physics: { default: 'arcade',
+    arcade: {
+      // gravity: { y: 200 },
+      debug: true
+  }
+   },
   plugins: {
     scene: [
         { key: 'NavMeshPlugin', plugin: NavMeshPlugin, mapping: 'navMeshPlugin' }

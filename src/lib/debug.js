@@ -5,7 +5,7 @@ const types = [
   'polygonBounds'
 ];
 
-const DEBUG_DIAMETER = 10;
+const DEBUG_DIAMETER = 5;
 const DEBUG_COLOUR_YELLOW = 0xffff00;
 const DEBUG_COLOUR_RED = 0xC83E30;
 
@@ -82,7 +82,11 @@ class Debug {
      */
     if (settings.navMesh) {
       gfx.lineStyle(1, 0xffffff, 1);
-      polygons.forEach(poly => gfx.strokePoints(poly.points));
+      polygons.forEach(({centroid, points, uuid}) => {
+      //  const text = this.scene.add.text(centroid.x, centroid.y, uuid,  { fontFamily: 'Arial', fontSize: 16 });
+      //  text.setOrigin(0.5);
+        gfx.strokePoints(points);
+      });
     }
 
     /**
@@ -91,16 +95,18 @@ class Debug {
     if (settings.navMeshNodes) {
       const lineWidth = 3;
 
-      gfx.lineStyle(lineWidth, 0x00b2ff, 0.5);
+      gfx.lineStyle(lineWidth, 0x00b2ff, 1);
       polygons.forEach((poly) => {
         poly.neighbors.forEach(neighbour => {
+          gfx.beginPath();
           gfx.moveTo(poly.centroid.x, poly.centroid.y);
           gfx.lineTo(neighbour.centroid.x, neighbour.centroid.y);
+          gfx.closePath();
+        gfx.strokePath();
         });
 
-        gfx.fillStyle(0xffffff, 0.1);
+        gfx.fillStyle(0xffff00);
         gfx.fillCircle(poly.centroid.x, poly.centroid.y, DEBUG_DIAMETER);
-        // gfx.endFill();
       });
     }
 
@@ -123,6 +129,8 @@ class Debug {
     const { scene } = this;
     if (!this.gfx && !!scene) {
       this.gfx = scene.add.graphics(0, 0);
+    } else {
+      this.gfx.clear();
     }
   }
 
