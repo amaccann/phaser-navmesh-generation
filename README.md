@@ -1,14 +1,10 @@
 # phaser-navmesh-generation
 
-### Warning: this plugin is still heavy Work in Progress (WIP). It's possibly not stable enough for use in a production product - use at your own risk (for now!) 
+### Warning: this plugin is still Work in Progress (WIP). It's possibly not stable enough for use in a production product - use at your own risk (for now!) 
 
-This Phaser plugin generates Navigation Meshes from supplied `Phaser.TilemapLayer` data and collison indices thereof. Contains configuration options
-
-#### Current version: `0.2.2`
+This Phaser `ScenePlugin` generates Navigation Mesh (navmesh) data from supplied `Phaser.TilemapLayer` data and collison indices thereof. Contains configuration options for fine-grain control
 
 ### Getting Started:
-
-#### ES6 / Node
 
 import it as you would any other module & include it as a `ScenePlugin` within your game's configuration object:
 
