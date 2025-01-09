@@ -55,6 +55,10 @@ class Config {
     return { width, height, tileWidth, tileHeight, widthInPixels, heightInPixels };
   }
 
+  get tileLayer() {
+    return this._c.tileLayer;
+  }
+
   /**
    * @method set
    * @param {Object} config

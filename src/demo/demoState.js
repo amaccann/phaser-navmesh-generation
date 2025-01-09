@@ -26,7 +26,7 @@ export default class DemoState extends Phaser.Scene {
     // Create blank tilemap
     this.tileMap = this.make.tilemap({key: 'map', tileWidth: TILE_SIZE, tileHeight: TILE_SIZE});
     this.tileSet = this.tileMap.addTilesetImage('ground_1x1');
-    this.tileLayer = this.tileMap.createBlankLayer('Layer1', this.tileSet, 0, 0, WIDTH_TILES, HEIGHT_TILES)
+    this.tileLayer = this.tileMap.createBlankLayer('Layer1', this.tileSet, 8, 8, WIDTH_TILES, HEIGHT_TILES)
     this.tileMap.setCollision(COLLISION_INDICES);
 
     this.drawAllGround();
