@@ -1,7 +1,5 @@
-import {Point} from 'phaser';
 import DemoSprite from './demoSprite';
 
-const SCROLL_CAMERA_BY = 10;
 const COLLISION_INDICES = [0, 1, 2];
 const WIDTH_TILES = 40;
 const HEIGHT_TILES = 30;
@@ -33,7 +31,6 @@ export default class DemoState extends Phaser.Scene {
     this.drawInitGrid();
     this.updateNavMesh();
 
-
     // game.input.addMoveCallback(this.updateMarker, this);
     // game.input.on(this.onUp, this);
     this.input.on('pointerdown', this.onMouseUp, this)
@@ -41,12 +38,12 @@ export default class DemoState extends Phaser.Scene {
 
     const cursors = this.input.keyboard.createCursorKeys();
     const controlConfig = {
-        camera: this.cameras.main,
-        left: cursors.left,
-        right: cursors.right,
-        up: cursors.up,
-        down: cursors.down,
-        speed: 0.5
+      camera: this.cameras.main,
+      left: cursors.left,
+      right: cursors.right,
+      up: cursors.up,
+      down: cursors.down,
+      speed: 0.5
     };
 
     this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
@@ -68,7 +65,7 @@ export default class DemoState extends Phaser.Scene {
    * @method drawAllGround
    */
   drawAllGround() {
-    const { tileLayer, tileMap } = this;
+    const { tileLayer} = this;
     const { width, height } = tileLayer;
     let y = 0;
     let x;
@@ -127,8 +124,8 @@ export default class DemoState extends Phaser.Scene {
     switch (true) {
       case isLeftButton:
         return this.updateMarker(pointer);
-        case isRightButton:
-          return this.getNavMeshPath(new Phaser.Geom.Point(worldX, worldY));
+      case isRightButton:
+        return this.getNavMeshPath(new Phaser.Geom.Point(worldX, worldY));
       default:
         return null;
     }
@@ -137,7 +134,7 @@ export default class DemoState extends Phaser.Scene {
   getNavMeshPath (destination) {
     const sprites = this.spriteGroup.getChildren() || [];
     sprites.forEach(sprite => {
-      const { position, width, height } = sprite;
+      const { width, height } = sprite;
       const size = Math.max(width, height);
       const path = this.navMesh.getPath(sprite, destination, size);
 
@@ -152,12 +149,11 @@ export default class DemoState extends Phaser.Scene {
     }, this);
   };
 
-
   /**
    * @method buildNavMesh
    */
   buildNavMesh() {
-    const { game, tileMap, tileLayer } = this;
+    const { tileMap, tileLayer } = this;
 
     this.navMesh = this.navMeshPlugin.buildFromTileLayer(tileMap, tileLayer, {
       collisionIndices: COLLISION_INDICES,
@@ -171,7 +167,6 @@ export default class DemoState extends Phaser.Scene {
         aStarPath: false
       }
     });
-    console.log('this.navMesh', this.navMesh);
 
     timeout = undefined;
 
@@ -189,7 +184,6 @@ export default class DemoState extends Phaser.Scene {
     }
 
     paths.forEach(data => {
-      console.log('data', data);
       const { path, offsetPath } = data;
       const [pathStart, ...otherPathPoints] = path;
       const [offsetStart, ...otherOffsetPoints] = offsetPath;
@@ -221,12 +215,12 @@ export default class DemoState extends Phaser.Scene {
 
       if (data?.polygons?.length) {
         PATH_GRAPHICS.fillStyle(0x3333ff, 0.25);
-      PATH_GRAPHICS.fillPoints(polygonStart?.points);
+        PATH_GRAPHICS.fillPoints(polygonStart?.points);
 
-      PATH_GRAPHICS.fillStyle(0xff3333, 0.25);
-      polygons.forEach((poly) => {
-        PATH_GRAPHICS.fillPoints(poly.points);
-      })
+        PATH_GRAPHICS.fillStyle(0xff3333, 0.25);
+        polygons.forEach((poly) => {
+          PATH_GRAPHICS.fillPoints(poly.points);
+        })
       }
     });
   }

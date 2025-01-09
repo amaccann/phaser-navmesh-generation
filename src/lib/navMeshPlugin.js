@@ -1,4 +1,4 @@
-import NavMesh, { defaultOptions } from './navMesh';
+import NavMesh from './navMesh';
 import Config from './config';
 import Debug from './debug';
 

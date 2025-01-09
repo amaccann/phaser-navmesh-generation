@@ -45,7 +45,6 @@ export default class Cluster extends MarchingSquares {
     let yy = y;
     let xx;
 
-
     for (yy; yy < yLength; yy++) {
       xx = x;
       for (xx; xx < xLength; xx++) {

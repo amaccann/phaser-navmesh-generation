@@ -3,3 +3,5 @@ public/*.bundle.js
 public/*.map
 .idea/
 node_modules/*
+*.code-workspace
+.vscode
