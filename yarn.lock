@@ -3040,23 +3040,6 @@ path-to-regexp@0.1.12:
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.12.tgz#d5e1a12e478a976d432ef3c58d534b9923164bb7"
   integrity sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==
 
-phaser-ce@^2.14.0:
-  version "2.20.1"
-  resolved "https://registry.yarnpkg.com/phaser-ce/-/phaser-ce-2.20.1.tgz#c3114951b8671faf3124271f7e55b0e9d59fb608"
-  integrity sha512-h4jIU52hMOmfppTtXehbUn2r2EF9n5j1rrNjDggaXQ3Pye4/rmWIR7rHhJ5Tga9xO6TbICua5qdY3OlJUfkzbA==
-
-phaser-plugin-advanced-timing@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/phaser-plugin-advanced-timing/-/phaser-plugin-advanced-timing-0.5.1.tgz#aceddf5251cabab4371e2ae5e0abe6bf8bf45b3a"
-  integrity sha512-g7qStQNJmATSnX68pbwin/TeKqoZpQf+oW66gaPdghH3P0PQwY4hp8E61IMTCpGV21mGx5DWiH/n1F4Gj73ptg==
-  dependencies:
-    phaser "^2.6.2"
-
-phaser@^2.6.2:
-  version "2.6.2"
-  resolved "https://registry.yarnpkg.com/phaser/-/phaser-2.6.2.tgz#eb39121725a2149c49f46b5d144318c22bc09249"
-  integrity sha512-BqXkeptSDPYI7lr4XP3O8sA+FSbZpr3v8OoCZsE4C2y+PKf+f2fi6kExg8toDDcVUVjcXmMNYm08kUJpWrXpig==
-
 phaser@^3.87.0:
   version "3.87.0"
   resolved "https://registry.yarnpkg.com/phaser/-/phaser-3.87.0.tgz#209f1673b311a3f76d59f14b785699709a8f9cf5"
