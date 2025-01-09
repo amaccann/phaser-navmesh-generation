@@ -10,36 +10,30 @@ This Phaser plugin generates Navigation Meshes from supplied `Phaser.TilemapLaye
 
 #### ES6 / Node
 
-import it as you would any other project:
+import it as you would any other module & include it as a `ScenePlugin` within your game's configuration object:
 
 ```
 import NavMeshPlugin from 'phaser-navmesh-generation';
-```
 
-#### Legacy 
-
-If you're doing it the old fashioned way, simply add `<script>` tag after your main Phaser tag:
-```
-<script src="my/path/to/phaser.js"></script>
-<script src="my/path/to/navmesh-plugin.js"></script>
-```
-
-Then in your game's JS code:
-
-```
-  preload() {
-    var plugin = this.game.plugins.add(NavMeshPlugin);
-  }
+const game = {
+  // ...
+  // other Game config values ...
+  // ...
+  plugins: {
+    scene: [
+      { key: 'NavMeshPlugin', plugin: NavMeshPlugin, mapping: 'navMeshPlugin' }
+    ]
+  },
 
 ```
 
 #### Usage:
 
-1. First, we need to generate a new navigation mesh using the following method (options are below)
+1. First, we need to generate a new navigation mesh based on the Tilemap / Tilelayer you want to use to calculate collision data from. Use the `mapping` value provided within your `Scene` to access the freshly injected plugin:
 
 
 ```
-var navMesh = plugin.buildFromTileLayer(tileMap, tileLayer, {
+var navMesh = this.navMeshPlugin.buildFromTileLayer(tileMap, tileLayer, {
   collisionIndices: [1, 2, 3],
   midPointThreshold: 0,
   useMidPoint: false,
